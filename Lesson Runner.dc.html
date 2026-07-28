@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; color: #0F172A; background: #F1F5F9; -webkit-font-smoothing: antialiased; }
+    button { font-family: inherit; border: none; background: none; cursor: pointer; color: inherit; }
+    input, textarea, select { font-family: inherit; }
+    @keyframes lrFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    @keyframes lrToast { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+  </style>
+</helmet>
+<div style="min-height: 100vh; background: #F1F5F9;">
+  <sc-if value="{{ showShell }}" hint-placeholder-val="{{ false }}"><div style="position: sticky; top: 0; z-index: 30; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); border-bottom: 1px solid #E2E8F0;">
+  <div style="max-width: 1240px; margin: 0 auto; padding: 0 32px; height: 68px; display: flex; align-items: center; gap: 20px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 38px; height: 38px; border-radius: 11px; background: #4F46E5; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(79,70,229,0.35);">
+        <span style="font-family: 'Material Symbols Rounded'; font-size: 22px; color: #fff;">play_lesson</span>
+      </div>
+      <div style="display: flex; flex-direction: column; line-height: 1.15;">
+        <span style="font-size: 16px; font-weight: 800; letter-spacing: -0.01em;">Lesson Runner</span>
+        <span style="font-size: 11px; font-weight: 600; color: #94A3B8; letter-spacing: 0.04em; text-transform: uppercase;">Szkoła programowania</span>
+      </div>
+    </div>
+
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; align-items: center; gap: 6px; margin-left: 24px; background: #F1F5F9; padding: 5px; border-radius: 12px;">
+        <button onClick="{{ goLibrary }}" style="display: flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 9px; font-size: 14px; font-weight: 600; color: #334155;">
+          <span style="font-family: 'Material Symbols Rounded'; font-size: 19px;">grid_view</span>Biblioteka lekcji
+        </button>
+        <button onClick="{{ goEditor }}" style="display: flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 9px; font-size: 14px; font-weight: 600; color: #334155;">
+          <span style="font-family: 'Material Symbols Rounded'; font-size: 19px;">note_add</span>Nowy konspekt
+        </button>
+      </div>
+    </sc-if>
+
+    <div style="flex: 1;"></div>
+
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 8px; background: #EEF2FF; border-radius: 999px;">
+        <div style="width: 30px; height: 30px; border-radius: 50%; background: #4F46E5; display: flex; align-items: center; justify-content: center;">
+          <span style="font-family: 'Material Symbols Rounded'; font-size: 18px; color: #fff;">{{ roleIcon }}</span>
+        </div>
+        <span style="font-size: 13.5px; font-weight: 700; color: #3730A3;">{{ roleLabel }}</span>
+      </div>
+      <button onClick="{{ changeRole }}" style="display: flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 10px; font-size: 13.5px; font-weight: 600; color: #64748B; border: 1px solid #E2E8F0;">
+        <span style="font-family: 'Material Symbols Rounded'; font-size: 18px;">logout</span>Zmień rolę
+      </button>
+    </div>
+  </div>
+</div></sc-if>
+  <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}"><div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 24px; background: radial-gradient(1200px 600px at 50% -10%, #EEF2FF 0%, #F1F5F9 55%);">
+  <div style="width: 100%; max-width: 960px; animation: lrFade 0.5s ease both;">
+    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 36px;">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 22px;">
+        <div style="width: 52px; height: 52px; border-radius: 15px; background: #4F46E5; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 28px rgba(79,70,229,0.4);">
+          <span style="font-family: 'Material Symbols Rounded'; font-size: 30px; color: #fff;">play_lesson</span>
+        </div>
+        <span style="font-size: 30px; font-weight: 800; letter-spacing: -0.02em;">Lesson Runner</span>
+      </div>
+      <h1 style="margin: 0 0 10px; font-size: 26px; font-weight: 800; letter-spacing: -0.02em; color: #0F172A;">Prowadź lekcje programowania bez stresu</h1>
+      <p style="margin: 0; font-size: 16px; color: #64748B; max-width: 540px; line-height: 1.55;">Konspekty krok po kroku i interaktywny tryb prezentera, który prowadzi Cię przez całą lekcję na żywo. Wybierz, jak chcesz dziś pracować.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <button onClick="{{ pickAdmin }}" style="text-align: left; background: #fff; border: 1px solid #E2E8F0; border-radius: 20px; padding: 28px; box-shadow: 0 6px 20px rgba(15,23,42,0.05); display: flex; flex-direction: column; gap: 16px; transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;" style-hover="border-color: #C7D2FE; box-shadow: 0 16px 36px rgba(79,70,229,0.14); transform: translateY(-3px);">
+        <div style="width: 54px; height: 54px; border-radius: 15px; background: #EEF2FF; display: flex; align-items: center; justify-content: center;">
+          <span style="font-family: 'Material Symbols Rounded'; font-size: 30px; color: #4F46E5;">admin_panel_settings</span>
+        </div>
+        <div>
+          <div style="font-size: 20px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 6px;">Administrator</div>
+          <div style="font-size: 14.5px; color: #64748B; line-height: 1.55;">Twórz i wgrywaj konspekty lekcji, zarządzaj biblioteką i przygotowuj materiały dla instruktorów.</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 7px; color: #4F46E5; font-weight: 700; font-size: 14.5px; margin-top: 2px;">Wejdź jako administrator<span style="font-family: 'Material Symbols Rounded'; font-size: 19px;">arrow_forward</span></div>
+      </button>
+
+      <button onClick="{{ pickInstructor }}" style="text-align: left; background: #fff; border: 1px solid #E2E8F0; border-radius: 20px; padding: 28px; box-shadow: 0 6px 20px rgba(15,23,42,0.05); display: flex; flex-direction: column; gap: 16px; transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;" style-hover="border-color: #FCD9A8; box-shadow: 0 16px 36px rgba(245,158,11,0.16); transform: translateY(-3px);">
+        <div style="width: 54px; height: 54px; border-radius: 15px; background: #FFF7ED; display: flex; align-items: center; justify-content: center;">
+          <span style="font-family: 'Material Symbols Rounded'; font-size: 30px; color: #F59E0B;">co_present</span>
+        </div>
+        <div>
+          <div style="font-size: 20px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 6px;">Instruktor</div>
+          <div style="font-size: 14.5px; color: #64748B; line-height: 1.55;">Prowadź lekcje na żywo w trybie prezentera — ze skryptem, timerami i podpowiedziami w jednym miejscu.</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 7px; color: #D97706; font-weight: 700; font-size: 14.5px; margin-top: 2px;">Wejdź jako instruktor<span style="font-family: 'Material Symbols Rounded'; font-size: 19px;">arrow_forward</span></div>
+      </button>
+    </div>
+  </div>
+</div></sc-if>
+  <sc-if value="{{ isAdminLibrary }}" hint-placeholder-val="{{ false }}"><div style="max-width: 1240px; margin: 0 auto; padding: 36px 32px 64px; animation: lrFade 0.4s ease both;">
+  <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 28px;">
+    <div>
+      <div style="font-size: 13px; font-weight: 700; color: #94A3B8; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px;">Administrator</div>
+      <h1 style="margin: 0 0 8px; font-size: 28px; font-weight: 800; letter-spacing: -0.02em;">Biblioteka lekcji</h1>
+      <p style="margin: 0; font-size: 15px; color: #64748B;">{{ libCount }} konspekty · zarządzaj treścią i przygotowuj materiały dla instruktorów</p>
+    </div>
+    <button onClick="{{ goEditor }}" style="display: flex; align-items: center; gap: 8px; background: #4F46E5; color: #fff; padding: 13px 20px; border-radius: 12px; font-size: 14.5px; font-weight: 700; box-shadow: 0 8px 20px rgba(79,70,229,0.3);" style-hover="background: #4338CA;">
+      <span style="font-family: 'Material Symbols Rounded'; font-size: 20px;">add</span>Nowy konspekt
+    </button>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+    <sc-for list="{{ libCards }}" as="card" hint-placeholder-count="4">
+      <div style="background: #fff; border: 1px solid #E2E8F0; border-radius: 18px; padding: 22px 24px; box-shadow: 0 4px 14px rgba(15,23,42,0.04); display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 9px; padding: 5px 12px 5px 9px; border-radius: 999px; background: {{ card.subjectColor }}1A;">
+            <span style="width: 9px; height: 9px; border-radius: 50%; background: {{ card.subjectColor }};"></span>
+            <span style="font-size: 12.5px; font-weight: 800; color: {{ card.subjectColor }}; letter-spacing: 0.01em;">{{ card.subject }}</span>
+          </div>
+          <span style="font-size: 12px; font-weight: 700; padding: 5px 11px; border-radius: 999px; color: {{ card.statusColor }}; background: {{ card.statusBg }};">{{ card.statusLabel }}</span>
+        </div>
+
+        <div>
+          <h3 style="margin: 0 0 6px; font-size: 19px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.25;">{{ card.title }}</h3>
+          <p style="margin: 0; font-size: 14px; color: #64748B; line-height: 1.5;">{{ card.description }}</p>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 18px; color: #475569; font-size: 13px; font-weight: 600;">
+          <span style="display: flex; align-items: center; gap: 6px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px; color: #94A3B8;">format_list_numbered</span>{{ card.stepCount }} kroków</span>
+          <span style="display: flex; align-items: center; gap: 6px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px; color: #94A3B8;">schedule</span>{{ card.durationLabel }}</span>
+          <span style="display: flex; align-items: center; gap: 6px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px; color: #94A3B8;">school</span>{{ card.level }}</span>
+        </div>
+
+        <div style="height: 1px; background: #EEF2F6;"></div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button onClick="{{ card.onRun }}" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 11px; border-radius: 11px; font-size: 14px; font-weight: 700; color: {{ card.runFg }}; background: {{ card.runBg }}; border: 1px solid {{ card.runBorder }};">
+            <span style="font-family: 'Material Symbols Rounded'; font-size: 19px;">slideshow</span>Tryb prezentera
+          </button>
+          <button onClick="{{ card.onEdit }}" style="display: flex; align-items: center; justify-content: center; gap: 7px; padding: 11px 16px; border-radius: 11px; font-size: 14px; font-weight: 700; color: #475569; border: 1px solid #E2E8F0;" style-hover="background: #F8FAFC;">
+            <span style="font-family: 'Material Symbols Rounded'; font-size: 19px;">edit</span>Edytuj
+          </button>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div></sc-if>
+  <sc-if value="{{ isAdminEditor }}" hint-placeholder-val="{{ false }}"><div style="max-width: 1240px; margin: 0 auto; padding: 32px 32px 64px; animation: lrFade 0.4s ease both;">
+  <button onClick="{{ goLibrary }}" style="display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; color: #64748B; margin-bottom: 18px;" style-hover="color: #4F46E5;">
+    <span style="font-family: 'Material Symbols Rounded'; font-size: 19px;">arrow_back</span>Wróć do biblioteki
+  </button>
+
+  <div style="display: grid; grid-template-columns: 1fr 1.25fr; gap: 24px; align-items: start;">
+
+    <!-- LEFT: lesson + steps -->
+    <div style="display: flex; flex-direction: column; gap: 18px;">
+      <div style="background: #fff; border: 1px solid #E2E8F0; border-radius: 18px; padding: 24px; box-shadow: 0 4px 14px rgba(15,23,42,0.04);">
+        <div style="font-size: 12px; font-weight: 700; color: #94A3B8; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px;">Konspekt lekcji</div>
+        <h1 style="margin: 0 0 14px; font-size: 22px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.25;">{{ editorTitle }}</h1>
+        <div style="display: flex; gap: 9px; flex-wrap: wrap;">
+          <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #D97706; background: #FFF7ED; padding: 6px 12px; border-radius: 999px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 17px;">code</span>{{ editorSubject }}</span>
+          <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #475569; background: #F1F5F9; padding: 6px 12px; border-radius: 999px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 17px;">school</span>{{ editorLevel }}</span>
+        </div>
+        <div style="display: flex; gap: 22px; margin-top: 20px; padding-top: 18px; border-top: 1px solid #EEF2F6;">
+          <div><div style="font-size: 26px; font-weight: 800; color: #4F46E5; line-height: 1;">{{ editorStepCount }}</div><div style="font-size: 12.5px; color: #94A3B8; font-weight: 600; margin-top: 4px;">kroków</div></div>
+          <div><div style="font-size: 26px; font-weight: 800; color: #0F172A; line-height: 1;">{{ editorPlannedDuration }}</div><div style="font-size: 12.5px; color: #94A3B8; font-weight: 600; margin-top: 4px;">minut łącznie</div></div>
+        </div>
+      </div>
+
+      <div style="background: #fff; border: 1px solid #E2E8F0; border-radius: 18px; padding: 18px 18px 20px; box-shadow: 0 4px 14px rgba(15,23,42,0.04);">
+        <div style="font-size: 13px; font-weight: 800; color: #334155; padding: 4px 6px 14px; letter-spacing: 0.01em;">Sekwencja kroków</div>
+        <div style="display: flex; flex-direction: column; gap: 9px;">
+          <sc-for list="{{ editorSteps }}" as="s" hint-placeholder-count="3">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 12px; background: #F8FAFC; border: 1px solid #EEF2F6;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: #94A3B8; width: 18px;">{{ s.num }}</span>
+              <div style="width: 34px; height: 34px; border-radius: 10px; background: {{ s.typeColor }}1A; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><span style="font-family: 'Material Symbols Rounded'; font-size: 19px; color: {{ s.typeColor }};">{{ s.typeIcon }}</span></div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 14.5px; font-weight: 700; color: #0F172A; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ s.title }}</div>
+                <div style="font-size: 12px; color: #94A3B8; font-weight: 600; margin-top: 2px;">{{ s.typeLabel }} · {{ s.durationLabel }}</div>
+              </div>
+              <button onClick="{{ s.onRemove }}" style="width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #CBD5E1;" style-hover="background: #FFF1F2; color: #F43F5E;"><span style="font-family: 'Material Symbols Rounded'; font-size: 19px;">delete</span></button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: add step form -->
+    <div style="background: #fff; border: 1px solid #E2E8F0; border-radius: 18px; padding: 26px; box-shadow: 0 6px 18px rgba(15,23,42,0.05); position: sticky; top: 92px;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 22px;">
+        <div style="width: 36px; height: 36px; border-radius: 10px; background: #EEF2FF; display: flex; align-items: center; justify-content: center;"><span style="font-family: 'Material Symbols Rounded'; font-size: 21px; color: #4F46E5;">add_circle</span></div>
+        <h2 style="margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.01em;">Dodaj krok</h2>
+      </div>
+
+      <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 9px;">Typ kroku</label>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
+        <sc-for list="{{ editorTypeChips }}" as="chip" hint-placeholder-count="7">
+          <button onClick="{{ chip.onPick }}" style="display: flex; align-items: center; gap: 6px; padding: 8px 13px; border-radius: 999px; font-size: 13px; font-weight: 700; border: 1.5px solid {{ chip.chipBorder }}; background: {{ chip.chipBg }}; color: {{ chip.chipFg }};">
+            <span style="font-family: 'Material Symbols Rounded'; font-size: 17px;">{{ chip.icon }}</span>{{ chip.label }}
+          </button>
+        </sc-for>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 130px; gap: 14px; margin-bottom: 16px;">
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 7px;">Tytuł kroku</label>
+          <input value="{{ formTitle }}" onInput="{{ onFormTitle }}" placeholder="np. P&#281;tla zawsze i bloki ruchu" style="width: 100%; padding: 11px 13px; border: 1.5px solid #E2E8F0; border-radius: 11px; font-size: 14.5px; color: #0F172A; outline: none;" style-focus="border-color: #818CF8;" />
+        </div>
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 7px;">Czas (min)</label>
+          <input value="{{ formDuration }}" onInput="{{ onFormDuration }}" type="number" min="1" style="width: 100%; padding: 11px 13px; border: 1.5px solid #E2E8F0; border-radius: 11px; font-size: 14.5px; color: #0F172A; outline: none;" style-focus="border-color: #818CF8;" />
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 7px;">Skrypt dla instruktora <span style="color: #94A3B8; font-weight: 600;">— co mówić i robić</span></label>
+        <textarea value="{{ formScript }}" onInput="{{ onFormScript }}" placeholder="Wpisz kolejne zdania, kt&#243;re instruktor czyta na &#380;ywo&#8230;" style="width: 100%; min-height: 92px; padding: 11px 13px; border: 1.5px solid #E2E8F0; border-radius: 11px; font-size: 14px; line-height: 1.55; color: #0F172A; outline: none; resize: vertical;" style-focus="border-color: #818CF8;"></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px;">
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 7px;">Treść dla ucznia</label>
+          <textarea value="{{ formStudent }}" onInput="{{ onFormStudent }}" placeholder="Co widzi dziecko na ekranie&#8230;" style="width: 100%; min-height: 78px; padding: 11px 13px; border: 1.5px solid #E2E8F0; border-radius: 11px; font-size: 14px; line-height: 1.5; color: #0F172A; outline: none; resize: vertical;" style-focus="border-color: #818CF8;"></textarea>
+        </div>
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 7px;">Notatki <span style="color: #94A3B8; font-weight: 600;">— błędy, tempo</span></label>
+          <textarea value="{{ formNotes }}" onInput="{{ onFormNotes }}" placeholder="Typowe b&#322;&#281;dy dzieci, podpowiedzi&#8230;" style="width: 100%; min-height: 78px; padding: 11px 13px; border: 1.5px solid #E2E8F0; border-radius: 11px; font-size: 14px; line-height: 1.5; color: #0F172A; outline: none; resize: vertical;" style-focus="border-color: #818CF8;"></textarea>
+        </div>
+      </div>
+
+      <button onClick="{{ addStep }}" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 700; color: #fff; background: #4F46E5; box-shadow: 0 8px 20px rgba(79,70,229,0.3);" style-hover="background: #4338CA;">
+        <span style="font-family: 'Material Symbols Rounded'; font-size: 20px;">add</span>Dodaj krok do konspektu
+      </button>
+    </div>
+  </div>
+</div></sc-if>
+  <sc-if value="{{ isInstructorList }}" hint-placeholder-val="{{ false }}"><div style="max-width: 1080px; margin: 0 auto; padding: 36px 32px 64px; animation: lrFade 0.4s ease both;">
+  <div style="margin-bottom: 26px;">
+    <div style="font-size: 13px; font-weight: 700; color: #94A3B8; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px;">Instruktor</div>
+    <h1 style="margin: 0 0 8px; font-size: 28px; font-weight: 800; letter-spacing: -0.02em;">Twoje lekcje na dziś</h1>
+    <p style="margin: 0; font-size: 15px; color: #64748B;">Wybierz lekcję i uruchom tryb prezentera, który poprowadzi Cię krok po kroku.</p>
+  </div>
+
+  <!-- hero: ready lesson -->
+  <div style="background: linear-gradient(120deg, #4F46E5 0%, #6366F1 100%); border-radius: 22px; padding: 30px; color: #fff; box-shadow: 0 18px 40px rgba(79,70,229,0.32); margin-bottom: 26px; position: relative; overflow: hidden;">
+    <div style="position: absolute; right: -40px; top: -40px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,0.08);"></div>
+    <div style="position: relative; display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap;">
+      <div style="max-width: 560px;">
+        <div style="display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.16); padding: 6px 13px; border-radius: 999px; font-size: 12.5px; font-weight: 700; margin-bottom: 16px;">
+          <span style="font-family: 'Material Symbols Rounded'; font-size: 17px;">today</span>Najbliższa lekcja · dziś 16:30 · Grupa „Roboty”
+        </div>
+        <h2 style="margin: 0 0 10px; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;">Pierwsza gra: ruch postaci</h2>
+        <p style="margin: 0 0 18px; font-size: 15px; line-height: 1.55; color: rgba(255,255,255,0.86);">Scratch · 7 kroków · 53 min. Dzieci sterują kotkiem strzałkami i zbierają jabłka.</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.14); padding: 7px 13px; border-radius: 999px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 17px;">groups</span>6 uczniów</span>
+          <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.14); padding: 7px 13px; border-radius: 999px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 17px;">school</span>Poziom 1 · 8–10 lat</span>
+        </div>
+      </div>
+      <button onClick="{{ openScratch }}" style="display: flex; align-items: center; gap: 10px; background: #fff; color: #4338CA; padding: 17px 26px; border-radius: 14px; font-size: 16px; font-weight: 800; box-shadow: 0 10px 24px rgba(0,0,0,0.18);" style-hover="transform: translateY(-2px);">
+        <span style="font-family: 'Material Symbols Rounded'; font-size: 24px;">play_circle</span>Rozpocznij lekcję
+      </button>
+    </div>
+  </div>
+
+  <div style="font-size: 13px; font-weight: 800; color: #94A3B8; letter-spacing: 0.04em; text-transform: uppercase; margin: 0 4px 14px;">Nadchodzące w tym tygodniu</div>
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 18px; background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; padding: 18px 22px; box-shadow: 0 4px 12px rgba(15,23,42,0.04);">
+      <div style="text-align: center; min-width: 56px;"><div style="font-size: 12px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Śro</div><div style="font-size: 22px; font-weight: 800; color: #0F172A; line-height: 1;">14</div></div>
+      <div style="width: 1px; align-self: stretch; background: #EEF2F6;"></div>
+      <div style="width: 42px; height: 42px; border-radius: 12px; background: #E0F2FE; display: flex; align-items: center; justify-content: center;"><span style="font-family: 'Material Symbols Rounded'; font-size: 23px; color: #0284C7;">code</span></div>
+      <div style="flex: 1;"><div style="font-size: 16px; font-weight: 700;">Zmienne i pierwsze obliczenia</div><div style="font-size: 13px; color: #94A3B8; font-weight: 600; margin-top: 2px;">Python · 17:00 · Grupa „Algorytmy”</div></div>
+      <span style="font-size: 12.5px; font-weight: 700; color: #B45309; background: #FEF3C7; padding: 6px 12px; border-radius: 999px;">Konspekt w sprawdzaniu</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 18px; background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; padding: 18px 22px; box-shadow: 0 4px 12px rgba(15,23,42,0.04);">
+      <div style="text-align: center; min-width: 56px;"><div style="font-size: 12px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Pią</div><div style="font-size: 22px; font-weight: 800; color: #0F172A; line-height: 1;">16</div></div>
+      <div style="width: 1px; align-self: stretch; background: #EEF2F6;"></div>
+      <div style="width: 42px; height: 42px; border-radius: 12px; background: #EDE9FE; display: flex; align-items: center; justify-content: center;"><span style="font-family: 'Material Symbols Rounded'; font-size: 23px; color: #7C3AED;">html</span></div>
+      <div style="flex: 1;"><div style="font-size: 16px; font-weight: 700;">Pierwsza strona WWW</div><div style="font-size: 13px; color: #94A3B8; font-weight: 600; margin-top: 2px;">HTML/CSS · 16:30 · Grupa „Roboty”</div></div>
+      <span style="font-size: 12.5px; font-weight: 700; color: #475569; background: #E2E8F0; padding: 6px 12px; border-radius: 999px;">Szkic</span>
+    </div>
+  </div>
+</div></sc-if>
+  <sc-if value="{{ isPresenter }}" hint-placeholder-val="{{ false }}"><div style="height: 100vh; display: flex; flex-direction: column; background: #F4F5FB; overflow: hidden;">
+
+  <!-- TOP BAR -->
+  <div style="flex-shrink: 0; background: #fff; border-bottom: 1px solid #E2E8F0; padding: 12px 24px; display: flex; align-items: center; gap: 20px;">
+    <button onClick="{{ exitPresenter }}" style="display: flex; align-items: center; gap: 7px; padding: 9px 14px; border-radius: 11px; font-size: 14px; font-weight: 700; color: #475569; border: 1px solid #E2E8F0;" style-hover="background: #F8FAFC; color: #4F46E5;">
+      <span style="font-family: 'Material Symbols Rounded'; font-size: 20px;">close</span>Zakończ
+    </button>
+    <div style="display: flex; flex-direction: column; line-height: 1.2;">
+      <span style="font-size: 15.5px; font-weight: 800; letter-spacing: -0.01em;">{{ lessonTitle }}</span>
+      <span style="font-size: 12.5px; font-weight: 600; color: #94A3B8;">{{ lessonSubject }} · Krok {{ stepNumLabel }}</span>
+    </div>
+
+    <div style="flex: 1;"></div>
+
+    <!-- timers -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 12px; background: #F1F5F9;">
+        <span style="font-family: 'Material Symbols Rounded'; font-size: 18px; color: #94A3B8;">timer</span>
+        <span style="font-size: 12px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.03em;">Krok</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 600; color: {{ stepTimeColor }};">{{ stepElapsed }}</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #CBD5E1;">/ {{ stepPlanned }}</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 12px; background: #F1F5F9;">
+        <span style="font-size: 12px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.03em;">Lekcja</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 600; color: #0F172A;">{{ totalElapsed }}</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #CBD5E1;">/ {{ totalPlanned }}</span>
+      </div>
+      <button onClick="{{ toggleRun }}" style="display: flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 12px; font-size: 14px; font-weight: 700; color: #fff; background: #4F46E5;" style-hover="background: #4338CA;">
+        <span style="font-family: 'Material Symbols Rounded'; font-size: 20px;">{{ runIcon }}</span>{{ runLabel }}
+      </button>
+      <button onClick="{{ resetTimers }}" title="Zeruj timery" style="width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; color: #94A3B8; border: 1px solid #E2E8F0;" style-hover="background: #F8FAFC; color: #475569;"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px;">restart_alt</span></button>
+    </div>
+
+    <div style="width: 1px; height: 32px; background: #E2E8F0;"></div>
+
+    <!-- view controls -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="display: flex; background: #F1F5F9; border-radius: 11px; padding: 4px; gap: 3px;">
+        <button onClick="{{ variant1 }}" title="Układ: dwa panele" style="display: flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; background: {{ v1Bg }}; color: {{ v1Fg }}; box-shadow: {{ v1Shadow }};"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px;">view_column_2</span>Dwa panele</button>
+        <button onClick="{{ variant2 }}" title="Układ: skupiony" style="display: flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; background: {{ v2Bg }}; color: {{ v2Fg }}; box-shadow: {{ v2Shadow }};"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px;">crop_din</span>Skupiony</button>
+      </div>
+      <div style="display: flex; background: #F1F5F9; border-radius: 11px; padding: 4px; gap: 3px;">
+        <button onClick="{{ fontDown }}" title="Mniejszy tekst" style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #475569; font-weight: 700;"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px;">text_decrease</span></button>
+        <button onClick="{{ fontUp }}" title="Większy tekst" style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #475569; font-weight: 700;"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px;">text_increase</span></button>
+      </div>
+      <button onClick="{{ toggleNotes }}" title="Notatki (N)" style="display: flex; align-items: center; gap: 6px; padding: 9px 13px; border-radius: 11px; font-size: 13px; font-weight: 700; color: {{ notesFg }}; background: {{ notesBg }}; border: 1px solid {{ notesBorder }};"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px;">sticky_note_2</span>Notatki</button>
+    </div>
+  </div>
+
+  <!-- SEGMENTED PROGRESS -->
+  <div style="flex-shrink: 0; background: #fff; border-bottom: 1px solid #E2E8F0; padding: 0 24px 12px; display: flex; align-items: center; gap: 8px;">
+    <sc-for list="{{ stepList }}" as="seg" hint-placeholder-count="7">
+      <button onClick="{{ seg.onClick }}" title="{{ seg.title }}" style="flex: 1; display: flex; flex-direction: column; gap: 6px; align-items: stretch; padding-top: 8px;">
+        <div style="height: 6px; border-radius: 999px; background: {{ seg.barColor }};"></div>
+        <div style="display: flex; align-items: center; gap: 5px; opacity: {{ seg.labelOpacity }};">
+          <span style="font-family: 'Material Symbols Rounded'; font-size: 14px; color: {{ seg.typeColor }};">{{ seg.typeIcon }}</span>
+          <span style="font-size: 11px; font-weight: 700; color: #64748B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ seg.num }}</span>
+        </div>
+      </button>
+    </sc-for>
+  </div>
+
+  <!-- BODY -->
+  <div style="flex: 1; min-height: 0; display: flex;">
+
+    <!-- ===== VARIANT 1: two panels ===== -->
+    <sc-if value="{{ isV1 }}" hint-placeholder-val="{{ true }}">
+      <div style="flex: 1; min-height: 0; display: flex; gap: 0;">
+        <!-- script -->
+        <div style="flex: 1.45; min-width: 0; overflow-y: auto; padding: 34px 40px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
+            <div style="display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: {{ cur.typeColor }}1A;"><span style="font-family: 'Material Symbols Rounded'; font-size: 19px; color: {{ cur.typeColor }};">{{ cur.typeIcon }}</span><span style="font-size: 13.5px; font-weight: 800; color: {{ cur.typeColor }};">{{ cur.typeLabel }}</span></div>
+            <span style="font-size: 13px; font-weight: 700; color: #94A3B8; display: flex; align-items: center; gap: 5px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 17px;">schedule</span>{{ cur.durationLabel }}</span>
+          </div>
+          <h1 style="margin: 0 0 26px; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; color: #0F172A;">{{ cur.title }}</h1>
+          <div style="display: flex; flex-direction: column; gap: 18px;">
+            <sc-for list="{{ cur.scriptParas }}" as="para" hint-placeholder-count="3">
+              <div style="display: flex; gap: 16px; align-items: flex-start;">
+                <span style="flex-shrink: 0; width: 10px; height: 10px; border-radius: 50%; background: #C7D2FE; margin-top: 14px;"></span>
+                <p style="margin: 0; font-size: {{ scriptFontPx }}px; line-height: 1.5; color: #1E293B; font-weight: 500; text-wrap: pretty;">{{ para }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- student + resources -->
+        <div style="flex: 1; min-width: 360px; max-width: 480px; overflow-y: auto; padding: 28px; background: #fff; border-left: 1px solid #E2E8F0; display: flex; flex-direction: column; gap: 18px;">
+          <sc-if value="{{ cur.hasStudent }}" hint-placeholder-val="{{ true }}">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; color: #F59E0B;">visibility</span><span style="font-size: 13px; font-weight: 800; color: #64748B; letter-spacing: 0.03em; text-transform: uppercase;">Co widzi uczeń</span></div>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <sc-for list="{{ cur.studentItems }}" as="item" hint-placeholder-count="2">
+        <sc-if value="{{ item.isText }}" hint-placeholder-val="{{ true }}"><div style="font-size: 15px; line-height: 1.5; color: #1E293B; font-weight: 500; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 13px 15px;">{{ item.text }}</div></sc-if>
+        <sc-if value="{{ item.isImage }}" hint-placeholder-val="{{ false }}"><div style="border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0;"><div style="height: 120px; background: repeating-linear-gradient(45deg,#EEF2FF,#EEF2FF 11px,#E0E7FF 11px,#E0E7FF 22px); display: flex; align-items: center; justify-content: center;"><span style="font-family: 'Material Symbols Rounded'; font-size: 30px; color: #A5B4FC;">image</span></div><div style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #94A3B8; padding: 8px 12px; background: #F8FAFC; text-align: center;">{{ item.caption }}</div></div></sc-if>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+<sc-if value="{{ cur.hasResources }}" hint-placeholder-val="{{ true }}">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; color: #4F46E5;">folder_open</span><span style="font-size: 13px; font-weight: 800; color: #64748B; letter-spacing: 0.03em; text-transform: uppercase;">Zasoby</span></div>
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <sc-for list="{{ cur.resources }}" as="res" hint-placeholder-count="1">
+        <sc-if value="{{ res.isCode }}" hint-placeholder-val="{{ true }}"><div style="border-radius: 13px; overflow: hidden; border: 1px solid #1E293B; background: #0F172A;"><div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 13px; background: #1E293B;"><span style="display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: #94A3B8;"><span style="font-family: 'Material Symbols Rounded'; font-size: 16px; color: #F59E0B;">code</span>{{ res.lang }}</span><button onClick="{{ res.onCopy }}" style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: {{ res.copyColor }}; padding: 4px 9px; border-radius: 7px; background: rgba(255,255,255,0.08);"><span style="font-family: 'Material Symbols Rounded'; font-size: 15px;">{{ res.copyIcon }}</span>{{ res.copyLabel }}</button></div><pre style="margin: 0; padding: 14px 15px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; color: #E2E8F0; white-space: pre; overflow-x: auto;">{{ res.code }}</pre></div></sc-if>
+        <sc-if value="{{ res.isLink }}" hint-placeholder-val="{{ false }}"><a href="{{ res.url }}" target="_blank" style="display: flex; align-items: center; gap: 11px; padding: 13px 15px; border-radius: 12px; border: 1px solid #E2E8F0; background: #F8FAFC; text-decoration: none;"><span style="font-family: 'Material Symbols Rounded'; font-size: 21px; color: #4F46E5;">link</span><span style="flex: 1; font-size: 14px; font-weight: 700; color: #334155;">{{ res.label }}</span><span style="font-family: 'Material Symbols Rounded'; font-size: 18px; color: #94A3B8;">open_in_new</span></a></sc-if>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===== VARIANT 2: focused ===== -->
+    <sc-if value="{{ isV2 }}" hint-placeholder-val="{{ false }}">
+      <div style="flex: 1; min-height: 0; display: flex;">
+        <!-- step rail -->
+        <div style="width: 280px; flex-shrink: 0; overflow-y: auto; padding: 20px 16px; background: #fff; border-right: 1px solid #E2E8F0;">
+          <div style="font-size: 12px; font-weight: 800; color: #94A3B8; letter-spacing: 0.05em; text-transform: uppercase; padding: 6px 10px 12px;">Kroki lekcji</div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <sc-for list="{{ stepList }}" as="s" hint-placeholder-count="7">
+              <button onClick="{{ s.onClick }}" style="display: flex; align-items: center; gap: 11px; padding: 11px 12px; border-radius: 12px; text-align: left; background: {{ s.railBg }}; border: 1.5px solid {{ s.railBorder }};">
+                <div style="width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: {{ s.railIconBg }};"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px; color: {{ s.railIconFg }};">{{ s.railIcon }}</span></div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-size: 13.5px; font-weight: 700; color: {{ s.railTitleColor }}; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ s.title }}</div>
+                  <div style="font-size: 11.5px; color: #94A3B8; font-weight: 600; margin-top: 1px;">{{ s.durationLabel }}</div>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- big script -->
+        <div style="flex: 1; min-width: 0; overflow-y: auto; padding: 44px 56px; display: flex; flex-direction: column;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: {{ cur.typeColor }}1A;"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; color: {{ cur.typeColor }};">{{ cur.typeIcon }}</span><span style="font-size: 14px; font-weight: 800; color: {{ cur.typeColor }};">{{ cur.typeLabel }}</span></div>
+            <span style="font-size: 13.5px; font-weight: 700; color: #94A3B8; display: flex; align-items: center; gap: 5px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px;">schedule</span>{{ cur.durationLabel }}</span>
+          </div>
+          <h1 style="margin: 0 0 32px; font-size: 36px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.15; color: #0F172A; max-width: 900px;">{{ cur.title }}</h1>
+          <div style="display: flex; flex-direction: column; gap: 22px; max-width: 880px;">
+            <sc-for list="{{ cur.scriptParas }}" as="para" hint-placeholder-count="3">
+              <div style="display: flex; gap: 18px; align-items: flex-start;">
+                <span style="flex-shrink: 0; width: 11px; height: 11px; border-radius: 50%; background: #C7D2FE; margin-top: 16px;"></span>
+                <p style="margin: 0; font-size: {{ scriptFontPxLg }}px; line-height: 1.5; color: #1E293B; font-weight: 500; text-wrap: pretty;">{{ para }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- compact student/resources -->
+        <sc-if value="{{ showStudent }}" hint-placeholder-val="{{ true }}">
+          <div style="width: 360px; flex-shrink: 0; overflow-y: auto; padding: 24px; background: #fff; border-left: 1px solid #E2E8F0; display: flex; flex-direction: column; gap: 16px;">
+            <sc-if value="{{ cur.hasStudent }}" hint-placeholder-val="{{ true }}">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; color: #F59E0B;">visibility</span><span style="font-size: 13px; font-weight: 800; color: #64748B; letter-spacing: 0.03em; text-transform: uppercase;">Co widzi uczeń</span></div>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <sc-for list="{{ cur.studentItems }}" as="item" hint-placeholder-count="2">
+        <sc-if value="{{ item.isText }}" hint-placeholder-val="{{ true }}"><div style="font-size: 14.5px; line-height: 1.5; color: #1E293B; font-weight: 500; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 12px 14px;">{{ item.text }}</div></sc-if>
+        <sc-if value="{{ item.isImage }}" hint-placeholder-val="{{ false }}"><div style="border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0;"><div style="height: 110px; background: repeating-linear-gradient(45deg,#EEF2FF,#EEF2FF 11px,#E0E7FF 11px,#E0E7FF 22px); display: flex; align-items: center; justify-content: center;"><span style="font-family: 'Material Symbols Rounded'; font-size: 28px; color: #A5B4FC;">image</span></div><div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #94A3B8; padding: 8px 12px; background: #F8FAFC; text-align: center;">{{ item.caption }}</div></div></sc-if>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+<sc-if value="{{ cur.hasResources }}" hint-placeholder-val="{{ true }}">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; color: #4F46E5;">folder_open</span><span style="font-size: 13px; font-weight: 800; color: #64748B; letter-spacing: 0.03em; text-transform: uppercase;">Zasoby</span></div>
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <sc-for list="{{ cur.resources }}" as="res" hint-placeholder-count="1">
+        <sc-if value="{{ res.isCode }}" hint-placeholder-val="{{ true }}"><div style="border-radius: 13px; overflow: hidden; border: 1px solid #1E293B; background: #0F172A;"><div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 13px; background: #1E293B;"><span style="display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: #94A3B8;"><span style="font-family: 'Material Symbols Rounded'; font-size: 16px; color: #F59E0B;">code</span>{{ res.lang }}</span><button onClick="{{ res.onCopy }}" style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: {{ res.copyColor }}; padding: 4px 9px; border-radius: 7px; background: rgba(255,255,255,0.08);"><span style="font-family: 'Material Symbols Rounded'; font-size: 15px;">{{ res.copyIcon }}</span>{{ res.copyLabel }}</button></div><pre style="margin: 0; padding: 13px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.6; color: #E2E8F0; white-space: pre; overflow-x: auto;">{{ res.code }}</pre></div></sc-if>
+        <sc-if value="{{ res.isLink }}" hint-placeholder-val="{{ false }}"><a href="{{ res.url }}" target="_blank" style="display: flex; align-items: center; gap: 11px; padding: 12px 14px; border-radius: 12px; border: 1px solid #E2E8F0; background: #F8FAFC; text-decoration: none;"><span style="font-family: 'Material Symbols Rounded'; font-size: 21px; color: #4F46E5;">link</span><span style="flex: 1; font-size: 13.5px; font-weight: 700; color: #334155;">{{ res.label }}</span><span style="font-family: 'Material Symbols Rounded'; font-size: 18px; color: #94A3B8;">open_in_new</span></a></sc-if>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- NOTES STRIP (shared) -->
+  <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+    <div style="flex-shrink: 0; background: #fff; border-top: 1px solid #E2E8F0; padding: 16px 24px; max-height: 220px; overflow-y: auto;">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+        <span style="font-family: 'Material Symbols Rounded'; font-size: 19px; color: #94A3B8;">lightbulb</span>
+        <span style="font-size: 13px; font-weight: 800; color: #64748B; letter-spacing: 0.03em; text-transform: uppercase;">Notatki dla prowadzącego</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px;">
+        <sc-for list="{{ cur.notes }}" as="note" hint-placeholder-count="2">
+          <div style="display: flex; gap: 12px; padding: 13px 15px; border-radius: 13px; background: {{ note.bg }}; border: 1px solid {{ note.color }}26;">
+            <span style="font-family: 'Material Symbols Rounded'; font-size: 21px; color: {{ note.color }}; flex-shrink: 0;">{{ note.icon }}</span>
+            <div>
+              <div style="font-size: 12px; font-weight: 800; color: {{ note.color }}; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 3px;">{{ note.label }}</div>
+              <div style="font-size: 14px; line-height: 1.45; color: #334155; font-weight: 500;">{{ note.text }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- BOTTOM NAV (shared) -->
+  <div style="flex-shrink: 0; background: #fff; border-top: 1px solid #E2E8F0; padding: 14px 24px; display: flex; align-items: center; gap: 16px;">
+    <button onClick="{{ prevStep }}" disabled="{{ atFirst }}" style="display: flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 12px; font-size: 15px; font-weight: 700; color: {{ prevColor }}; border: 1px solid #E2E8F0; background: #fff; opacity: {{ prevOpacity }};"><span style="font-family: 'Material Symbols Rounded'; font-size: 21px;">arrow_back</span>Poprzedni</button>
+    <div style="flex: 1; text-align: center;">
+      <span style="font-size: 13px; color: #94A3B8; font-weight: 600;">Skróty: </span>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: #64748B; background: #F1F5F9; padding: 3px 8px; border-radius: 6px;">← →</span>
+      <span style="font-size: 13px; color: #94A3B8; font-weight: 600;"> krok · </span>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: #64748B; background: #F1F5F9; padding: 3px 8px; border-radius: 6px;">P</span>
+      <span style="font-size: 13px; color: #94A3B8; font-weight: 600;"> timer · </span>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: #64748B; background: #F1F5F9; padding: 3px 8px; border-radius: 6px;">N</span>
+      <span style="font-size: 13px; color: #94A3B8; font-weight: 600;"> notatki</span>
+    </div>
+    <button onClick="{{ nextStep }}" disabled="{{ atLast }}" style="display: flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-size: 15px; font-weight: 700; color: #fff; background: {{ nextBg }}; box-shadow: 0 8px 18px rgba(79,70,229,0.28); opacity: {{ nextOpacity }};">Następny krok<span style="font-family: 'Material Symbols Rounded'; font-size: 21px;">arrow_forward</span></button>
+  </div>
+</div></sc-if>
+  <sc-if value="{{ toastVisible }}" hint-placeholder-val="{{ false }}"><div style="position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; align-items: center; gap: 11px; background: #0F172A; color: #fff; padding: 14px 20px; border-radius: 14px; box-shadow: 0 14px 36px rgba(15,23,42,0.4); animation: lrToast 0.3s ease both;">
+  <span style="font-family: 'Material Symbols Rounded'; font-size: 21px; color: #4ADE80;">check_circle</span>
+  <span style="font-size: 14.5px; font-weight: 600;">{{ toastText }}</span>
+</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    screen: 'login',
+    role: null,
+    selectedLessonId: 'scratch-ruch',
+    copiedKey: null,
+    toast: null,
+    presenter: { stepIndex: 0, running: false, elapsedStep: 0, elapsedTotal: 0, variant: 1, fontScale: 1, showNotes: true, showStudent: true },
+    editor: {
+      meta: { title: 'Nowa lekcja (kopia robocza)', subject: 'Scratch', level: 'Poziom 1 · 8–10 lat' },
+      steps: [
+        { type: 'intro', title: 'Powitanie i cel lekcji', duration: 3 },
+        { type: 'review', title: 'Co już potrafimy', duration: 4 },
+        { type: 'concept', title: 'Nowy koncept', duration: 8 }
+      ],
+      form: { type: 'concept', title: '', duration: 6, script: '', student: '', notes: '' }
+    }
+  };
+
+  stepTypes = {
+    intro:     { label: 'Wprowadzenie',              color: '#4F46E5', icon: 'waving_hand' },
+    review:    { label: 'Powtórka',                  color: '#0EA5E9', icon: 'history' },
+    concept:   { label: 'Nowy koncept',              color: '#8B5CF6', icon: 'lightbulb' },
+    demo:      { label: 'Demo na żywo',              color: '#F59E0B', icon: 'play_circle' },
+    guided:    { label: 'Ćwiczenie z prowadzeniem',  color: '#10B981', icon: 'groups' },
+    challenge: { label: 'Samodzielne wyzwanie',      color: '#F43F5E', icon: 'flag' },
+    summary:   { label: 'Podsumowanie',              color: '#64748B', icon: 'task_alt' }
+  };
+
+  noteKinds = {
+    error: { label: 'Częsty błąd',           color: '#F43F5E', bg: '#FFF1F2', icon: 'report' },
+    hint:  { label: 'Podpowiedź',            color: '#D97706', bg: '#FFFBEB', icon: 'tips_and_updates' },
+    pace:  { label: 'Różnicowanie tempa',    color: '#0284C7', bg: '#F0F9FF', icon: 'speed' }
+  };
+
+  subjectColors = { 'Scratch': '#F59E0B', 'Python': '#0EA5E9', 'HTML/CSS': '#8B5CF6', 'JavaScript': '#10B981' };
+
+  lessons = [
+    {
+      id: 'scratch-ruch',
+      title: 'Pierwsza gra: ruch postaci',
+      subject: 'Scratch',
+      level: 'Poziom 1 · 8–10 lat',
+      status: 'ready',
+      description: 'Dzieci tworzą pierwszą grę — sterują kotkiem strzałkami i zbierają jabłka.',
+      tags: ['Pętle', 'Sterowanie', 'Wykrywanie dotknięcia'],
+      steps: [
+        {
+          type: 'intro', title: 'Powitanie i cel lekcji', duration: 3,
+          script: [
+            'Przywitaj się z grupą i zapytaj, kto grał dziś w jakąś grę na komputerze albo telefonie.',
+            'Powiedz: „Dziś sami zbudujemy grę! Nasz kotek będzie chodził po ekranie, a my zbierzemy nim jabłka.”',
+            'Pokaż gotową grę na swoim ekranie przez około 20 sekund — żeby dzieci wiedziały, do czego dążymy.'
+          ],
+          student: [
+            { kind: 'text', text: 'Cel: zbudujemy grę, w której sterujemy kotkiem strzałkami i zbieramy jabłka.' },
+            { kind: 'image', caption: 'gotowa gra — kotek i jabłka' }
+          ],
+          resources: [
+            { kind: 'link', label: 'Otwórz Scratch — nowy projekt', url: 'https://scratch.mit.edu/projects/editor' }
+          ],
+          notes: [
+            { kind: 'pace', text: 'Jeśli grupa jest energiczna, skróć pokaz do 10 s — inaczej trudno będzie ich „odzyskać”.' },
+            { kind: 'hint', text: 'Zapisz na tablicy 3 słowa-cele: RUCH, STEROWANIE, PUNKTY. Wrócisz do nich w podsumowaniu.' }
+          ]
+        },
+        {
+          type: 'review', title: 'Co już potrafimy', duration: 4,
+          script: [
+            'Przypomnij wspólnie: gdzie jest scena, gdzie są bloki, jak przeciągamy blok do skryptu.',
+            'Zadaj pytanie kontrolne: „Od jakiego bloku zwykle zaczynamy program?” (gdy kliknięto zieloną flagę).',
+            'Poproś, żeby każde dziecko znalazło ten blok i położyło go na scenie skryptów.'
+          ],
+          student: [
+            { kind: 'text', text: 'Przypominamy: zielona flaga uruchamia program. Bloki przeciągamy myszką do obszaru skryptów.' }
+          ],
+          resources: [
+            { kind: 'code', lang: 'Scratch', code: 'gdy kliknięto zieloną flagę' }
+          ],
+          notes: [
+            { kind: 'error', text: 'Dzieci mylą kategorię „Zdarzenia” (pomarańczowa) ze „Sterowaniem” (żółta) — pokaż na kolorach.' },
+            { kind: 'hint', text: 'Kto skończył szybciej — niech zmieni tło sceny, żeby nie czekał bezczynnie.' }
+          ]
+        },
+        {
+          type: 'concept', title: 'Pętla „zawsze” i bloki ruchu', duration: 8,
+          script: [
+            'Wyjaśnij pętlę „zawsze”: „To jak pętla na bucie — komputer powtarza środek w kółko, bez końca.”',
+            'Pokaż bloki „zmień x o (10)” i „zmień y o (10)”. Wyjaśnij: x to lewo–prawo, y to góra–dół.',
+            'Razem zbudujcie szkielet: zielona flaga → zawsze → (na razie pusto). Uruchom — nic się nie dzieje. To dobry moment na pytanie „dlaczego?”.'
+          ],
+          student: [
+            { kind: 'text', text: 'Pętla „zawsze” powtarza polecenia w środku bez końca.' },
+            { kind: 'text', text: 'x = lewo / prawo, y = góra / dół. Większe x → kotek idzie w prawo.' }
+          ],
+          resources: [
+            { kind: 'code', lang: 'Scratch', code: 'gdy kliknięto zieloną flagę\nzawsze\n  // tutaj za chwilę dodamy ruch' }
+          ],
+          notes: [
+            { kind: 'error', text: 'Najczęstszy błąd: blok ruchu poza pętlą „zawsze”. Wtedy kotek przeskakuje tylko raz.' },
+            { kind: 'hint', text: 'Metafora „pętli na bucie” działa świetnie — wracaj do niej przy każdej pętli.' },
+            { kind: 'pace', text: 'Szybsza grupa: wprowadź od razu „obróć o 15 stopni”, by zobaczyć obracanie.' }
+          ]
+        },
+        {
+          type: 'demo', title: 'Demo: kotek rusza strzałkami', duration: 10,
+          script: [
+            'Buduj na żywo, mówiąc każdy krok na głos. Tempo wolne — dzieci kopiują za Tobą.',
+            'Dodaj wewnątrz „zawsze”: jeżeli <klawisz [strzałka w prawo] naciśnięty?> → zmień x o (10).',
+            'Uruchom, naciśnij strzałkę w prawo i pokaż radość: „Działa! Kotek się rusza!”.',
+            'Zapytaj: „Co zmienić, żeby chodził w lewo?” — poprowadź dzieci do „zmień x o (-10)”.'
+          ],
+          student: [
+            { kind: 'text', text: 'Dodajemy sterowanie: gdy naciśniesz strzałkę, kotek się przesuwa.' },
+            { kind: 'image', caption: 'skrypt: zawsze + jeżeli klawisz naciśnięty' }
+          ],
+          resources: [
+            { kind: 'code', lang: 'Scratch', code: 'gdy kliknięto zieloną flagę\nzawsze\n  jeżeli <klawisz [strzałka w prawo] naciśnięty?> to\n    zmień x o (10)\n  jeżeli <klawisz [strzałka w lewo] naciśnięty?> to\n    zmień x o (-10)' }
+          ],
+          notes: [
+            { kind: 'error', text: 'Minus przy „-10” bywa pomijany — sprawdź u dzieci, które „chodzą tylko w prawo”.' },
+            { kind: 'error', text: 'Czasem wybierają zły klawisz w bloku — przypomnij o rozwijanej liście klawiszy.' },
+            { kind: 'pace', text: 'Wolniejsza grupa: zrób tylko prawo–lewo, góra–dół zostaw na ćwiczenie.' }
+          ]
+        },
+        {
+          type: 'guided', title: 'Ćwiczenie z prowadzeniem: pełne sterowanie', duration: 12,
+          script: [
+            'Teraz dzieci dodają samodzielnie górę i dół. Ty czytasz kroki i krążysz po sali (lub po pokojach na czacie).',
+            'Co 3–4 minuty rób „check-in”: „Pokażcie kciuk w górę, jeśli kotek chodzi już w 4 strony.”',
+            'Pomagaj indywidualnie tym, którzy utknęli — nie rozwiązuj za nich, zadawaj pytania naprowadzające.'
+          ],
+          student: [
+            { kind: 'text', text: 'Twoje zadanie: spraw, by kotek chodził też w górę (zmień y o 10) i w dół (zmień y o -10).' }
+          ],
+          resources: [
+            { kind: 'code', lang: 'Scratch', code: 'jeżeli <klawisz [strzałka w górę] naciśnięty?> to\n  zmień y o (10)\njeżeli <klawisz [strzałka w dół] naciśnięty?> to\n  zmień y o (-10)' }
+          ],
+          notes: [
+            { kind: 'hint', text: 'Pytania zamiast odpowiedzi: „Który klawisz tu wybrałeś?”, „Co robi plus, a co minus?”.' },
+            { kind: 'error', text: 'Mylą x z y przy ruchu pionowym — wróć do metafory „y to winda: góra–dół”.' },
+            { kind: 'pace', text: 'Kto skończył: niech zmieni wartość z 10 na 15 i porówna szybkość kotka.' }
+          ]
+        },
+        {
+          type: 'challenge', title: 'Samodzielne wyzwanie: zbierz jabłko', duration: 12,
+          script: [
+            'Postaw wyzwanie: „Dodaj jabłko (nowego duszka). Gdy kotek go dotknie — jabłko ucieka w losowe miejsce.”',
+            'Podpowiadaj tylko klocki-składniki, nie gotowe rozwiązanie: „dotyka [Kotek]?” oraz „idź do losowej pozycji”.',
+            'Zostaw około 8 minut na pracę, a ostatnie 2 minuty na pokazanie gier chętnym.'
+          ],
+          student: [
+            { kind: 'text', text: 'Wyzwanie: dodaj jabłko. Gdy kotek je dotknie — jabłko przeskakuje w losowe miejsce.' },
+            { kind: 'text', text: 'Dla chętnych: dodaj licznik punktów (+1 za każde złapane jabłko).' }
+          ],
+          resources: [
+            { kind: 'code', lang: 'Scratch', code: '// skrypt w duszku „jabłko”\ngdy kliknięto zieloną flagę\nzawsze\n  jeżeli <dotyka [Kotek]?> to\n    idź do losowej pozycji' },
+            { kind: 'link', label: 'Karta podpowiedzi dla dzieci (PDF)', url: '#' }
+          ],
+          notes: [
+            { kind: 'pace', text: 'To zadanie dzieli grupę — miej 1 dodatek dla szybkich (licznik) i 1 uproszczenie dla wolnych (samo znikanie).' },
+            { kind: 'error', text: 'Skrypt jabłka wpisany w kotku — przypomnij: każdy duszek ma własne skrypty.' }
+          ]
+        },
+        {
+          type: 'summary', title: 'Podsumowanie i zapisanie projektu', duration: 4,
+          script: [
+            'Zbierz grupę z powrotem. Zapytaj: „Co dziś zbudowaliśmy?” i poczekaj na kilka odpowiedzi.',
+            'Powtórzcie 3 słowa z tablicy: RUCH, STEROWANIE, PUNKTY.',
+            'Przypomnij o zapisaniu projektu (Plik → Zapisz). Zapowiedz następną lekcję: „Dodamy dźwięki i ekran wygranej!”.'
+          ],
+          student: [
+            { kind: 'text', text: 'Dziś nauczyliśmy się: pętla „zawsze”, sterowanie klawiszami, wykrywanie dotknięcia.' },
+            { kind: 'text', text: 'Pamiętaj: zapisz projekt! Plik → Zapisz.' }
+          ],
+          resources: [],
+          notes: [
+            { kind: 'hint', text: 'Pochwal imiennie 2–3 osoby za konkret („świetnie poradziłeś sobie z minusem przy y”).' },
+            { kind: 'pace', text: 'Jeśli zostało czasu: szybka runda „pokaż swój ekran” dla 2 chętnych.' }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'python-zmienne', title: 'Zmienne i pierwsze obliczenia', subject: 'Python',
+      level: 'Poziom 2 · 10–12 lat', status: 'review',
+      description: 'Wprowadzenie do zmiennych w Pythonie i prostego kalkulatora w konsoli.',
+      tags: ['Zmienne', 'input()', 'Liczby'], plannedSteps: 6, plannedDuration: 50, steps: []
+    },
+    {
+      id: 'html-strona', title: 'Pierwsza strona WWW', subject: 'HTML/CSS',
+      level: 'Poziom 1 · 9–11 lat', status: 'draft',
+      description: 'Dzieci budują swój pierwszy profil-stronę z nagłówkiem, zdjęciem i listą.',
+      tags: ['Znaczniki', 'Kolory', 'Obrazki'], plannedSteps: 5, plannedDuration: 45, steps: []
+    },
+    {
+      id: 'js-przycisk', title: 'Interaktywny przycisk', subject: 'JavaScript',
+      level: 'Poziom 3 · 11–13 lat', status: 'draft',
+      description: 'Pierwsze zdarzenie onclick — przycisk, który zmienia tekst i kolor strony.',
+      tags: ['Zdarzenia', 'DOM', 'Funkcje'], plannedSteps: 6, plannedDuration: 55, steps: []
+    }
+  ];
+
+  // ---- helpers ----
+  fmt(sec) {
+    sec = Math.max(0, Math.floor(sec));
+    const m = Math.floor(sec / 60), s = sec % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  }
+  getLesson(id) { return this.lessons.find(l => l.id === id) || this.lessons[0]; }
+  lessonDuration(l) {
+    if (l.steps && l.steps.length) return l.steps.reduce((a, s) => a + s.duration, 0);
+    return l.plannedDuration || 0;
+  }
+  setPref(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  getPref(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
+
+  componentDidMount() {
+    window.__lr = this;
+    const variant = this.getPref('lr_variant', 1);
+    const fontScale = this.getPref('lr_fontScale', 1);
+    this.setState(s => ({ presenter: { ...s.presenter, variant, fontScale } }));
+    this._tick = setInterval(() => {
+      const p = this.state.presenter;
+      if (this.state.screen === 'presenter' && p.running) {
+        this.setState(s => ({ presenter: { ...s.presenter, elapsedStep: s.presenter.elapsedStep + 1, elapsedTotal: s.presenter.elapsedTotal + 1 } }));
+      }
+    }, 1000);
+    this._onKey = (e) => {
+      if (this.state.screen !== 'presenter') return;
+      const tag = (e.target && e.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); this.nextStep(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); this.prevStep(); }
+      else if (e.key === 'p' || e.key === 'P') { e.preventDefault(); this.toggleRun(); }
+      else if (e.key === 'n' || e.key === 'N') { this.toggleNotes(); }
+      else if (e.key === 'Escape') { this.exitPresenter(); }
+    };
+    window.addEventListener('keydown', this._onKey);
+  }
+  componentWillUnmount() { clearInterval(this._tick); window.removeEventListener('keydown', this._onKey); }
+
+  // ---- navigation ----
+  pickRole = (role) => this.setState({ role, screen: role === 'admin' ? 'adminLibrary' : 'instructorList' });
+  changeRole = () => this.setState({ role: null, screen: 'login' });
+  goLibrary = () => this.setState({ screen: 'adminLibrary' });
+  goEditor = () => this.setState({ screen: 'adminEditor' });
+  goInstructor = () => this.setState({ screen: 'instructorList' });
+
+  openPresenter = (id) => {
+    const l = this.getLesson(id);
+    if (!l.steps || !l.steps.length) { this.flash('Ten konspekt nie jest jeszcze gotowy do prowadzenia.'); return; }
+    const pos = this.getPref('lr_pos_' + id, 0);
+    this.setState(s => ({
+      screen: 'presenter', selectedLessonId: id,
+      presenter: { ...s.presenter, stepIndex: Math.min(pos, l.steps.length - 1), running: false, elapsedStep: 0, elapsedTotal: 0, showNotes: true, showStudent: true }
+    }));
+  };
+  exitPresenter = () => this.setState(s => ({ screen: s.role === 'admin' ? 'adminLibrary' : 'instructorList', presenter: { ...s.presenter, running: false } }));
+
+  // ---- presenter controls ----
+  persistPos = (i) => this.setPref('lr_pos_' + this.state.selectedLessonId, i);
+  nextStep = () => this.setState(s => {
+    const l = this.getLesson(s.selectedLessonId);
+    const i = Math.min(s.presenter.stepIndex + 1, l.steps.length - 1);
+    this.persistPos(i);
+    return { presenter: { ...s.presenter, stepIndex: i, elapsedStep: 0 } };
+  });
+  prevStep = () => this.setState(s => {
+    const i = Math.max(s.presenter.stepIndex - 1, 0);
+    this.persistPos(i);
+    return { presenter: { ...s.presenter, stepIndex: i, elapsedStep: 0 } };
+  });
+  goToStep = (i) => { this.persistPos(i); this.setState(s => ({ presenter: { ...s.presenter, stepIndex: i, elapsedStep: 0 } })); };
+  toggleRun = () => this.setState(s => ({ presenter: { ...s.presenter, running: !s.presenter.running } }));
+  resetTimers = () => this.setState(s => ({ presenter: { ...s.presenter, elapsedStep: 0, elapsedTotal: 0, running: false } }));
+  fontUp = () => this.setState(s => { const v = Math.min(1.5, +(s.presenter.fontScale + 0.1).toFixed(2)); this.setPref('lr_fontScale', v); return { presenter: { ...s.presenter, fontScale: v } }; });
+  fontDown = () => this.setState(s => { const v = Math.max(0.85, +(s.presenter.fontScale - 0.1).toFixed(2)); this.setPref('lr_fontScale', v); return { presenter: { ...s.presenter, fontScale: v } }; });
+  toggleNotes = () => this.setState(s => ({ presenter: { ...s.presenter, showNotes: !s.presenter.showNotes } }));
+  toggleStudent = () => this.setState(s => ({ presenter: { ...s.presenter, showStudent: !s.presenter.showStudent } }));
+  setVariant = (n) => { this.setPref('lr_variant', n); this.setState(s => ({ presenter: { ...s.presenter, variant: n } })); };
+
+  copyCode = (key, text) => {
+    try { navigator.clipboard && navigator.clipboard.writeText(text); } catch (e) {}
+    this.setState({ copiedKey: key });
+    clearTimeout(this._copyT);
+    this._copyT = setTimeout(() => this.setState({ copiedKey: null }), 1600);
+  };
+  flash = (text) => {
+    this.setState({ toast: text });
+    clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: null }), 2400);
+  };
+
+  // ---- editor ----
+  setEditorField = (field) => (e) => {
+    const v = e.target.value;
+    this.setState(s => ({ editor: { ...s.editor, form: { ...s.editor.form, [field]: v } } }));
+  };
+  setEditorType = (t) => this.setState(s => ({ editor: { ...s.editor, form: { ...s.editor.form, type: t } } }));
+  addStep = () => {
+    const f = this.state.editor.form;
+    if (!f.title.trim()) { this.flash('Podaj tytuł kroku, zanim go dodasz.'); return; }
+    this.setState(s => ({
+      editor: { ...s.editor, steps: [...s.editor.steps, { type: f.type, title: f.title.trim(), duration: +f.duration || 1 }], form: { type: 'concept', title: '', duration: 6, script: '', student: '', notes: '' } }
+    }));
+    this.flash('Dodano krok do konspektu.');
+  };
+  removeEditorStep = (idx) => this.setState(s => ({ editor: { ...s.editor, steps: s.editor.steps.filter((_, i) => i !== idx) } }));
+
+  // ---- decorate ----
+  decorateStep(step, i) {
+    const t = this.stepTypes[step.type];
+    return {
+      num: (i + 1 < 10 ? '0' : '') + (i + 1),
+      typeLabel: t.label, typeColor: t.color, typeIcon: t.icon,
+      title: step.title,
+      durationLabel: step.duration + ' min',
+      scriptParas: step.script || [],
+      studentItems: (step.student || []).map(it => ({ ...it, isText: it.kind === 'text', isImage: it.kind === 'image' })),
+      resources: (step.resources || []).map((r, ri) => {
+        const key = 'r' + i + '_' + ri;
+        const copied = this.state.copiedKey === key;
+        return { ...r, key, isCode: r.kind === 'code', isLink: r.kind === 'link', isImage: r.kind === 'image',
+          copied, copyLabel: copied ? 'Skopiowano' : 'Kopiuj', copyIcon: copied ? 'check' : 'content_copy',
+          copyColor: copied ? '#4ADE80' : '#CBD5E1',
+          onCopy: () => this.copyCode(key, r.code) };
+      }),
+      notes: (step.notes || []).map(n => { const nk = this.noteKinds[n.kind]; return { label: nk.label, color: nk.color, bg: nk.bg, icon: nk.icon, text: n.text }; }),
+      hasResources: (step.resources || []).length > 0,
+      hasStudent: (step.student || []).length > 0,
+      hasNotes: (step.notes || []).length > 0
+    };
+  }
+
+  renderVals() {
+    const st = this.state, p = st.presenter;
+    const screen = st.screen;
+    const lesson = this.getLesson(st.selectedLessonId);
+    const steps = lesson.steps || [];
+    const idx = Math.min(p.stepIndex, Math.max(0, steps.length - 1));
+    const cur = steps[idx] ? this.decorateStep(steps[idx], idx) : null;
+    const plannedTotal = this.lessonDuration(lesson) * 60;
+    const plannedStep = steps[idx] ? steps[idx].duration * 60 : 0;
+    const stepList = steps.map((s, i) => {
+      const t = this.stepTypes[s.type];
+      const active = i === idx, done = i < idx;
+      return { key: 'st' + i, num: (i + 1 < 10 ? '0' : '') + (i + 1), title: s.title, durationLabel: s.duration + ' min',
+        typeColor: t.color, typeIcon: t.icon, typeLabel: t.label, active, done,
+        // segmented progress
+        barColor: active ? '#4F46E5' : (done ? '#A5B4FC' : '#E2E8F0'),
+        labelOpacity: active ? 1 : 0.55,
+        // V2 rail
+        railBg: active ? '#EEF2FF' : '#fff',
+        railBorder: active ? '#C7D2FE' : '#EEF2F6',
+        railIcon: done ? 'check' : t.icon,
+        railIconBg: done ? '#DCFCE7' : (t.color + '1A'),
+        railIconFg: done ? '#16A34A' : t.color,
+        railTitleColor: active ? '#312E81' : (done ? '#94A3B8' : '#334155'),
+        onClick: () => this.goToStep(i) };
+    });
+
+    const libCards = this.lessons.map(l => {
+      const sc = this.subjectColors[l.subject] || '#4F46E5';
+      const ready = l.status === 'ready';
+      const statusMeta = l.status === 'ready' ? { label: 'Gotowa', color: '#15803D', bg: '#DCFCE7' }
+        : l.status === 'review' ? { label: 'Do sprawdzenia', color: '#B45309', bg: '#FEF3C7' }
+        : { label: 'Szkic', color: '#475569', bg: '#E2E8F0' };
+      return { id: l.id, title: l.title, subject: l.subject, subjectColor: sc, level: l.level,
+        description: l.description, tags: l.tags || [],
+        stepCount: (l.steps && l.steps.length) ? l.steps.length : (l.plannedSteps || 0),
+        durationLabel: this.lessonDuration(l) + ' min', ready,
+        statusLabel: statusMeta.label, statusColor: statusMeta.color, statusBg: statusMeta.bg,
+        runFg: ready ? '#4F46E5' : '#94A3B8', runBg: ready ? '#EEF2FF' : '#F8FAFC', runBorder: ready ? '#C7D2FE' : '#E2E8F0',
+        onRun: () => this.openPresenter(l.id), onEdit: () => this.goEditor() };
+    });
+
+    const ed = st.editor;
+    const editorSteps = ed.steps.map((s, i) => {
+      const t = this.stepTypes[s.type];
+      return { key: 'es' + i, num: (i + 1 < 10 ? '0' : '') + (i + 1), title: s.title,
+        durationLabel: s.duration + ' min', typeLabel: t.label, typeColor: t.color, typeIcon: t.icon,
+        onRemove: () => this.removeEditorStep(i) };
+    });
+    const editorTypeChips = Object.keys(this.stepTypes).map(k => {
+      const t = this.stepTypes[k];
+      const on = ed.form.type === k;
+      return { key: 'tc' + k, label: t.label, icon: t.icon, color: t.color, active: on,
+        chipBorder: on ? t.color : '#E2E8F0', chipBg: on ? (t.color + '14') : '#fff', chipFg: on ? t.color : '#64748B',
+        onPick: () => this.setEditorType(k) };
+    });
+    const editorPlannedDuration = ed.steps.reduce((a, s) => a + (+s.duration || 0), 0);
+
+    const roleLabel = st.role === 'admin' ? 'Administrator' : 'Instruktor';
+    const roleIcon = st.role === 'admin' ? 'admin_panel_settings' : 'co_present';
+
+    return {
+      // screen flags
+      isLogin: screen === 'login',
+      isAdminLibrary: screen === 'adminLibrary',
+      isAdminEditor: screen === 'adminEditor',
+      isInstructorList: screen === 'instructorList',
+      isPresenter: screen === 'presenter',
+      showShell: screen === 'adminLibrary' || screen === 'adminEditor' || screen === 'instructorList',
+      isAdmin: st.role === 'admin',
+      roleLabel, roleIcon,
+      // nav handlers
+      pickAdmin: () => this.pickRole('admin'),
+      pickInstructor: () => this.pickRole('instruktor'),
+      changeRole: this.changeRole, goLibrary: this.goLibrary, goEditor: this.goEditor, goInstructor: this.goInstructor,
+      navLibActive: screen === 'adminLibrary', navEditActive: screen === 'adminEditor',
+      // library
+      libCards,
+      libCount: this.lessons.length,
+      openScratch: () => this.openPresenter('scratch-ruch'),
+      // editor
+      editorTitle: ed.meta.title, editorSubject: ed.meta.subject, editorLevel: ed.meta.level,
+      editorSteps, editorStepCount: ed.steps.length, editorPlannedDuration,
+      editorTypeChips,
+      formTitle: ed.form.title, formDuration: ed.form.duration, formScript: ed.form.script,
+      formStudent: ed.form.student, formNotes: ed.form.notes,
+      onFormTitle: this.setEditorField('title'), onFormDuration: this.setEditorField('duration'),
+      onFormScript: this.setEditorField('script'), onFormStudent: this.setEditorField('student'), onFormNotes: this.setEditorField('notes'),
+      addStep: this.addStep,
+      // presenter
+      lessonTitle: lesson.title, lessonSubject: lesson.subject,
+      lessonSubjectColor: this.subjectColors[lesson.subject] || '#4F46E5',
+      stepCount: steps.length,
+      stepNumLabel: (idx + 1) + ' / ' + steps.length,
+      cur, stepList,
+      isV1: p.variant === 1, isV2: p.variant === 2,
+      variant1: () => this.setVariant(1), variant2: () => this.setVariant(2),
+      v1Bg: p.variant === 1 ? '#fff' : 'transparent', v1Fg: p.variant === 1 ? '#4F46E5' : '#64748B', v1Shadow: p.variant === 1 ? '0 1px 3px rgba(15,23,42,0.12)' : 'none',
+      v2Bg: p.variant === 2 ? '#fff' : 'transparent', v2Fg: p.variant === 2 ? '#4F46E5' : '#64748B', v2Shadow: p.variant === 2 ? '0 1px 3px rgba(15,23,42,0.12)' : 'none',
+      notesFg: p.showNotes ? '#4F46E5' : '#64748B', notesBg: p.showNotes ? '#EEF2FF' : '#fff', notesBorder: p.showNotes ? '#C7D2FE' : '#E2E8F0',
+      running: p.running, runIcon: p.running ? 'pause' : 'play_arrow', runLabel: p.running ? 'Pauza' : 'Start',
+      toggleRun: this.toggleRun, resetTimers: this.resetTimers,
+      stepElapsed: this.fmt(p.elapsedStep), stepPlanned: this.fmt(plannedStep),
+      totalElapsed: this.fmt(p.elapsedTotal), totalPlanned: this.fmt(plannedTotal),
+      stepOver: p.elapsedStep > plannedStep && plannedStep > 0,
+      stepTimeColor: (p.elapsedStep > plannedStep && plannedStep > 0) ? '#F43F5E' : '#0F172A',
+      progressPct: steps.length ? Math.round(((idx + 1) / steps.length) * 100) : 0,
+      nextStep: this.nextStep, prevStep: this.prevStep,
+      atFirst: idx === 0, atLast: idx === steps.length - 1,
+      prevColor: idx === 0 ? '#CBD5E1' : '#475569', prevOpacity: idx === 0 ? 0.5 : 1,
+      nextBg: idx === steps.length - 1 ? '#94A3B8' : '#4F46E5', nextOpacity: idx === steps.length - 1 ? 0.55 : 1,
+      fontUp: this.fontUp, fontDown: this.fontDown,
+      showNotes: p.showNotes, toggleNotes: this.toggleNotes,
+      showStudent: p.showStudent, toggleStudent: this.toggleStudent,
+      scriptFontPx: Math.round(30 * p.fontScale),
+      scriptFontPxLg: Math.round(34 * p.fontScale),
+      exitPresenter: this.exitPresenter,
+      // toast
+      toastVisible: !!st.toast, toastText: st.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

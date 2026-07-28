@@ -1,0 +1,8 @@
+Ten plik został zastąpiony przez STATUS.md.
+
+Aktualny stan projektu, lista ostatnich zmian i plan dalszych prac: STATUS.md
+Uruchamianie i konfiguracja: README.md
+Historia budowy i wzorce architektoniczne: PLAN.md (archiwum)
+Ostatni audyt kodu: AUDYT_2026-07-27.md
+
+Plik możesz usunąć z repozytorium (git rm PROJEKT_W_TRAKCIE).

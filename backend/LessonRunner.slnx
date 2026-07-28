@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="LessonRunner.Api/LessonRunner.Api.csproj" />
+  <Project Path="LessonRunner.Application/LessonRunner.Application.csproj" />
+  <Project Path="LessonRunner.Domain/LessonRunner.Domain.csproj" />
+  <Project Path="LessonRunner.Infrastructure/LessonRunner.Infrastructure.csproj" />
+  <Project Path="LessonRunner.Tests/LessonRunner.Tests.csproj" />
+</Solution>

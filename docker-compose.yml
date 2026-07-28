@@ -1,0 +1,81 @@
+# Wartości wrażliwe wczytujemy z pliku `.env` obok tego pliku (patrz `.env.example`).
+# Compose nie zawiera żadnych domyślnych haseł - brak zmiennej = błąd przy `docker compose up`,
+# i tak ma być: lepiej nie wstać niż wstać z hasłem "admin12345" na produkcji.
+#
+# BAZA DANYCH: domyślnie SQLite w wolumenie `api-data`. To świadomy wybór - komplet migracji
+# w repozytorium jest wygenerowany dla SQLite (kolumny `TEXT`/`INTEGER`), więc uruchomienie
+# ich na PostgreSQL zakończy się błędem typów. Zanim przejdziesz na PostgreSQL, wygeneruj
+# dla niego osobny zestaw migracji - szczegóły w README, sekcja "Baza danych".
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: ${DB_CONNECTION_STRING:-Data Source=/app/data/lesson-runner.db}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?ustaw JWT_SIGNING_KEY w .env (min. 32 bajty)}
+      Jwt__Issuer: LessonRunner
+      Jwt__Audience: LessonRunnerClients
+      # Frontend i API są za tym samym originem (nginx proxuje /api), więc CORS zwykle
+      # nie jest potrzebny. Ustaw PUBLIC_ORIGIN tylko, gdy backend stoi pod inną domeną.
+      Cors__AllowedOrigins__0: ${PUBLIC_ORIGIN:-}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:?ustaw BOOTSTRAP_ADMIN_EMAIL w .env}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:?ustaw BOOTSTRAP_ADMIN_PASSWORD w .env}
+      Backup__RootPath: /app/backups
+      Smtp__Mode: ${SMTP_MODE:-Log}
+      Smtp__Host: ${SMTP_HOST:-}
+      Smtp__Port: ${SMTP_PORT:-587}
+      Smtp__Username: ${SMTP_USERNAME:-}
+      Smtp__Password: ${SMTP_PASSWORD:-}
+      Smtp__EnableSsl: ${SMTP_ENABLE_SSL:-true}
+      Notifications__ReminderIntervalMinutes: ${REMINDER_INTERVAL_MINUTES:-30}
+    # API nie musi być wystawione publicznie - ruch idzie przez web (nginx).
+    # Odkomentuj, jeśli chcesz uderzać do API bezpośrednio z hosta (np. curl).
+    # ports:
+    #   - "127.0.0.1:5000:8080"
+    volumes:
+      - api-data:/app/data
+      - api-uploads:/app/wwwroot/uploads
+      - api-backups:/app/backups
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/lesson-runner-web/Dockerfile
+      args:
+        # Puste = ścieżki relatywne obsługiwane przez proxy w nginx.conf.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    restart: unless-stopped
+
+  # PostgreSQL jako opcja - uruchamiany tylko z profilem: `docker compose --profile postgres up`.
+  # Wymaga wcześniejszego wygenerowania migracji dla Npgsql (patrz README).
+  postgres:
+    profiles: ["postgres"]
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-lesson_runner}
+      POSTGRES_USER: ${POSTGRES_USER:-lesson_runner}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?ustaw POSTGRES_PASSWORD w .env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  api-data:
+  api-uploads:
+  api-backups:
+  postgres-data:

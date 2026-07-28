@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/.vs/
+**/.git/
+backend/lesson-runner.db
+backend/LessonRunner.Api/backups/
+backend/LessonRunner.Api/wwwroot/uploads/
