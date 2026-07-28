@@ -1,0 +1,24 @@
+# ---- .NET ----
+backend/**/bin/
+backend/**/obj/
+*.user
+
+# SQLite dev database
+backend/**/*.db
+backend/**/*.db-shm
+backend/**/*.db-wal
+backend/api-run.log
+
+# ---- Node / Vite ----
+frontend/node_modules/
+frontend/dist/
+frontend/vite-dev*.log
+frontend/*.local
+
+# ---- Editors / OS ----
+.vs/
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
