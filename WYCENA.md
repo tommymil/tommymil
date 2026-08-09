@@ -1,11 +1,25 @@
 # Wycena projektu — A.K. HOUSE
 
 **Dokument pomocniczy do ustalenia uczciwej ceny (dla obu stron).**
-Data: 23.07.2026
+Data: 29.07.2026 (aktualizacja wersji z 23.07.2026)
 
 > Zastrzeżenie: to oszacowanie oparte na realnym zakresie kodu i typowych
 > polskich stawkach. Ma być podstawą do rozmowy, a nie „wyceną urzędową".
-> Kwoty podano w PLN, brutto/netto do ustalenia między stronami.
+> Kwoty w PLN **netto**, o ile nie zaznaczono inaczej.
+
+---
+
+## 0. Stan faktyczny repozytorium (29.07.2026)
+
+| Metryka | Wartość |
+|---|---|
+| Kod produkcyjny (`backend/src` + `frontend/src`) | **~18 100 linii** |
+| Liczba plików źródłowych | **183** |
+| Backend | C# / .NET 10, Clean Architecture, EF Core, xUnit |
+| Frontend | React + TypeScript (Vite), MVVM, 7 modułów funkcjonalnych |
+| Moduły frontendu | `landing`, `admin`, `configurator`, `order`, `realizations`, `consent`, `notfound` |
+| Repozytorium git | **istnieje** |
+| Szacowany nakład pracy | **200 – 300 h** pracy o jakości produkcyjnej |
 
 ---
 
@@ -26,7 +40,7 @@ To nie jest „strona wizytówka" — to trzy produkty w jednym:
 
 ### b) Backend z prawdziwą architekturą
 - C# / .NET 10, Clean Architecture (Domain → Application → Infrastructure → Api).
-- EF Core (SQLite, wymienialne na PostgreSQL), migracje, seeder.
+- EF Core (SQLite, wymienialne na PostgreSQL jedną linijką), migracje, seeder.
 - Formularz leada: walidacja RODO, honeypot anty-spam, limit zgłoszeń/IP.
 - Wysyłka e-maili przez SMTP (w dev logowanie).
 - Testy jednostkowe (domena) i integracyjne (WebApplicationFactory).
@@ -41,13 +55,21 @@ To nie jest „strona wizytówka" — to trzy produkty w jednym:
 
 ### d) Dodatkowo
 - Kreator zamówienia wieloetapowy (`/zamowienie`).
-- Konfigurator 3D (WebGL / Three.js) — obecnie schowany, gotowy na przyszłość.
+- Konfigurator 3D (WebGL / Three.js) — **szkielet i architektura gotowe,
+  pełna implementacja z silnikiem wyceny (CPQ) to osobny etap 2.**
 
 ---
 
-## 2. Wartość rynkowa poszczególnych części
+## 2. Widełki rynkowe — obecny stan projektu
 
-Gdyby całość budował freelancer od zera:
+| Kto wycenia | Stawka | Za obecny stan |
+|---|---|---|
+| Software house | 300 – 450 zł/h | **90 000 – 160 000** |
+| Freelancer senior | 150 – 220 zł/h | **40 000 – 70 000** |
+| Realna cena z tego segmentu | — | **20 000 – 35 000** |
+| Cena „po znajomości" | 100 – 140 zł/h | **15 000 – 25 000** |
+
+### Rozbicie na części (wartość odtworzenia u freelancera)
 
 | Element | Wartość rynkowa (PLN) |
 |---|---|
@@ -55,65 +77,62 @@ Gdyby całość budował freelancer od zera:
 | Backend + baza + formularze + e-mail + testy | 6 000 – 15 000 |
 | Panel CRM (kanban, pulpit, lejek, e-maile) | 12 000 – 30 000 |
 | Kreator zamówienia | 3 000 – 6 000 |
-| Konfigurator 3D (demo) | 5 000 – 12 000 |
+| Konfigurator 3D (obecny szkielet) | 5 000 – 12 000 |
 | **Razem jako projekt komercyjny** | **~35 000 – 80 000** |
 
-- Software house: górna część przedziału lub wyżej.
-- Przeciętny freelancer mid: 25 000 – 45 000 zł.
+---
+
+## 3. Konfigurator 3D + CPQ — osobna wycena
+
+**25 000 – 60 000 zł** za pełną implementację (modele parametryczne, silnik
+wyceny, eksport konfiguracji do zamówienia, optymalizacja mobilna).
 
 ---
 
-## 3. Uczciwa cena „po znajomości"
+## 4. Rekomendowany model rozliczenia
 
-Dwie niezależne metody dają zbieżny wynik:
+| Pozycja | Kwota |
+|---|---|
+| **Budowa obecnego stanu** (kotwica negocjacyjna) | **18 000 zł** jednorazowo — z miejscem do zejścia do 15 000 |
+| Wdrożenie produkcyjne (hosting, domena, HTTPS, SMTP, utwardzenie logowania) | 3 000 – 5 000 zł — lub w pakiecie przy pełnej cenie |
+| **Utrzymanie i wsparcie** | **300 – 600 zł / mies.** |
+| Konfigurator 3D + CPQ | osobna umowa, etap 2 |
 
-- **Godzinowo (wartość dostarczona):** efekt ok. 150–220 h pracy o jakości
-  produkcyjnej × przyjazna stawka 100–140 zł/h → **15 000 – 30 000 zł**.
-- **Procent ceny rynkowej:** rabat „dla znajomego" 40–60% → **15 000 – 35 000 zł**.
-
-### 👉 Sugerowany środek dla gotowego MVP: **15 000 – 20 000 zł** jednorazowo.
-
----
-
-## 4. Co obniża cenę (uczciwie wobec znajomego)
-
-Projekt to **bardzo zaawansowane MVP, ale jeszcze nie „wdrożony produkt"**.
-Do produkcji brakuje:
-
-- [ ] Wdrożenia: hosting, domena, HTTPS, konfiguracja SMTP.
-- [ ] Utwardzenia logowania do panelu admina (dziś prosty klucz API).
-- [ ] Repozytorium git (obecnie **nie istnieje** — brak historii i kopii).
-- [ ] Prawdziwych zdjęć (obecne są poglądowe) i finalnej treści.
-- [ ] Panelu CMS do edycji treści (treść jest w bazie, ale bez UI do edycji).
-
-Dlatego albo cena bliżej dolnej granicy „jako MVP do dokończenia",
-albo cena wyższa, ale z tymi pozycjami w pakiecie.
+Abonament utrzymaniowy jest **ważniejszy niż 3 000 zł różnicy w cenie
+startowej** — daje przewidywalny przychód i naturalny pretekst do dalszej pracy
+nad produktem.
 
 ---
 
-## 5. Jak poukładać, żeby było fair dla obu stron
+## 5. Co jeszcze zostało do produkcji
 
-„Uczciwie" to nie tylko kwota — to jasne ustalenie **co wchodzi w cenę**:
+- [ ] Wdrożenie: hosting, domena, HTTPS, konfiguracja SMTP.
+- [ ] Utwardzenie logowania do panelu admina (dziś prosty klucz `X-Api-Key`).
+- [x] ~~Repozytorium git~~ — **zrobione**.
+- [ ] Prawdziwe zdjęcia (obecne są poglądowe) i finalna treść.
+- [ ] Panel CMS do edycji treści (treść jest w bazie, ale bez UI do edycji).
+
+Stąd wybór: albo cena bliżej dolnej granicy „jako MVP do dokończenia", albo
+cena wyższa, ale z tymi pozycjami w pakiecie.
+
+---
+
+## 6. Ustalenia, które trzeba spisać (jedna strona A4)
+
+„Uczciwie" to nie tylko kwota — to jasne ustalenie, **co wchodzi w cenę**:
 
 - Czy w cenie jest wdrożenie i konfiguracja, czy osobno.
 - Ile rund poprawek jest wliczonych.
 - Kto płaci za hosting / domenę / SMTP (koszty cykliczne właściciela).
-- Czy jest utrzymanie / wsparcie (np. 200–500 zł/mies. lub pakiet godzin).
+- Czy jest utrzymanie / wsparcie i w jakim zakresie.
 - Że klient otrzymuje **własność kodu** (to backend + panel, nie szablon).
-
-### Rekomendowany model rozliczenia (najbardziej „równy")
-
-| Pozycja | Kwota |
-|---|---|
-| Budowa (to, co jest teraz) | 12 000 – 15 000 zł jednorazowo |
-| Dokończenie do produkcji (wdrożenie, git, hardening, CMS) | wg godzin, osobno |
-| Wsparcie miesięczne (opcjonalnie) | 200 – 500 zł / mies. |
+- Co **nie** wchodzi: konfigurator 3D, CMS, zdjęcia, treści marketingowe.
 
 ---
 
-## 6. Podsumowanie jednym zdaniem
+## 7. Podsumowanie jednym zdaniem
 
-Rynkowo praca warta jest **35 000 – 80 000 zł**; uczciwa cena po znajomości za
-obecny stan (zaawansowane MVP) to **~15 000 – 20 000 zł jednorazowo**, a jeśli
-rozbić to na „budowa + wdrożenie + wsparcie", budowa spokojnie broni się w
-okolicach **12 000 – 15 000 zł**.
+Rynkowo praca warta jest **40 000 – 160 000 zł** zależnie od tego, kto ją
+wycenia; uczciwa cena po znajomości za obecny stan to **15 000 – 25 000 zł**
+jednorazowo (kotwica: **18 000**), plus **300 – 600 zł/mies.** utrzymania, a
+konfigurator 3D z CPQ to osobny etap wart **25 000 – 60 000 zł**.
