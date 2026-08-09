@@ -19,7 +19,7 @@ public sealed record ParentScheduleItemDto(
     string? MeetingUrl,
     /// <summary>Dzieci tego rodzica zapisane na ten termin - do zgłoszenia nieobecności.</summary>
     IReadOnlyList<ParentSessionChildDto>? Children = null,
-    /// <summary>Numer lekcji w kursie i długość kursu - „lekcja 7 z 12".
+    /// <summary>Numer lekcji w kursie i długość kursu - „lekcja 7 z 12”.
     /// Rodzic pyta o postęp kursu częściej niż o pojedynczy termin.</summary>
     int SequenceNumber = 0,
     int CourseLength = 0,

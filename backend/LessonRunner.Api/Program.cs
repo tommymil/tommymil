@@ -71,7 +71,7 @@ if (string.IsNullOrWhiteSpace(jwtOptions.SigningKey))
 
 if (Encoding.UTF8.GetByteCount(jwtOptions.SigningKey) < 32)
 {
-    throw new InvalidOperationException("Jwt:SigningKey musi miec co najmniej 32 bajty.");
+    throw new InvalidOperationException("Jwt:SigningKey musi mieć co najmniej 32 bajty.");
 }
 
 builder.Services
