@@ -320,7 +320,7 @@ internal sealed class EfGroupRepository(AppDbContext dbContext) : IGroupReposito
         Status = ParseEnum(
             document.Status,
             document.Present ? AttendanceStatus.Present : AttendanceStatus.UnexcusedAbsence),
-        // Rekordy sprzed migracji `AddSessionDebriefAndLiveStatus` maja pusty LiveStatus.
+        // Rekordy sprzed migracji `AddSessionDebriefAndLiveStatus` mają pusty LiveStatus.
         LiveStatus = ParseEnum(document.LiveStatus, LiveWorkStatus.Working),
         Note = document.Note,
         JoinedAt = document.JoinedAt,

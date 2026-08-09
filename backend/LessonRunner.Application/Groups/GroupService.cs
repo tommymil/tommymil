@@ -120,7 +120,7 @@ public sealed class GroupService(
 
         if (lessonIds.Count == 0)
         {
-            throw new ArgumentException("Wybierz przynajmniej jedna lekcje lub kurs.");
+            throw new ArgumentException("Wybierz przynajmniej jedną lekcję lub kurs.");
         }
 
         foreach (var lessonId in lessonIds)

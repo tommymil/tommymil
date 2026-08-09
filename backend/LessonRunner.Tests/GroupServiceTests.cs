@@ -626,7 +626,7 @@ public sealed class GroupServiceTests
         await users.AddAsync(instructor, CancellationToken.None);
 
         var scheduling = new InMemorySchedulingRepository();
-        await scheduling.AddHolidayAsync(new Holiday { Date = new DateOnly(2026, 6, 22), Name = "Dzien wolny" }, CancellationToken.None);
+        await scheduling.AddHolidayAsync(new Holiday { Date = new DateOnly(2026, 6, 22), Name = "Dzień wolny" }, CancellationToken.None);
 
         var service = new GroupService(new InMemoryGroupRepository(), lessons, users, new InMemoryParticipantRepository(), null, scheduling);
         var first = new DateTimeOffset(2026, 6, 15, 16, 0, 0, TimeSpan.Zero);
@@ -830,7 +830,7 @@ public sealed class GroupServiceTests
         var sessionService = new SessionService(repository, lessons, participantRepository);
 
         var source = await groupService.CreateAsync(
-            new CreateGroupDto("Zrodlowa", instructor.Id, [lesson.Id], DateTimeOffset.UtcNow.AddDays(7), [jan.Id]),
+            new CreateGroupDto("Źródłowa", instructor.Id, [lesson.Id], DateTimeOffset.UtcNow.AddDays(7), [jan.Id]),
             CancellationToken.None);
         var target = await groupService.CreateAsync(
             new CreateGroupDto("Docelowa", instructor.Id, [lesson.Id], DateTimeOffset.UtcNow.AddDays(14), [ola.Id]),

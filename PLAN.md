@@ -12,13 +12,13 @@
 
 ## Cel
 
-Zbudować kompletną aplikacje Lesson Runner:
+Zbudować kompletną aplikację Lesson Runner:
 
 - backend w C# / ASP.NET Core Web API,
 - frontend w React + Vite + TypeScript,
 - trwały zapis lekcji, kroków, materiałów i notatek,
 - tryb administratora do tworzenia konspektów,
-- tryb instruktóra do prowadzenia lekcji.
+- tryb instruktora do prowadzenia lekcji.
 
 Obecne pliki `Lesson Runner.dc.html` i `support.js` traktujemy jako prototyp UI oraz specyfikacje zachowania, nie jako kod produkcyjny.
 
@@ -45,12 +45,12 @@ Zrealizowane:
 - uruchomiono backend pod `http://127.0.0.1:5000`,
 - zweryfikowano odpowiedź `GET http://127.0.0.1:5000/api/lessons`,
 - podłączono frontendowy view-model biblioteki lekcji do `GET /api/lessons`,
-- dodano stany loading/error/pusta lista w widokach biblioteki administratora i instruktóra,
-- zweryfikowano `npm run build` po podlaczeniu frontendu do API,
+- dodano stany loading/error/pusta lista w widokach biblioteki administratora i instruktora,
+- zweryfikowano `npm run build` po podłączeniu frontendu do API,
 - dodano endpoint `GET /api/lessons/{id}`,
 - dodano DTO szczegółów lekcji, kroków, materiałów, zasobów i notatek,
 - podłączono pierwszą wersję `PresenterPage` do szczegółów lekcji z API,
-- dodano podstawową nawigacje kroków w presenterze,
+- dodano podstawową nawigację kroków w presenterze,
 - zweryfikowano `GET http://127.0.0.1:5000/api/lessons/{id}`,
 - zweryfikowano ponownie `dotnet build backend/LessonRunner.slnx` i `npm run build`,
 - dodano backendowy przypadek użycia tworzenia lekcji,
@@ -58,32 +58,32 @@ Zrealizowane:
 - dodano endpoint `DELETE /api/lessons/{id}`,
 - dodano frontendowy `useLessonEditorViewModel`,
 - podłączono formularz edytora do API,
-- edytor zapisuje metadane lekcji, tagi, kroki, skrypt, materiał ucznia i notatkę instruktóra,
+- edytor zapisuje metadane lekcji, tagi, kroki, skrypt, materiał ucznia i notatkę instruktora,
 - zweryfikowano tworzenie lekcji przez `POST /api/lessons`,
-- usuńięto testówy rekord przez `DELETE /api/lessons/{id}`,
+- usunięto testowy rekord przez `DELETE /api/lessons/{id}`,
 - zweryfikowano końcowo `dotnet build backend/LessonRunner.slnx` i `npm run build`,
 - dodano aktualizowanie lekcji przez `PUT /api/lessons/{id}`,
 - dodano zmianę statusu przez `POST /api/lessons/{id}/send-to-review`,
 - dodano publikację przez `POST /api/lessons/{id}/publish`,
 - dodano trasę frontendu `admin/lessons/:lessonId/edit`,
-- edytor potrafi ładować istniejaca lekcje i zapisywac zmiany,
+- edytor potrafi ładować istniejącą lekcję i zapisywać zmiany,
 - edytor obsługuje zasoby kroku typu link i kod,
 - karty lekcji prowadza do edycji konkretnego konspektu,
 - zweryfikowano cykl API: create -> update -> send-to-review -> publish -> delete,
 - zweryfikowano ponownie `dotnet build backend/LessonRunner.slnx` i `npm run build`,
-- rozbudowano view-model prezentera o timer calej lekcji i timer kroku,
-- dodano zapamietywanie aktualnego kroku w `localStorage`,
+- rozbudowano view-model prezentera o timer całej lekcji i timer kroku,
+- dodano zapamiętywanie aktualnego kroku w `localStorage`,
 - dodano skróty klawiaturowe: następny/poprzedni krok, start/pauza, notatki, materiały ucznia,
 - dodano w presenterze widok listy kroków,
 - dodano w presenterze materiały ucznia,
 - dodano w presenterze zasoby link i kod z kopiowaniem,
-- dodano w presenterze notatki instruktóra,
-- dodano przełączniki pokażywania materiałów i notatek,
+- dodano w presenterze notatki instruktora,
+- dodano przełączniki pokazywania materiałów i notatek,
 - zweryfikowano `npm run build` po rozbudowie prezentera,
 - dodano wyszukiwanie lekcji po tytułe, przedmiocie, opisię i poziomie,
 - dodano filtrówanie biblioteki administratora po statusię,
-- ograniczono widok instruktóra do lekcji gotowych,
-- dodano lepsze komunikaty dla pustej listy i braku wynikow filtrówania,
+- ograniczono widok instruktora do lekcji gotowych,
+- dodano lepsze komunikaty dla pustej listy i braku wyników filtrowania,
 - poprawiono karte lekcji tak, żeby nie renderowala linku prowadzenia dla niegotowych konspektów,
 - dodano walidacje UX w edytorze dla zasobów link/kod oraz zmiany statusu bez kroków,
 - poprawiono responsywność glownej nawigacji, biblioteki, edytora i prezentera,
@@ -98,8 +98,8 @@ Etap stabilizacji technicznej:
 - ograniczono `UseHttpsRedirection` do środowiska nie-developerskiego (czysty profil http),
 - dodano `.gitignore` (artefakty .NET, baza SQLite, node_modułes, dist),
 - dodano `.env.development` i `.env.example` dla frontendu (`VITE_API_BASE_URL`),
-- dodano `README.md` z instrukcja uruchamiania backendu, frontendu, migracji i testów,
-- utworzono projekt testówy `LessonRunner.Tests` (xUnit) i dodano go do solucji,
+- dodano `README.md` z instrukcją uruchamiania backendu, frontendu, migracji i testów,
+- utworzono projekt testowy `LessonRunner.Tests` (xUnit) i dodano go do solucji,
 - dodano `InternalsVisibleTo` z Infrastructure do testów,
 - napisano testy warstwy Application (LessonCommands, LessonQueries) na fake repozytorium,
 - napisano testy round-trip repozytorium EF na SQLite in-memory,
@@ -133,7 +133,7 @@ Etap 6 - autoryzacja:
 - dodano guardy tras `RequireAuth` i `RequireAdmin`,
 - przepisano `LoginPage` na realny formularz email/hasło z przekierowaniem wg roli,
 - nawigacja (`AppShell`) zależna od roli + email użytkownika i wylogowanie,
-- akcje administracyjne ukryte dla instruktóra (i chronione guardami tras),
+- akcje administracyjne ukryte dla instruktora (i chronione guardami tras),
 - dodano testy frontendu: klient API i `AuthContext` (29 testów zielonych), `npm run build` działa,
 - zweryfikowano integracje: Vite serwuje, CORS preflight 204 z poprawnymi nagłówkami, login z originu frontendu 200.
 
@@ -148,28 +148,28 @@ Etap 7 - pliki (backend gotowy):
 
 Edytor v2 - autoring konspektów (Slice 1: edycja + reorder):
 
-- dodano edycje istniejacego kroku w miejscu (`editStep`/`commitStep`),
+- dodano edycję istniejącego kroku w miejscu (`editStep`/`commitStep`),
 - edycja zmienia typ, tytuł, czas i skrypt; materiały ucznia, zasoby i notatki kroku
-  pozostaja nietknięte (brak utraty danych przy krokach z wieloma elementami),
+  pozostają nietknięte (brak utraty danych przy krokach z wieloma elementami),
 - dodano przestawianie kroków w górę/dół (`moveStep`) z utrzymaniem wskaźnika edycji,
-- `removeStep` koryguje/anuluje aktualna edycje,
-- UI edytora: nagłówek trybu edycji, przyciski ↑/↓/Edytuj per krok, podswietlenie kroku w edycji, akcje Zapisz/Anuluj,
+- `removeStep` koryguje/anuluje aktualną edycję,
+- UI edytora: nagłówek trybu edycji, przyciski ↑/↓/Edytuj per krok, podświetlenie kroku w edycji, akcje Zapisz/Anuluj,
 - dodano testy view-modelu edytora (frontend: 35 testów zielonych), `npm run build` działa.
 
 Edytor v2 - autoring konspektów (Slice 2: pełna treść kroku):
 
 - ujednolicono formularz kroku: trzyma tablice `studentItems`, `resources`, `notes`,
-- edycja kroku ładuje pełna treść (znika logika "zachowaj nietknięte" że Slice 1 - nic nie ginie, bo wszystko jest reprezentowane),
+- edycja kroku ładuje pełną treść (znika logika "zachowaj nietknięte" ze Slice 1 - nic nie ginie, bo wszystko jest reprezentowane),
 - dodawanie wielu materiałów ucznia (`addStudentItem`/`removeStudentItem`),
 - dodawanie wielu notatek z rodzajem error/hint/pace (`addNote`/`removeNote`),
-- dodawanie wielu zasobów link/kod z walidacja (`addResource`/`removeResource`),
+- dodawanie wielu zasobów link/kod z walidacją (`addResource`/`removeResource`),
 - elementy nieedytowalne jeszcze w UI (obraz/plik z seedu) są pokazywane i zachowywane przy round-trip,
 - UI: sekcje listowe materiałów/notatek/zasobów z usuwaniem pojedynczych pozycji, podsumowanie kroku z licznikami,
 - dodano testy view-modelu (frontend: 38 testów zielonych), `npm run build` działa,
 - zweryfikowano realny kontrakt API: login -> POST lekcji z 2 materiałami/2 zasobami/2 notatkami na krok -> GET zwraca komplet (rodzaje error/pace, link/code) -> DELETE 204,
-- backend bez zmian: `CreateLessonDto.ToLesson` mapuje cale tablice, `ParseEnum` obsługuje rodzaje case-insensitive.
+- backend bez zmian: `CreateLessonDto.ToLesson` mapuje całe tablice, `ParseEnum` obsługuje rodzaje case-insensitive.
 
-Edytor v2 - autoring konspektów (Slice 3: pliki i obrazy - Etap 7 domkniety):
+Edytor v2 - autoring konspektów (Slice 3: pliki i obrazy - Etap 7 domknięty):
 
 - dodano w kliencie API `uploadFile` (multipart/form-data, nagłówek Bearer, obsługa 401, surfacowanie komunikatu błędu z backendu),
 - dodano `resolveAssetUrl` (relatywne `/uploads/...` -> pełny adres backendu),
@@ -181,43 +181,43 @@ Edytor v2 - autoring konspektów (Slice 3: pliki i obrazy - Etap 7 domkniety):
 
 Edytor v2 - autoring konspektów (Slice 4: dopracowanie pozycji kroku):
 
-- edycja pojedynczych pozycji w miejscu (inline) - nie trzeba już usuwac i wpisywac od nowa:
+- edycja pojedynczych pozycji w miejscu (inline) - nie trzeba już usuwać i wpisywać od nowa:
   `updateStudentItem`, `updateNoteItem` (rodzaj + treść), `updateResourceItem` (etykieta/URL/język/kod),
 - przestawianie pozycji w obrębie kroku: `moveStudentItem`, `moveNoteItem`, `moveResourceItem` (wspólny helper `moveInArray`),
 - UI: wiersze list są edytowalne (pola + ↑/↓/× przez wspólny `SubItemControls`), edycja podpisu obrazu, miniatury zachowane,
-- usuńięto martwe helpery widoku po przejsciu na wiersze edytowalne,
+- usunięto martwe helpery widoku po przejściu na wiersze edytowalne,
 - dodano testy view-modelu (frontend: 48 testów zielonych), `npm run build` działa,
-- bez zmian w kontrakcie API (te same tablice round-trippuja jak w Slice 2/3).
+- bez zmian w kontrakcie API (te same tablice przechodzą pełny zapis i odczyt jak w Slice 2/3).
 
 Poprawki uruchomienia lokalnego (Visual Studio / VS Code):
 
-- dodano testówy `Jwt:SigningKey` w bazowym `appsettings.json`, aby backend wstawal niezależnie od profilu/środowiska (klucz dev, do zmiany przed produkcja przez `Jwt__SigningKey`),
+- dodano testowy `Jwt:SigningKey` w bazowym `appsettings.json`, aby backend wstawał niezależnie od profilu/środowiska (klucz dev, do zmiany przed produkcją przez `Jwt__SigningKey`),
 - poluzowano CORS: dozwolony dowolny port loopbacku (`localhost`/`127.0.0.1`), bo Vite bez `strictPort` potrafi wziąć 5174 gdy 5173 zajęty - to blokowało logowanie z frontendu.
 
-Domkniecie pod pelne testówanie:
+Domknięcie pod pełne testowanie:
 
 - dodano wspólny moduł etykiet `lessonLabels` (typ kroku, rodzaj notatki, rodzaj zasobu) z fallbackiem na surową wartość,
 - prezenter pokazuje czytelny typ kroku i rodzaj notatki zamiast surowych "concept"/"hint",
-- edytor: lista kroków używa etykiety typu, wiersz zasobu używa wspólnego modułu (usuńięto lokalną mapę),
+- edytor: lista kroków używa etykiety typu, wiersz zasobu używa wspólnego modułu (usunięto lokalną mapę),
 - dodano test `lessonLabels` (frontend: 50 testów zielonych), `npm run build` działa.
 
-Bogaty seed do samodzielnego testówania:
+Bogaty seed do samodzielnego testowania:
 
 - rozbudowano `LessonSeedData` z 1 do 4 lekcji w różnych statusach i przedmiotach:
-  - "Pierwsza gra: ruch postaći" (Scratch, Ready, 7 kroków),
+  - "Pierwsza gra: ruch postaci" (Scratch, Ready, 7 kroków),
   - "Animacja: kotek mówi i zmienia kostiumy" (Scratch, Ready, 5 kroków),
   - "Python: zmienne i rozmowa z komputerem" (Python, Review, 4 kroki),
   - "Python: pętła for i lista zadań" (Python, Draft, 3 kroki),
 - każda lekcja ma wiele materiałów, notatki różnych rodzajów (error/hint/pace) i zasoby link/kod,
-- pozwala przetestówac: wyszukiwanie, filtr statusu (admin), widok instruktóra (tylko Ready), prezenter na wielu lekcjach,
-- UWAGA: seed zasila tylko PUSTA bazę. Aby zobaczyć nowe lekcje, zatrzymaj backend i usuń
+- pozwala przetestować: wyszukiwanie, filtr statusu (admin), widok instruktora (tylko Ready), prezenter na wielu lekcjach,
+- UWAGA: seed zasila tylko PUSTĄ bazę. Aby zobaczyć nowe lekcje, zatrzymaj backend i usuń
   `backend/LessonRunner.Api/lesson-runner.db` (oraz pliki `-wal`/`-shm`), potem uruchom ponownie.
 - Infrastructure kompiluje się czysto; testy backendu używają własnego `TestData`, więc seed ich nie dotyczy.
 
 Przeprojektowanie prezentera w kokpit nauczyciela:
 
-- ZALOZENIE: prowadzący udostępnia uczniom własny ekran że Scratchem; ta aplikacja to jego
-  prywatne zaplecze ("co mam teraz robić"), a nie pokaż dla uczniow.
+- ZAŁOŻENIE: prowadzący udostępnia uczniom własny ekran ze Scratchem; ta aplikacja to jego
+  prywatne zaplecze ("co mam teraz robić"), a nie pokaz dla uczniów.
 - układ 50/50: lewy pasek kroków | środek "Co robić teraz" + wskazówki + materiały | prawy duży panel "Na ekranie / wrzutki",
 - prawy panel zbiera WSZYSTKIE obrazy kroku (z materiałów i z zasobów) i pokazuje je dużo - na screeny bloczków,
 - środek: skrypt jako lista ponumerowanych czynności, wskazówki (error/hint/pace), materiały pomocnicze (tekst, linki, kod z kopiowaniem),
@@ -228,10 +228,10 @@ Przeprojektowanie prezentera w kokpit nauczyciela:
 
 Ergonomia prowadzenia + tryb ciemny:
 
-- "Co robić teraz" jako interaktywny wskaźnik biezacej czynności: klik ustawia aktualny punkt,
+- "Co robić teraz" jako interaktywny wskaźnik bieżącej czynności: klik ustawia aktualny punkt,
   wcześniejsze są oznaćzone jako zrobione (przekreślone, przygaszone), kolejne czekają; reset przy zmianie kroku,
 - tryb ciemny: tokeny CSS (`--bg`, `--surface`, `--border`, `--text*`) z jasnymi i ciemnymi wartośćiami,
-  przelacznik w pasku (zawsze widoczny), wybor zapamiętany w `localStorage`, domyślnie wg systemu,
+  przełącznik w pasku (zawsze widoczny), wybór zapamiętany w `localStorage`, domyślnie wg systemu,
   motyw ustawiany przed renderem (bez migniecia), `color-scheme` dla natywnych kontrolek,
   ciemne warianty wskazówek (error/hint/pace) i pill typu kroku,
 - dodano `features/theme` (`theme.ts` + `useTheme`), testy motywu i interaktywnych czynności,
@@ -239,14 +239,14 @@ Ergonomia prowadzenia + tryb ciemny:
 
 Import konspektów z Markdown (kreator):
 
-- ZALOZENIE: prowadzący pisze konspekt w prostym pliku .md wg szablonu, importer tworzy lekcje,
+- ZAŁOŻENIE: prowadzący pisze konspekt w prostym pliku .md wg szablonu, importer tworzy lekcje,
   a ręczna robota ogranicza się do dorobienia screenow że Scratcha w edytorze.
 - parser `features/import/lessonMarkdown.ts` (czysta funkcja) -> `CreateLessonRequest` + ostrzeżenia,
 - strona `admin/lessons/import` (guard admina, link "Import" w nawigacji): wklej/wczytaj .md, podgląd kroków i ostrzezen, "Utwórz konspekt",
 - po imporcie otwiera się edytor lekcji (tam dodajesz obrazy),
-- bez zmian w backendzie - używa istniejacego `POST /api/lessons`,
+- bez zmian w backendzie - używa istniejącego `POST /api/lessons`,
 - dodano testy: parser (metadane, typy/czas kroków, polskie tagi notatek, blok kodu z wcięciami, tekstowe wrzutki, ostrzeżenia) i VM importu (parsowanie, walidacja, utworzenie+nawigacja, wczytanie pliku) - frontend: 66 testów zielonych, build działa,
-- gotowy przyklad: `docs/przyklad-animacja.md` (Twoja lekcja o animacji/sterowaniu w formacie importu).
+- gotowy przykład: `docs/przyklad-animacja.md` (Twoja lekcja o animacji/sterowaniu w formacie importu).
 
 Format pliku importu (Markdown):
 
@@ -274,7 +274,7 @@ Subject: / Level: / Tags: / Opis:   -> metadane (przed pierwszym krokiem)
 
 Grupy, grafik i obecność (system frekwencji):
 
-- ZALOZENIE: admin tworzy grupę, dobiera uporządkowane lekcje Ready, ustawia start i godzinę
+- ZAŁOŻENIE: admin tworzy grupę, dobiera uporządkowane lekcje Ready, ustawia start i godzinę
   (terminy generują się co tydzień, 1 lekcja = 1 termin), dodaje uczestników i przypisuje
   instruktora; instruktor widzi swój grafik, wchodzi w konkretny termin, klika Start -> lista
   obecności -> Zapisz -> prowadzi lekcję (kokpit) -> Zakończ + notatka.
@@ -384,7 +384,7 @@ kodziaki/
 
 ## Architektura i wzorce
 
-Projekt budujemy od poczatku jako aplikacje utrzymywalna, a nie szybki prototyp.
+Projekt budujemy od początku jako aplikację utrzymywalną, a nie szybki prototyp.
 
 ### Backend: Clean Architecture
 
@@ -401,7 +401,7 @@ LessonRunner.Application
 - przypadki użycia,
 - DTO,
 - interfejsy repozytoriow i serwisow,
-- walidacja komend i zapytan,
+- walidacja komend i zapytań,
 - logika aplikacyjna niezależna od ASP.NET.
 
 LessonRunner.Infrastructure
@@ -432,7 +432,7 @@ Nie umieszczamy logiki biznesowej w kontrolerach. Kontrolery mają przyjąć req
 
 ### Frontend: MVVM-like + reusable views
 
-React nie będzie klasycznym MVVM z osobnymi klasami ViewModel, ale zastosujemy podobny podział odpowiedźialnosci:
+React nie będzie klasycznym MVVM z osobnymi klasami ViewModel, ale zastosujemy podobny podział odpowiedzialności:
 
 ```text
 View
@@ -444,7 +444,7 @@ ViewModel
 - custom hooki, np. useLessonEditorViewModel i usePresenterViewModel,
 - trzymają stan ekranu,
 - lacza dane z API z akcjami UI,
-- obsluguja timery, localStorage i skróty klawiaturowe.
+- obsługują timery, localStorage i skróty klawiaturowe.
 
 Model/API
 - typy domenowe,
@@ -454,17 +454,17 @@ Model/API
 
 Zasady frontendu:
 
-1. Widoki nie wykonują bezposrednio `fetch`.
+1. Widoki nie wykonują bezpośrednio `fetch`.
 2. Komponenty UI są wielokrotnego użycia i bez wiedzy o domenie.
 3. Komponenty domenowe mogą znać typy lekcji, kroków i zasobów.
-4. Hooki view-model obsluguja stan ekranow i akcje.
+4. Hooki view-model obsługują stan ekranów i akcje.
 5. Typy API są jawne, bez `any`.
 6. UI przenosimy z prototypu etapami, rozbijajac go na komponenty.
-7. Wszystkie teksty po polsku piszemy w pelni z polskimi znakami (ą, ć, ę, ł, ń, ó, ś, ź, ż):
+7. Wszystkie teksty po polsku piszemy w pełni z polskimi znakami (ą, ć, ę, ł, ń, ó, ś, ź, ż):
    etykiety UI, placeholdery, komunikaty, dane seed, pliki przykladowe. ASCII zostaje tylko dla
-   identyfikatorow, wartośći enumów, kluczy, nazw plików/tras/klas CSS i URL. Szczegoly w `CLAUDE.md`.
+   identyfikatorów, wartości enumów, kluczy, nazw plików/tras/klas CSS i URL. Szczegóły w `CLAUDE.md`.
 
-Reusable views i komponenty od poczatku:
+Reusable views i komponenty od początku:
 
 ```text
 Button
@@ -485,12 +485,12 @@ TimerDisplay
 
 ### Fundament
 
-1. Utwórzyc projekt `ASP.NET Core Web API`.
-2. Dodac Entity Framework Core.
+1. Utworzyć projekt `ASP.NET Core Web API`.
+2. Dodać Entity Framework Core.
 3. Na start uzyc SQLite jako lokalnej bazy danych.
-4. Dodac `AppDbContext`.
-5. Dodac CORS dla frontendu.
-6. Uruchomic Swagger/OpenAPI.
+4. Dodać `AppDbContext`.
+5. Dodać CORS dla frontendu.
+6. Uruchomić Swagger/OpenAPI.
 
 ### Model domeny
 
@@ -551,7 +551,7 @@ Note
 - Text
 ```
 
-Pozniej:
+Później:
 
 ```text
 LessonRunSession
@@ -581,7 +581,7 @@ PUT    /api/lessons/{id}/run-session
 POST   /api/lessons/{id}/send-to-review
 ```
 
-Autoryzacja może zostac dodana po pierwszym działającym MVP:
+Autoryzacja może zostać dodana po pierwszym działającym MVP:
 
 ```http
 POST   /api/auth/login
@@ -593,24 +593,24 @@ GET    /api/auth/me
 
 1. Stworzyc solucję `LessonRunner`.
 2. Stworzyc projekty `Domain`, `Application`, `Infrastructure`, `Api`.
-3. Ustawic zależności między projektami zgodnie z Clean Architecture.
+3. Ustawić zależności między projektami zgodnie z Clean Architecture.
 4. Zdefiniowac encje i enumy w `Domain`.
 5. Zdefiniowac DTO i interfejsy przypadkow użycia w `Application`.
-6. Dodac EF Core, SQLite i `AppDbContext` w `Infrastructure`.
-7. Dodac seed danych z lekcja Scratch z prototypu.
-8. Dodac endpointy albo kontrolery w `Api`.
-9. Uruchomic Swagger i sprawdźic endpointy.
-10. Dodac walidacje.
-11. Dodac migracje EF.
+6. Dodać EF Core, SQLite i `AppDbContext` w `Infrastructure`.
+7. Dodać seed danych z lekcją Scratch z prototypu.
+8. Dodać endpointy albo kontrolery w `Api`.
+9. Uruchomić Swagger i sprawdzić endpointy.
+10. Dodać walidację.
+11. Dodać migracje EF.
 
 ## Etap 3: Frontend React/Vite
 
 ### Fundament
 
-1. Utwórzyc aplikacje React + Vite + TypeScript.
-2. Dodac routing.
-3. Dodac klienta API.
-4. Dodac typy domenowe zgodne z backendem.
+1. Utworzyć aplikację React + Vite + TypeScript.
+2. Dodać routing.
+3. Dodać klienta API.
+4. Dodać typy domenowe zgodne z backendem.
 5. Przeniesc UI z prototypu do komponentow React.
 
 ### Proponowana struktura
@@ -644,46 +644,46 @@ frontend/lesson-runner-web/src/
 ### Kolejnosc prac frontendowych
 
 1. Stworzyc projekt Vite.
-2. Dodac routing.
-3. Dodac typy `Lesson`, `LessonStep`, `Resource`, `Note`.
-4. Dodac klienta API.
+2. Dodać routing.
+3. Dodać typy `Lesson`, `LessonStep`, `Resource`, `Note`.
+4. Dodać klienta API.
 5. Zbudować ekran wyboru roli.
 6. Zbudować biblioteke lekcji.
-7. Zbudować ekran instruktóra.
+7. Zbudować ekran instruktora.
 8. Zbudować tryb prezentera.
 9. Przeniesc timery, skróty klawiaturowe i preferencje `localStorage`.
 10. Zbudować edytor lekcji.
-11. Podlaczyc zapis i edycje do backendu.
+11. Podłączyć zapis i edycję do backendu.
 
 ## Etap 4: Edytor lekcji
 
-Edytor powinien obslugiwac:
+Edytor powinien obsługiwać:
 
-1. edycje metadanych lekcji,
+1. edycję metadanych lekcji,
 2. dodawanie kroków,
 3. usuwanie kroków,
-4. zmianę kolejnosci kroków,
-5. edycje skryptu prowadzącego,
+4. zmianę kolejności kroków,
+5. edycję skryptu prowadzącego,
 6. dodawanie materiałów ucznia,
 7. dodawanie zasobów: kod, link, obraz, plik,
 8. dodawanie notatek,
 9. zapis szkicu,
-10. zmianę statusu: szkic -> do sprawdźenia -> gotowa.
+10. zmianę statusu: szkic -> do sprawdzenia -> gotowa.
 
 ## Etap 5: Tryb prezentera
 
 Presenter działa glownie po stronie frontendu:
 
-1. pobiera gotowa lekcje z API,
+1. pobiera gotową lekcję z API,
 2. przechowuje aktualny krok lokalnie,
-3. zapisuje ostatnia pozycje w `localStorage`,
-4. ma timer kroku i calej lekcji,
+3. zapisuje ostatnią pozycję w `localStorage`,
+4. ma timer kroku i całej lekcji,
 5. obsługuje skróty:
    - `ArrowRight` / spacja: następny krok,
    - `ArrowLeft`: poprzedni krok,
    - `P`: start/pauza,
    - `N`: notatki,
-   - `Escape`: wyjscie,
+   - `Escape`: wyjście,
 6. pozwala zmienić układ widoku i rozmiar tekstu.
 
 ## Etap 6: Autoryzacja
@@ -706,7 +706,7 @@ Po podstawowym edytorze:
 3. przechowywanie plików lokalnie albo w chmurze,
 4. powiązanie zasobów z krokami lekcji.
 
-## Etap 8: Testy i jakosc
+## Etap 8: Testy i jakość
 
 Backend:
 
@@ -727,15 +727,15 @@ Frontend:
 
 ## Najblizsza kolejnosc prac
 
-1. [x] Utwórzyc solucję backendowa Clean Architecture.
-2. [x] Utwórzyc `frontend/lesson-runner-web` z podziałem MVVM-like.
+1. [x] Utworzyć solucję backendową Clean Architecture.
+2. [x] Utworzyć `frontend/lesson-runner-web` z podziałem MVVM-like.
 3. [x] Backend: modele + SQLite + seed lekcji Scratch.
 4. [x] Frontend: pobranie lekcji z API i pokazanie biblioteki.
 5. [x] Presenter: pierwszą działająca wersja prowadzenia lekcji.
 6. [x] Edytor: tworzenie i zapis lekcji.
 7. [x] Stabilizacja: migracje EF, konfiguracja uruchamiania, testy backendu i frontendu.
-8. [x] Fundament autoryzacji: encja User, hashowanie hasel, rejestracja/logowanie (bez JWT).
-9. [x] Autoryzacja: tokeny JWT, middleware, `GET /api/auth/me`, zabezpieczenie endpointow rolami.
+8. [x] Fundament autoryzacji: encja User, hashowanie haseł, rejestracja/logowanie (bez JWT).
+9. [x] Autoryzacja: tokeny JWT, middleware, `GET /api/auth/me`, zabezpieczenie endpointów rolami.
 10. [x] Frontend: ekran logowania i ukrywanie akcji zaleznie od roli.
 11. [x] Pliki i materiały (Etap 7): backend (`POST /api/files`, `LocalFileStorage`, `/uploads`) + wpięcie w edytor i prezenter (upload obrazów/PDF, render obrazów, zweryfikowane round-tripem).
 12. [x] Edytor v2 Slice 1: edycja kroku w miejscu + przestawianie kroków (bez utraty pod-elementów).
@@ -743,18 +743,18 @@ Frontend:
 14. [x] Edytor v2 Slice 3: upload obrazów/PDF wpiety w edytor i prezenter (zweryfikowane round-tripem API).
 15. [x] Edytor v2 Slice 4: edycja pozycji kroku w miejscu + reorder materiałów/notatek/zasobów.
 16. [x] Etykiety enumów (typ kroku/notatki/zasobu) spójnie w prezenterze i edytorze.
-17. [x] Bogaty seed: 4 lekcje w różnych statusach i przedmiotach (wymaga resetu bazy, by się pojawil).
+17. [x] Bogaty seed: 4 lekcje w różnych statusach i przedmiotach (wymaga resetu bazy, by się pojawił).
 18. [x] Prezenter przeprojektowany w kokpit nauczyciela: 50/50 instrukcje | duży panel na screeny/wrzutki, nazewnictwo pod prowadzącego.
-19. [x] Ergonomia: interaktywny wskaźnik biezacej czynności ("Co robić teraz").
-20. [x] Tryb ciemny: tokeny CSS, przelacznik w pasku, zapamietywanie wyboru, domyślnie wg systemu.
-21. [x] Import konspektów z Markdown: parser + strona importu z podglądem, przyklad `docs/przyklad-animacja.md`.
+19. [x] Ergonomia: interaktywny wskaźnik bieżącej czynności ("Co robić teraz").
+20. [x] Tryb ciemny: tokeny CSS, przełącznik w pasku, zapamiętywanie wyboru, domyślnie wg systemu.
+21. [x] Import konspektów z Markdown: parser + strona importu z podglądem, przykład `docs/przyklad-animacja.md`.
 22. [x] Biblioteka: wybór technologii Scratch / Minecraft Education przed wyszukiwaniem i statusem.
 23. [x] Trwałe sesje prowadzenia (`LessonRunSession`): tabela EF, endpointy `POST/PUT /api/lessons/{id}/run-session`, zapisywanie kroku/timerów/stanu prezentera.
 24. [x] Grupy, grafik i obecność: grupy + uczestnicy + cotygodniowe terminy (admin), grafik instruktora i kokpit sesji (start -> lista obecności -> prowadzenie -> zakończenie + notatka), reuse `PresenterCockpit`.
 
 ## Przewodnik: lokalne wprowadzenie konspektu (smoke test)
 
-Cel: od zera uruchomic aplikacje lokalnie, wprowadzic prawdziwy konspekt (z obrazem/PDF),
+Cel: od zera uruchomić aplikację lokalnie, wprowadzić prawdziwy konspekt (z obrazem/PDF),
 opublikowac go i poprowadzic w trybie prezentera. Wszystko lokalnie, na realnym API.
 
 ### 0. Wymagania
@@ -771,7 +771,7 @@ dotnet run --project LessonRunner.Api
 
 - API: `http://localhost:5000`. Profil `http` z `launchSettings.json` ustawia środowisko
   `Development`, dzieki czemu wczytuje się `Jwt:SigningKey` i konta startowe (seed).
-- Baza SQLite i startową lekcja Scratch tworza się automatycznie przy pierwszym starcie.
+- Baza SQLite i startowa lekcja Scratch tworzą się automatycznie przy pierwszym starcie.
 - Uwaga: nie uruchamiaj z `--no-launch-profile` bez ustawienia `ASPNETCORE_ENVIRONMENT=Development`
   oraz `Jwt:SigningKey` - bez klucza aplikacja celowo nie wystartuje.
 
@@ -787,20 +787,20 @@ npm run dev
 
 ### 3. Logowanie jako administrator
 
-- Wejdz na `http://localhost:5173`, zaloguj się kontem admina:
+- Wejdź na `http://localhost:5173`, zaloguj się kontem admina:
   `admin@lessonrunner.local` / `admin12345`.
 - Po zalogowaniu masz dostęp do biblioteki administratora i akcji tworzenia/edycji konspektów.
 
 ### 4. Utwórzenie konspektu
 
-1. Otworz tworzenie nowego konspektu (z biblioteki administratora).
+1. Otwórz tworzenie nowego konspektu (z biblioteki administratora).
 2. Wypełnij metadane: tytuł i opis są wymagane; przedmiot, poziom i tagi - opcjonalnie
    (tagi po przecinku, np. `Pętle, Sterowanie`).
 3. Dla każdego kroku w panelu "Nowy krok":
    - ustaw typ, tytuł, czas (min) i skrypt prowadzącego (każde zdanie/akapit w nowej linii),
    - "Materiały ucznia": wpisz tekst i "Dodaj materiał" albo "Dodaj obraz" (PNG/JPG/GIF/WEBP),
-   - "Notatki instruktóra": wybierz rodzaj (Podpowiedź/Częsty błąd/Tempo), wpisz treść, "Dodaj notatkę",
-   - "Zasóby": link albo kod ("Dodaj zasob") lub "Dodaj obraz lub PDF" (upload),
+   - "Notatki instruktora": wybierz rodzaj (Podpowiedź/Częsty błąd/Tempo), wpisz treść, "Dodaj notatkę",
+   - "Zasoby": link albo kod ("Dodaj zasób") lub "Dodaj obraz lub PDF" (upload),
    - możesz dodać wiele materiałów, notatek i zasobów do jednego kroku,
    - "Dodaj krok" dopisuje krok do listy na dółe.
 4. Na liscie kroków: strzałki przestawiaja kolejnosc, "Edytuj" ładuje krok z powrotem do
@@ -809,16 +809,16 @@ npm run dev
 
 ### 5. Zmiana statusu i publikacja
 
-- "Do sprawdźenia" -> status `Review`; "Publikuj" -> status `Ready`.
-- Tylko konspekty `Ready` są widoczne i możliwe do prowadzenia w trybie instruktóra.
+- "Do sprawdzenia" -> status `Review`; "Publikuj" -> status `Ready`.
+- Tylko konspekty `Ready` są widoczne i możliwe do prowadzenia w trybie instruktora.
 
 ### 6. Prowadzenie w trybie prezentera
 
-- Zaloguj się instruktorem (`instructor@lessonrunner.local` / `teacher12345`) albo zostan adminem.
-- Otworz gotowy konspekt w prezenterze. Sprawdź:
-  - nawigacje kroków (strzałki / spacja), timer kroku i calej lekcji, start/pauza,
+- Zaloguj się instruktorem (`instructor@lessonrunner.local` / `teacher12345`) albo zostań adminem.
+- Otwórz gotowy konspekt w prezenterze. Sprawdź:
+  - nawigację kroków (strzałki / spacja), timer kroku i całej lekcji, start/pauza,
   - materiały ucznia (w tym obrazy), zasoby (link, kod z kopiowaniem, obraz, PDF jako link),
-  - notatki instruktóra, przełączniki widocznosci materiałów i notatek.
+  - notatki instruktora, przełączniki widoczności materiałów i notatek.
 - Stan prowadzenia zapisuje się w backendzie jako sesja per użytkownik i lekcja: aktualny krok, timer kroku, timer całej lekcji i start/pauza.
 
 ### 7. Szybka kontrola end-to-end (opcjonalnie, bez UI)
@@ -838,10 +838,10 @@ curl -s -X POST http://localhost:5000/api/files -H "Authorization: Bearer <token
 ### 8. Reset i rozwiazywanie problemów
 
 - Reset danych: zatrzymaj backend i usuń plik bazy `backend/LessonRunner.Api/lesson-runner.db`
-  (oraz pliki `-wal`/`-shm`, jesli są). Przy następnym starcie seed odtworzy konta i lekcje Scratch.
-  Wgrane pliki: katalog `backend/LessonRunner.Api/wwwroot/uploads` (czysc ręcznie, jesli chcesz).
+  (oraz pliki `-wal`/`-shm`, jeśli są). Przy następnym starcie seed odtworzy konta i lekcje Scratch.
+  Wgrane pliki: katalog `backend/LessonRunner.Api/wwwroot/uploads` (czyść ręcznie, jeśli chcesz).
 - "Aplikacja nie startuje - brak klucza Jwt:SigningKey": uruchamiasz bez profilu Development;
-  uzyj `dotnet run --project LessonRunner.Api` albo ustaw `ASPNETCORE_ENVIRONMENT=Development`.
+  użyj `dotnet run --project LessonRunner.Api` albo ustaw `ASPNETCORE_ENVIRONMENT=Development`.
 - "401 w UI": token wygasl lub brak sesji - zaloguj się ponownie.
 - "403 przy zapisie": jesteś instruktorem; akcje tworzenia/edycji są tylko dla admina.
 - "Niedozwolony typ pliku" / "Plik przekracza limit": dozwolone PNG/JPG/GIF/WEBP/PDF, limit 10 MB.

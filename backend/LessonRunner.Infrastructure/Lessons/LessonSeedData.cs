@@ -92,7 +92,7 @@ internal static class LessonSeedData
                         ],
                         Resources =
                         [
-                            new LessonResource { Kind = LessonResourceKind.Code, Language = "Scratch", Code = "gdy kliknięto zieloną flagę\nzawsze\n  // tutaj za chwile dodamy ruch" }
+                            new LessonResource { Kind = LessonResourceKind.Code, Language = "Scratch", Code = "gdy kliknięto zieloną flagę\nzawsze\n  // tutaj za chwilę dodamy ruch" }
                         ],
                         Notes =
                         [

@@ -117,7 +117,7 @@ public sealed class CourseService(
 
         if (lessonIds.Count == 0)
         {
-            throw new ArgumentException("Wybierz przynajmniej jedna lekcje kursu.");
+            throw new ArgumentException("Wybierz przynajmniej jedną lekcję kursu.");
         }
 
         var lessonsById = (await lessonRepository.ListAsync(cancellationToken)).ToDictionary(lesson => lesson.Id);

@@ -4,7 +4,7 @@ using LessonRunner.Domain.Lessons;
 namespace LessonRunner.Tests;
 
 /// <summary>
-/// Prosty fake repozytorium trzymajacy lekcje w pamięci, używany do testów warstwy Application.
+/// Prosty fake repozytorium trzymający lekcje w pamięci, używany do testów warstwy Application.
 /// </summary>
 internal sealed class InMemoryLessonRepository : ILessonRepository
 {

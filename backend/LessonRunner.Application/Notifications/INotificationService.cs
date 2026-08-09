@@ -11,7 +11,7 @@ public interface INotificationService
 
     /// <summary>
     /// Informacja o przełożeniu albo odwołaniu terminu. Zwraca liczbę wysłanych wiadomości —
-    /// to ona, a nie deklaracja człowieka, wypełnia znacznik „powiadomiono opiekunów"
+    /// to ona, a nie deklaracja człowieka, wypełnia znacznik „powiadomiono opiekunów”
     /// w historii zmian terminów.
     /// </summary>
     Task<int> NotifySessionRescheduledAsync(

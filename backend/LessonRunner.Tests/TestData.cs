@@ -6,7 +6,7 @@ namespace LessonRunner.Tests;
 internal static class TestData
 {
     /// <summary>
-    /// Buduje domenowa lekcje odpowiadajaca <see cref="ValidLesson"/>, na potrżeby testów repozytorium.
+    /// Buduje domenową lekcję odpowiadającą <see cref="ValidLesson"/>, na potrzeby testów repozytorium.
     /// </summary>
     public static Lesson ToTestLesson(this CreateLessonDto _)
     {
@@ -29,7 +29,7 @@ internal static class TestData
                     Script = ["Przywitaj się", "Pokaż cel lekcji"],
                     StudentItems =
                     [
-                        new StudentItem { Kind = StudentItemKind.Text, Text = "Otworz Scratch" }
+                    new StudentItem { Kind = StudentItemKind.Text, Text = "Otwórz Scratch" }
                     ],
                     Resources =
                     [
@@ -73,7 +73,7 @@ internal static class TestData
                     Script: ["Przywitaj się", "Pokaż cel lekcji"],
                     StudentItems:
                     [
-                        new CreateStudentItemDto("text", "Otworz Scratch", null, null)
+                    new CreateStudentItemDto("text", "Otwórz Scratch", null, null)
                     ],
                     Resources:
                     [

@@ -196,7 +196,7 @@ public sealed class SessionServiceTests
         var sessionService = new SessionService(repository, lessons, participants);
 
         var source = await groupService.CreateAsync(
-            new CreateGroupDto("Zrodlowa", instructor.Id, [lesson.Id], DateTimeOffset.UtcNow.AddDays(7), [jan.Id]),
+            new CreateGroupDto("Źródłowa", instructor.Id, [lesson.Id], DateTimeOffset.UtcNow.AddDays(7), [jan.Id]),
             CancellationToken.None);
         var target = await groupService.CreateAsync(
             new CreateGroupDto("Docelowa", instructor.Id, [lesson.Id], DateTimeOffset.UtcNow.AddDays(14), [ola.Id]),
