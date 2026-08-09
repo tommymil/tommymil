@@ -17,7 +17,10 @@ using LessonRunner.Application.Notifications;
 using LessonRunner.Application.Operations;
 using LessonRunner.Application.Participants;
 using LessonRunner.Application.Parents;
+using LessonRunner.Application.Progress;
+using LessonRunner.Application.Safety;
 using LessonRunner.Application.Scheduling;
+using LessonRunner.Application.Search;
 using LessonRunner.Api.Auditing;
 using LessonRunner.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -305,6 +308,35 @@ app.MapGet("/download/lesson-files/{token}", async (
 })
 .WithTags("Files")
 .WithName("DownloadLessonFile");
+
+// Pobranie wersji projektu dziecka. Ten sam kompromis, co przy plikach lekcji: link do pobrania
+// nie niesie nagłówka `Authorization`, więc uprawnienie siedzi w nieodgadywalnym kluczu w adresie.
+app.MapGet("/download/project-files/{token}", async (
+    string token,
+    IProgressRepository progressRepository,
+    IOptions<FileStorageOptions> storageOptions,
+    CancellationToken cancellationToken) =>
+{
+    if (!IsDownloadToken(token))
+    {
+        return Results.NotFound();
+    }
+
+    var submission = await progressRepository.GetSubmissionByTokenAsync(token, cancellationToken);
+
+    if (submission?.FileUrl is null)
+    {
+        return Results.NotFound();
+    }
+
+    var path = ResolveStoredFilePath(submission.FileUrl, storageOptions.Value);
+
+    return path is null || !File.Exists(path)
+        ? Results.NotFound()
+        : Results.File(path, submission.ContentType ?? "application/octet-stream", submission.FileName);
+})
+.WithTags("Files")
+.WithName("DownloadProjectFile");
 
 var lessons = app.MapGroup("/api/lessons").WithTags("Lessons").RequireAuthorization("StaffOnly").AddEndpointFilter<AuditEndpointFilter>();
 
@@ -925,6 +957,47 @@ users.MapPost("/{id:guid}/password", async (
 .SelfAudited()
 .WithName("SetUserPassword");
 
+// Zaproszenie zamiast hasła wymyślonego przez admina: konto dostaje jednorazowy link
+// i ustawia hasło samo. Przy trzydziestu rodzicach to różnica między etatem a jednym kliknięciem.
+users.MapPost("/{id:guid}/invite", async (
+    Guid id,
+    ClaimsPrincipal principal,
+    IAccountTokenService accountTokenService,
+    IAuditService auditService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var result = await accountTokenService.SendInvitationAsync(id, GetCurrentUserId(principal), cancellationToken);
+
+        if (result is null)
+        {
+            return Results.NotFound();
+        }
+
+        await auditService.RecordAsync(
+            GetCurrentUserId(principal),
+            "user.invite",
+            "users",
+            id.ToString(),
+            result.Sent,
+            result.Error,
+            cancellationToken);
+
+        // Token powstał nawet wtedy, gdy poczta nie wyszła - admin musi zobaczyć różnicę,
+        // bo inaczej czekałby na rodzica, który nic nie dostał.
+        return result.Sent
+            ? Results.Ok(result)
+            : Results.Json(result, statusCode: StatusCodes.Status502BadGateway);
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Results.Conflict(new { error = ex.Message });
+    }
+})
+.SelfAudited()
+.WithName("InviteUser");
+
 var audit = app.MapGroup("/api/audit").WithTags("Audit").RequireAuthorization("AdminOnly");
 
 audit.MapGet("/", async (
@@ -1133,7 +1206,13 @@ parentAdmin.MapPost("/", async (
 {
     try
     {
-        return Results.Ok(await parentPortalService.LinkAsync(dto.ParentUserId, dto.ParticipantId, cancellationToken));
+        return Results.Ok(await parentPortalService.LinkAsync(
+            dto.ParentUserId,
+            dto.ParticipantId,
+            dto.Relation,
+            dto.IsPrimaryContact,
+            dto.ReceivesNotifications,
+            cancellationToken));
     }
     catch (ArgumentException ex)
     {
@@ -1150,7 +1229,8 @@ parentAdmin.MapDelete("/{parentUserId:guid}/{participantId:guid}", async (
     await parentPortalService.UnlinkAsync(parentUserId, participantId, cancellationToken) ? Results.NoContent() : Results.NotFound())
 .WithName("DeleteParentLink");
 
-var parentPortal = app.MapGroup("/api/parent").WithTags("ParentPortal").RequireAuthorization("ParentOnly");
+var parentPortal = app.MapGroup("/api/parent").WithTags("ParentPortal").RequireAuthorization("ParentOnly")
+    .AddEndpointFilter<AuditEndpointFilter>();
 
 parentPortal.MapGet("/portal", async (
     ClaimsPrincipal principal,
@@ -1164,6 +1244,213 @@ parentPortal.MapGet("/portal", async (
 })
 .WithName("GetParentPortal");
 
+parentPortal.MapGet("/export.ics", async (
+    ClaimsPrincipal principal,
+    IParentPortalService parentPortalService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+    return userId is null
+        ? Results.Unauthorized()
+        : Results.File(
+            await parentPortalService.ExportScheduleIcsAsync(userId.Value, cancellationToken),
+            "text/calendar; charset=utf-8",
+            "zajecia-dziecka.ics");
+})
+.WithName("ExportParentScheduleIcs");
+
+parentPortal.MapPost("/sessions/{sessionId:guid}/absence", async (
+    Guid sessionId,
+    ReportAbsenceDto dto,
+    ClaimsPrincipal principal,
+    IParentPortalService parentPortalService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    var reported = await parentPortalService.ReportAbsenceAsync(userId.Value, sessionId, dto, cancellationToken);
+
+    // Świadomie 404 zamiast 403: rodzic nie ma prawa wiedzieć, czy termin cudzego dziecka istnieje.
+    return reported
+        ? Results.NoContent()
+        : Results.NotFound(new { error = "Nie można zgłosić nieobecności na ten termin." });
+})
+.WithName("ReportParentAbsence");
+
+parentPortal.MapPut("/consents", async (
+    UpdateParentConsentDto dto,
+    ClaimsPrincipal principal,
+    IParentPortalService parentPortalService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    var updated = await parentPortalService.UpdateConsentAsync(userId.Value, dto, cancellationToken);
+
+    // Ta sama zasada co przy nieobecności: 404, a nie 403 - rodzic nie ma prawa wiedzieć,
+    // czy cudze dziecko w ogóle istnieje w systemie.
+    return updated
+        ? Results.NoContent()
+        : Results.NotFound(new { error = "Nie można zmienić zgody dla tego dziecka." });
+})
+.WithName("UpdateParentConsent");
+
+// Wyszukiwanie globalne. Grupa jest tylko do odczytu, więc bez filtra audytu
+// (odczytów świadomie nie logujemy - zaśmiecałyby dziennik, nie zmieniając stanu).
+// Rola „Parent" nie ma tu wstępu: wyszukiwarka po dzieciach i grupach byłaby
+// najprostszą drogą do listy cudzych dzieci.
+// --- Incydenty i zgłoszenia techniczne (rozdziały 3 i 8 dokumentu koncepcyjnego) ---
+//
+// `StaffOnly`, a nie `AdminOnly`: zgłosić incydent musi móc osoba, która go widziała, czyli
+// instruktor. Prowadzenie sprawy jest już wyłącznie po stronie administracji i to sprawdzamy
+// na poszczególnych trasach. Rola `Parent` nie ma tu wstępu w żadnej formie — rejestr
+// incydentów nie jest dokumentem dla rodzica.
+var safety = app.MapGroup("/api/safety").WithTags("Safety").RequireAuthorization("StaffOnly")
+    .AddEndpointFilter<AuditEndpointFilter>();
+
+safety.MapGet("/incidents", async (
+    ClaimsPrincipal principal,
+    ISafetyService safetyService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    var isAdmin = principal.IsInRole(nameof(LessonRunner.Domain.Users.UserRole.Admin));
+    return Results.Ok(await safetyService.GetIncidentsAsync(userId.Value, isAdmin, cancellationToken));
+})
+.WithName("GetIncidents");
+
+safety.MapPost("/incidents", async (
+    CreateIncidentDto dto,
+    ClaimsPrincipal principal,
+    ISafetyService safetyService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    try
+    {
+        return Results.Ok(await safetyService.ReportIncidentAsync(userId.Value, dto, cancellationToken));
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("ReportIncident");
+
+// Prowadzenie sprawy - wyłącznie administracja. Instruktor zgłasza i widzi własne zgłoszenie,
+// ale nie zmienia jego statusu ani nie przypisuje odpowiedzialnych.
+safety.MapPut("/incidents/{id:guid}", async (
+    Guid id,
+    UpdateIncidentDto dto,
+    ISafetyService safetyService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var updated = await safetyService.UpdateIncidentAsync(id, dto, cancellationToken);
+        return updated is null ? Results.NotFound() : Results.Ok(updated);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.RequireAuthorization("AdminOnly")
+.WithName("UpdateIncident");
+
+safety.MapGet("/tickets", async (
+    Guid? participantId,
+    ISafetyService safetyService,
+    CancellationToken cancellationToken) =>
+    Results.Ok(await safetyService.GetSupportTicketsAsync(participantId, cancellationToken)))
+.WithName("GetSupportTickets");
+
+safety.MapPost("/tickets", async (
+    CreateSupportTicketDto dto,
+    ClaimsPrincipal principal,
+    ISafetyService safetyService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    try
+    {
+        return Results.Ok(await safetyService.ReportSupportTicketAsync(userId.Value, dto, cancellationToken));
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("ReportSupportTicket");
+
+// Zgłoszenia techniczne prowadzi też instruktor: to on najczęściej wie, co pomogło,
+// i to jego następne zajęcia zależą od tego, czy problem został opisany.
+safety.MapPut("/tickets/{id:guid}", async (
+    Guid id,
+    UpdateSupportTicketDto dto,
+    ISafetyService safetyService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var updated = await safetyService.UpdateSupportTicketAsync(id, dto, cancellationToken);
+        return updated is null ? Results.NotFound() : Results.Ok(updated);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("UpdateSupportTicket");
+
+var searchGroup = app.MapGroup("/api/search").WithTags("Search").RequireAuthorization("StaffOnly");
+
+searchGroup.MapGet("/", async (
+    string? q,
+    ClaimsPrincipal principal,
+    ISearchService searchService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    var isAdmin = principal.IsInRole(nameof(LessonRunner.Domain.Users.UserRole.Admin));
+    return Results.Ok(await searchService.SearchAsync(userId.Value, isAdmin, q ?? "", cancellationToken));
+})
+.WithName("Search");
+
 var schedule = app.MapGroup("/api/schedule").WithTags("Schedule").RequireAuthorization("StaffOnly").AddEndpointFilter<AuditEndpointFilter>();
 
 schedule.MapGet("/", async (ClaimsPrincipal principal, ISessionService sessionService, CancellationToken cancellationToken) =>
@@ -1174,6 +1461,18 @@ schedule.MapGet("/", async (ClaimsPrincipal principal, ISessionService sessionSe
         : Results.Ok(await sessionService.GetScheduleAsync(userId.Value, cancellationToken));
 })
 .WithName("GetSchedule");
+
+schedule.MapGet("/export.ics", async (ClaimsPrincipal principal, ISessionService sessionService, CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+    return userId is null
+        ? Results.Unauthorized()
+        : Results.File(
+            await sessionService.ExportScheduleIcsAsync(userId.Value, cancellationToken),
+            "text/calendar; charset=utf-8",
+            "grafik-zajec.ics");
+})
+.WithName("ExportInstructorScheduleIcs");
 
 schedule.MapGet("/{sessionId:guid}", async (
     Guid sessionId,
@@ -1262,6 +1561,35 @@ schedule.MapPut("/{sessionId:guid}/attendance", async (
 })
 .WithName("SaveAttendance");
 
+// Znacznik pracy na żywo: wąska operacja na jednym dziecku. W trakcie zajęć instruktor
+// klika to co kilkadziesiąt sekund, więc przepychanie przy tym całej listy obecności
+// groziłoby nadpisaniem świeżej zmiany danymi sprzed chwili.
+schedule.MapPut("/{sessionId:guid}/live-status", async (
+    Guid sessionId,
+    SetLiveStatusDto dto,
+    ClaimsPrincipal principal,
+    ISessionService sessionService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    try
+    {
+        var attendance = await sessionService.SetLiveStatusAsync(sessionId, userId.Value, dto, cancellationToken);
+        return attendance is null ? Results.NotFound() : Results.Ok(attendance);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("SetLiveStatus");
+
 schedule.MapPost("/{sessionId:guid}/finish", async (
     Guid sessionId,
     FinishSessionDto dto,
@@ -1289,6 +1617,144 @@ schedule.MapPost("/{sessionId:guid}/finish", async (
 .WithName("FinishSession");
 
 // --- Planowanie: lokalizacje, dni wolne i kalendarz ---
+// --- Postępy i projekty dzieci ---
+// `StaffOnly`: zapisuje instruktor prowadzący, czyta też admin. Rodzic ma to w swoim portalu
+// w wersji przyciętej do tego, co napisano z myślą o nim.
+var progress = app.MapGroup("/api/progress").WithTags("Progress").RequireAuthorization("StaffOnly").AddEndpointFilter<AuditEndpointFilter>();
+
+progress.MapGet("/sessions/{sessionId:guid}", async (
+    Guid sessionId,
+    ClaimsPrincipal principal,
+    IProgressService progressService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    var result = await progressService.GetSessionProgressAsync(sessionId, userId.Value, cancellationToken);
+    return result is null ? Results.NotFound() : Results.Ok(result);
+})
+.WithName("GetSessionProgress");
+
+progress.MapPut("/sessions/{sessionId:guid}", async (
+    Guid sessionId,
+    SaveSessionProgressDto dto,
+    ClaimsPrincipal principal,
+    IProgressService progressService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    var result = await progressService.SaveSessionProgressAsync(sessionId, userId.Value, dto, cancellationToken);
+    return result is null ? Results.NotFound() : Results.Ok(result);
+})
+.WithName("SaveSessionProgress");
+
+progress.MapGet("/participants/{participantId:guid}", async (
+    Guid participantId,
+    ClaimsPrincipal principal,
+    IProgressService progressService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    var result = await progressService.GetParticipantProgressAsync(
+        participantId, userId.Value, IsAdmin(principal), cancellationToken);
+
+    // 404, nie 403: instruktor spoza grupy nie ma prawa wiedzieć, czy takie dziecko istnieje.
+    return result is null ? Results.NotFound() : Results.Ok(result);
+})
+.WithName("GetParticipantProgress");
+
+progress.MapPost("/projects", async (
+    CreateProjectDto dto,
+    ClaimsPrincipal principal,
+    IProgressService progressService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    try
+    {
+        var project = await progressService.CreateProjectAsync(dto, userId.Value, IsAdmin(principal), cancellationToken);
+        return project is null
+            ? Results.NotFound()
+            : Results.Created($"/api/progress/projects/{project.Id}", project);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("CreateProject");
+
+progress.MapPost("/projects/{projectId:guid}/submissions", async (
+    Guid projectId,
+    AddSubmissionDto dto,
+    ClaimsPrincipal principal,
+    IProgressService progressService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    try
+    {
+        var project = await progressService.AddSubmissionAsync(projectId, dto, userId.Value, IsAdmin(principal), cancellationToken);
+        return project is null ? Results.NotFound() : Results.Ok(project);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("AddProjectSubmission");
+
+progress.MapPut("/projects/{projectId:guid}/submissions/{submissionId:guid}/comment", async (
+    Guid projectId,
+    Guid submissionId,
+    SetSubmissionCommentDto dto,
+    ClaimsPrincipal principal,
+    IProgressService progressService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    var updated = await progressService.SetSubmissionCommentAsync(
+        projectId, submissionId, dto.Comment, userId.Value, IsAdmin(principal), cancellationToken);
+
+    return updated ? Results.NoContent() : Results.NotFound();
+})
+.WithName("SetProjectSubmissionComment");
+
 var locations = app.MapGroup("/api/locations").WithTags("Locations").RequireAuthorization("AdminOnly").AddEndpointFilter<AuditEndpointFilter>();
 
 locations.MapGet("/", async (ISchedulingService schedulingService, CancellationToken cancellationToken) =>
@@ -1458,6 +1924,18 @@ notifications.MapPost("/send-reminders", async (INotificationService notificatio
 })
 .WithName("SendNotificationReminders");
 
+// Przypomnienia o zaległych płatnościach. Świadomie bez automatu i bez przełącznika
+// w ustawieniach: upominanie się o pieniądze to decyzja biznesowa i wizerunkowa, którą
+// administrator podejmuje klikając przycisk - i od razu widzi, ile wiadomości wyszło.
+notifications.MapPost("/send-payment-reminders", async (
+    INotificationService notificationService,
+    CancellationToken cancellationToken) =>
+{
+    var sent = await notificationService.SendPaymentRemindersAsync(cancellationToken);
+    return Results.Ok(new { sent });
+})
+.WithName("SendPaymentReminders");
+
 app.MapPost("/api/files", async (IFormFile file, IFileStorage storage, CancellationToken cancellationToken) =>
 {
     if (file.Length == 0)
@@ -1507,6 +1985,74 @@ auth.MapPost("/login", async (LoginDto dto, IAuthService authService, IAuditServ
 })
 .RequireRateLimiting("auth")
 .WithName("Login");
+
+// --- Reset hasła: trasy publiczne, bez uwierzytelnienia ---
+// Wszystkie trzy pod limitem "auth", bo są jedynym miejscem, w którym niezalogowany
+// wywołujący dotyka kont.
+
+auth.MapPost("/password-reset", async (
+    RequestPasswordResetDto dto,
+    IAccountTokenService accountTokenService,
+    IAuditService auditService,
+    CancellationToken cancellationToken) =>
+{
+    await accountTokenService.RequestPasswordResetAsync(dto, cancellationToken);
+    await auditService.RecordAsync(
+        null,
+        "auth.password.reset.request",
+        "auth",
+        null,
+        true,
+        string.IsNullOrWhiteSpace(dto.Email) ? null : UserSafe(dto.Email),
+        cancellationToken);
+
+    // Zawsze 202, także dla adresu, którego nie ma w bazie. Odpowiedź zależna od istnienia
+    // konta zamieniłaby ten formularz w sprawdzacz, kto korzysta ze szkoły.
+    return Results.Accepted();
+})
+.RequireRateLimiting("auth")
+.WithName("RequestPasswordReset");
+
+auth.MapGet("/password-reset/{token}", async (
+    string token,
+    IAccountTokenService accountTokenService,
+    CancellationToken cancellationToken) =>
+{
+    var info = await accountTokenService.DescribeAsync(token, cancellationToken);
+    return info is null ? Results.NotFound() : Results.Ok(info);
+})
+.RequireRateLimiting("auth")
+.WithName("DescribeAccountToken");
+
+auth.MapPost("/password-reset/confirm", async (
+    ConfirmPasswordResetDto dto,
+    IAccountTokenService accountTokenService,
+    IAuditService auditService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var userId = await accountTokenService.ConfirmPasswordResetAsync(dto, cancellationToken);
+        await auditService.RecordAsync(
+            userId,
+            "auth.password.reset.confirm",
+            "auth",
+            userId?.ToString(),
+            userId is not null,
+            null,
+            cancellationToken);
+
+        return userId is null
+            ? Results.BadRequest(new { error = "Link stracił ważność lub został już użyty. Poproś o nowy." })
+            : Results.NoContent();
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.RequireRateLimiting("auth")
+.WithName("ConfirmPasswordReset");
 
 auth.MapGet("/me", (ClaimsPrincipal principal) =>
 {
@@ -1574,6 +2120,11 @@ static Guid? GetCurrentUserId(ClaimsPrincipal principal)
 
     return Guid.TryParse(id, out var userId) ? userId : null;
 }
+
+/// <summary>Czy wywołujący jest administratorem. Polityka `StaffOnly` przepuszcza admina
+/// i instruktora, a część odczytów ma dla admina szerszy zakres.</summary>
+static bool IsAdmin(ClaimsPrincipal principal) =>
+    principal.IsInRole(nameof(LessonRunner.Domain.Users.UserRole.Admin));
 
 static IEnumerable<LessonRunner.Domain.Lessons.LessonProjectFile> GetProjectFiles(LessonRunner.Domain.Lessons.Lesson lesson)
 {

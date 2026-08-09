@@ -78,7 +78,9 @@ internal static class GroupMapping
             // odrabiane potrafią być na innej platformie.
             string.IsNullOrWhiteSpace(session.MeetingUrl) ? group.MeetingUrl : session.MeetingUrl,
             session.MeetingUrl,
-            session.RecordingUrl);
+            session.RecordingUrl,
+            session.UnfinishedNote,
+            session.ParentSummary);
     }
 
     public static SessionAttendanceDto ToAttendanceDto(
@@ -90,8 +92,14 @@ internal static class GroupMapping
     {
         var recordsById = records.ToDictionary(record => record.ParticipantId);
 
+        // Kolejność w kokpicie: najpierw ci, którzy czekają na instruktora (problem
+        // techniczny, potem prośba o pomoc), dopiero potem reszta alfabetycznie.
+        // Lista posortowana wyłącznie po nazwisku zmuszała do skanowania jej wzrokiem
+        // w trakcie zajęć, żeby znaleźć dziecko, które utknęło.
         var entries = participants
-            .OrderBy(participant => participant.LastName)
+            .OrderBy(participant => (recordsById.GetValueOrDefault(participant.Id)?.LiveStatus
+                ?? LiveWorkStatus.Working).Priority())
+            .ThenBy(participant => participant.LastName)
             .ThenBy(participant => participant.FirstName)
             .Select(participant =>
             {
@@ -109,7 +117,9 @@ internal static class GroupMapping
                     attendanceStatus.Label(),
                     record?.Note,
                     record?.JoinedAt,
-                    record?.LeftAt);
+                    record?.LeftAt,
+                    (record?.LiveStatus ?? LiveWorkStatus.Working).Name(),
+                    (record?.LiveStatus ?? LiveWorkStatus.Working).Label());
             })
             .ToList();
 
@@ -119,10 +129,18 @@ internal static class GroupMapping
             StatusLabel(status),
             entries,
             makeupOptions ?? [],
-            AttendanceStatusOptions);
+            AttendanceStatusOptions,
+            LiveStatusOptions);
     }
 
     public static string AttendanceStatusName(AttendanceStatus status) => status.ToString().ToLowerInvariant();
+
+    /// <summary>Znaczniki pracy na żywo w kolejności, w jakiej instruktor ich używa.</summary>
+    public static IReadOnlyList<LiveStatusOptionDto> LiveStatusOptions { get; } =
+        Enum.GetValues<LiveWorkStatus>()
+            .OrderBy(status => status.Priority())
+            .Select(status => new LiveStatusOptionDto(status.Name(), status.Label()))
+            .ToList();
 
     /// <summary>Kolejność jak w kokpicie: najpierw to, co instruktor klika najczęściej.</summary>
     public static IReadOnlyList<AttendanceStatusOptionDto> AttendanceStatusOptions { get; } =

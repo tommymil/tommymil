@@ -31,6 +31,16 @@ public sealed class AttendanceRecord : Entity
     public DateTimeOffset? JoinedAt { get; set; }
     public DateTimeOffset? LeftAt { get; set; }
 
+    /// <summary>
+    /// Znacznik pracy na żywo — wyłącznie na czas trwania tych zajęć.
+    ///
+    /// Trzymamy go przy obecności, a nie w osobnej tabeli, bo dotyczy dokładnie tej samej pary
+    /// (dziecko, termin) i ma dokładnie ten sam cykl życia. Do portalu rodzica **nie trafia**:
+    /// „potrzebuje pomocy" jest informacją organizacyjną dla prowadzącego, a pokazane rodzicowi
+    /// zamieniłoby się w etykietę przypiętą do dziecka.
+    /// </summary>
+    public LiveWorkStatus LiveStatus { get; set; } = LiveWorkStatus.Working;
+
     public bool MakeupRequired { get; set; }
     public Guid? MakeupSessionId { get; set; }
     public DateTimeOffset MarkedAt { get; set; } = DateTimeOffset.UtcNow;

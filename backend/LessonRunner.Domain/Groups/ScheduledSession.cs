@@ -20,8 +20,28 @@ public sealed class ScheduledSession : Entity
     public DateTimeOffset? StartedAt { get; set; }
     public DateTimeOffset? CompletedAt { get; set; }
 
-    /// <summary>Notatka instruktora wpisywana przy zakończeniu zajęć.</summary>
+    /// <summary>Notatka instruktora wpisywana przy zakończeniu zajęć. Wewnętrzna -
+    /// do portalu rodzica nie trafia w ogóle.</summary>
     public string? InstructorNote { get; set; }
+
+    /// <summary>
+    /// Czego nie zdążyliśmy zrealizować.
+    ///
+    /// Rozdział 5 dokumentu koncepcyjnego wymienia to jako osobną informację, a nie zdanie
+    /// w notatce: zastępca albo ten sam instruktor za tydzień musi wiedzieć, od czego zacząć.
+    /// Wcześniej wszystko szło do jednego pola `InstructorNote`, z którego nic nie dało się
+    /// odczytać automatycznie ani podpowiedzieć na kolejnym terminie.
+    /// </summary>
+    public string? UnfinishedNote { get; set; }
+
+    /// <summary>
+    /// Podsumowanie zajęć **dla rodzica**.
+    ///
+    /// Świadomie osobne pole, a nie fragment notatki instruktora. Notatka, o której trzeba
+    /// pamiętać, że jest wewnętrzna, prędzej czy później zostanie pokazana - ta sama zasada
+    /// rządzi wpisami postępów.
+    /// </summary>
+    public string? ParentSummary { get; set; }
 
     /// <summary>Link do spotkania dla tego konkretnego terminu. Nadpisuje link grupy -
     /// potrzebne przy zastępstwie (inny pokój prowadzącego), odrabianiu i jednorazowej

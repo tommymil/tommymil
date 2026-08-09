@@ -78,7 +78,7 @@ public sealed class ParentPortalServiceTests
         await groups.AddAsync(group, CancellationToken.None);
 
         var service = new ParentPortalService(parentLinks, users, participants, groups, lessons, billing);
-        await service.LinkAsync(parent.Id, jan.Id, CancellationToken.None);
+        await service.LinkAsync(parent.Id, jan.Id, null, true, true, CancellationToken.None);
 
         var portal = await service.GetPortalAsync(parent.Id, CancellationToken.None);
 
@@ -171,7 +171,7 @@ public sealed class ParentPortalServiceTests
         await groups.AddAsync(group, CancellationToken.None);
 
         var service = new ParentPortalService(parentLinks, users, participants, groups, lessons, billing);
-        await service.LinkAsync(parent.Id, jan.Id, CancellationToken.None);
+        await service.LinkAsync(parent.Id, jan.Id, null, true, true, CancellationToken.None);
 
         var portal = await service.GetPortalAsync(parent.Id, CancellationToken.None);
 
@@ -184,6 +184,115 @@ public sealed class ParentPortalServiceTests
         Assert.Single(portal.Materials[0].Files);
         Assert.Equal("kotek.sb3", portal.Materials[0].Files[0].FileName);
         Assert.Equal("/download/lesson-files/token-do-pobrania-projektu-123", portal.Materials[0].Files[0].DownloadUrl);
+    }
+
+    /// <summary>
+    /// Domyka pętlę z etapu A1: status „nieobecność zgłoszona" istniał, ale nic nie mogło go
+    /// ustawić od strony rodzica. Teraz rodzic zgłasza sam, a instruktor widzi to na liście.
+    /// </summary>
+    [Fact]
+    public async Task ReportAbsenceAsync_SetsExcusedAbsence_AndShowsUpInPortal()
+    {
+        var (service, parent, jan, group) = await BuildPortalScenarioAsync();
+        var upcomingSessionId = group.Sessions.First(session => session.Status == ScheduledSessionStatus.Planned).Id;
+
+        Assert.True(await service.ReportAbsenceAsync(
+            parent.Id,
+            upcomingSessionId,
+            new ReportAbsenceDto(jan.Id, "Wyjazd rodzinny"),
+            CancellationToken.None));
+
+        var portal = await service.GetPortalAsync(parent.Id, CancellationToken.None);
+        var termin = portal.Schedule.Single(item => item.SessionId == upcomingSessionId);
+        var dziecko = Assert.Single(termin.Children!);
+
+        Assert.True(dziecko.AbsenceReported);
+        Assert.Equal("Wyjazd rodzinny", dziecko.AbsenceNote);
+    }
+
+    [Fact]
+    public async Task ReportAbsenceAsync_RejectsChildOfAnotherParent()
+    {
+        var (service, _, jan, group) = await BuildPortalScenarioAsync();
+        var upcomingSessionId = group.Sessions.First(session => session.Status == ScheduledSessionStatus.Planned).Id;
+        var obcyRodzic = Guid.NewGuid();
+
+        Assert.False(await service.ReportAbsenceAsync(
+            obcyRodzic,
+            upcomingSessionId,
+            new ReportAbsenceDto(jan.Id),
+            CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task ReportAbsenceAsync_RejectsSessionThatAlreadyHappened()
+    {
+        var (service, parent, jan, group) = await BuildPortalScenarioAsync();
+        var pastSessionId = group.Sessions.First(session => session.Status == ScheduledSessionStatus.Completed).Id;
+
+        // Po zajęciach liczy się to, co odhaczył instruktor - nie deklaracja rodzica.
+        Assert.False(await service.ReportAbsenceAsync(
+            parent.Id,
+            pastSessionId,
+            new ReportAbsenceDto(jan.Id),
+            CancellationToken.None));
+    }
+
+    private static async Task<(ParentPortalService Service, User Parent, Participant Jan, Group Group)>
+        BuildPortalScenarioAsync()
+    {
+        var parentLinks = new InMemoryParentPortalRepository();
+        var users = new InMemoryUserRepository();
+        var participants = new InMemoryParticipantRepository();
+        var groups = new InMemoryGroupRepository();
+        var lessons = new InMemoryLessonRepository();
+        var billing = new InMemoryBillingRepository();
+
+        var parent = new User { Email = "parent@example.com", PasswordHash = "h", Role = UserRole.Parent };
+        var instructor = new User { Email = "i@example.com", PasswordHash = "h", Role = UserRole.Instructor };
+        await users.AddAsync(parent, CancellationToken.None);
+        await users.AddAsync(instructor, CancellationToken.None);
+
+        var lesson = new Lesson { Title = "Scratch", Subject = "Scratch", Level = "P1", Description = "Opis", Status = LessonStatus.Ready };
+        await lessons.AddAsync(lesson, CancellationToken.None);
+
+        var jan = new Participant { FirstName = "Jan", LastName = "Kowalski" };
+        await participants.AddAsync(jan, CancellationToken.None);
+
+        var group = new Group
+        {
+            Name = "Grupa A",
+            InstructorId = instructor.Id,
+            Enrollments = [new GroupEnrollment { ParticipantId = jan.Id, Status = EnrollmentStatus.Enrolled }],
+            Sessions =
+            [
+                new ScheduledSession
+                {
+                    LessonId = lesson.Id,
+                    ScheduledAt = DateTimeOffset.UtcNow.AddDays(3),
+                    SequenceNumber = 2,
+                    Status = ScheduledSessionStatus.Planned
+                },
+                new ScheduledSession
+                {
+                    LessonId = lesson.Id,
+                    ScheduledAt = DateTimeOffset.UtcNow.AddDays(-3),
+                    SequenceNumber = 1,
+                    Status = ScheduledSessionStatus.Completed
+                }
+            ]
+        };
+        group.Enrollments[0].GroupId = group.Id;
+        foreach (var session in group.Sessions)
+        {
+            session.GroupId = group.Id;
+        }
+        await groups.AddAsync(group, CancellationToken.None);
+
+        var service = new ParentPortalService(parentLinks, users, participants, groups, lessons, billing);
+        await service.LinkAsync(parent.Id, jan.Id, "mama", true, true, CancellationToken.None);
+
+        return (service, parent, jan, group);
     }
 
     [Fact]
@@ -204,6 +313,6 @@ public sealed class ParentPortalServiceTests
             new InMemoryLessonRepository(),
             new InMemoryBillingRepository());
 
-        await Assert.ThrowsAsync<ArgumentException>(() => service.LinkAsync(admin.Id, child.Id, CancellationToken.None));
+        await Assert.ThrowsAsync<ArgumentException>(() => service.LinkAsync(admin.Id, child.Id, null, true, true, CancellationToken.None));
     }
 }

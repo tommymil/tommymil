@@ -127,19 +127,32 @@ internal sealed class EfUserRepository(AppDbContext dbContext) : IUserRepository
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Dokłada brakujące konta startowe.
+    ///
+    /// Warunek jest per e-mail, a nie „czy w bazie jest jakikolwiek użytkownik". Przy tym
+    /// drugim dopisanie nowego konta do seeda nie docierało do żadnego istniejącego
+    /// środowiska deweloperskiego - baza miała już admina, więc seed kończył się na pierwszej
+    /// linijce. Istniejących kont nie ruszamy: zmienione hasło ma zostać zmienione.
+    /// </summary>
     public async Task SeedAsync(IReadOnlyList<User> users, CancellationToken cancellationToken)
     {
-        if (await dbContext.Users.AnyAsync(cancellationToken))
-        {
-            return;
-        }
+        var existingEmails = await dbContext.Users
+            .Select(user => user.Email)
+            .ToListAsync(cancellationToken);
+        var known = existingEmails.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var added = false;
 
-        foreach (var user in users)
+        foreach (var user in users.Where(user => !known.Contains(user.Email)))
         {
             dbContext.Users.Add(ToDocument(user));
+            added = true;
         }
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        if (added)
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 
     private static UserDocument ToDocument(User user)

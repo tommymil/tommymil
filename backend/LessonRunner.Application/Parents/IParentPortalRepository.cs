@@ -6,6 +6,11 @@ public interface IParentPortalRepository
 {
     Task<IReadOnlyList<ParentParticipantLink>> ListAsync(CancellationToken cancellationToken);
     Task<IReadOnlyList<ParentParticipantLink>> ListByParentAsync(Guid parentUserId, CancellationToken cancellationToken);
+
+    /// <summary>Opiekunowie danego dziecka - podstawa rozstrzygania, do kogo pisać.</summary>
+    Task<IReadOnlyList<ParentParticipantLink>> ListByParticipantsAsync(IReadOnlyList<Guid> participantIds, CancellationToken cancellationToken);
+
+    Task<bool> UpdateAsync(ParentParticipantLink link, CancellationToken cancellationToken);
     Task AddAsync(ParentParticipantLink link, CancellationToken cancellationToken);
     Task<bool> DeleteAsync(Guid parentUserId, Guid participantId, CancellationToken cancellationToken);
 }

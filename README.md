@@ -95,6 +95,31 @@ dotnet ef database update --project LessonRunner.Infrastructure --startup-projec
 - Token zawiera znacznik sesji. Dezaktywacja konta oraz zmiana lub reset hasła unieważniają
   wszystkie aktywne sesje **natychmiast**, bez czekania na wygaśnięcie tokenu.
 
+### Reset hasła i zaproszenia
+
+Konta zakłada administrator, ale hasła nie musi już wymyślać za nikogo.
+
+- `POST /api/auth/password-reset` — żądanie linku (bez logowania). Odpowiada `202` **zawsze**,
+  także dla adresu, którego nie ma w bazie: inaczej formularz „nie pamiętam hasła" byłby
+  sprawdzaczem, kto ma konto w systemie.
+- `GET /api/auth/password-reset/{token}` — czy link jeszcze żyje i czyje to konto.
+- `POST /api/auth/password-reset/confirm` — ustawienie hasła z linku.
+- `POST /api/users/{id}/invite` — zaproszenie wysyłane przez administratora (`AdminOnly`).
+
+Konto można założyć **bez hasła** (puste pole w formularzu): wtedy system od razu wysyła
+zaproszenie, a hasło ustawia sam użytkownik. Do konta bez hasła nikt się nie zaloguje, dopóki
+tego nie zrobi.
+
+Ważność linku: 2 godziny dla resetu, 7 dni dla zaproszenia. Link działa raz, a wydanie nowego
+unieważnia poprzednie. W bazie leży wyłącznie skrót tokenu — postać jawna istnieje tylko
+w wysłanym e-mailu.
+
+Linki w wiadomościach budowane są od `App:PublicOrigin` (zmienna `PUBLIC_ORIGIN` w `.env`).
+**Bez ustawienia tej zmiennej e-maile prowadzą pod `http://localhost:8080`** — backend nie zna
+adresu frontendu, a zgadywanie go z nagłówka `Host` dałoby się podmienić z zewnątrz.
+Przy `SMTP_MODE=Log` wiadomości nie wychodzą na świat, tylko trafiają do logu aplikacji —
+wygodne przy pierwszym uruchomieniu, ale rodzic nic nie dostanie.
+
 Uprawnienia:
 
 | Zakres | Admin | Instructor | Parent |
@@ -104,6 +129,8 @@ Uprawnienia:
 | Grafik, kalendarz | tak | tylko swoje | **nie** |
 | Grupy, uczestnicy, konta, płatności, operacje | tak | nie | nie |
 | Portal rodzica (`/api/parent/portal`) | nie | nie | tak |
+| Postępy i projekty (`/api/progress`) — zapis | tak | tylko swoje grupy | **nie** |
+| Postępy i projekty — odczyt dorobku dziecka | wszystkie | tylko swoje grupy | w portalu, tylko swoje dzieci |
 
 Klucz podpisu (`Jwt:SigningKey`, min. 32 bajty) jest wymagany — bez niego aplikacja celowo nie
 wystartuje. Lokalnie bierze się z `appsettings.Development.json`, na produkcji ze zmiennej

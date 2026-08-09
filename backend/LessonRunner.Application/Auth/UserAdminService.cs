@@ -17,7 +17,11 @@ public sealed class UserAdminService(IUserRepository userRepository, IPasswordHa
             throw new ArgumentException("Podaj prawidłowy adres e-mail.");
         }
 
-        if (string.IsNullOrWhiteSpace(dto.Password) || dto.Password.Length < 8)
+        // Puste hasło = konto bez hasła, do którego admin wyśle zaproszenie. Podane hasło
+        // nadal musi być sensowne.
+        var withoutPassword = string.IsNullOrWhiteSpace(dto.Password);
+
+        if (!withoutPassword && dto.Password!.Length < 8)
         {
             throw new ArgumentException("Hasło musi mieć co najmniej 8 znaków.");
         }
@@ -33,7 +37,10 @@ public sealed class UserAdminService(IUserRepository userRepository, IPasswordHa
         var user = new User
         {
             Email = normalizedEmail,
-            PasswordHash = passwordHasher.Hash(dto.Password),
+            // Konto bez hasła dostaje skrót z losowego ciągu, którego nikt nie zna. Nie ma tu
+            // osobnego stanu „brak hasła", bo taki stan prędzej czy później ktoś potraktowałby
+            // jako „hasło się zgadza". Zalogować się da dopiero po ustawieniu hasła z zaproszenia.
+            PasswordHash = passwordHasher.Hash(withoutPassword ? UnusablePassword() : dto.Password!),
             Role = role,
             FirstName = NullIfEmpty(dto.FirstName),
             LastName = NullIfEmpty(dto.LastName),
@@ -91,6 +98,9 @@ public sealed class UserAdminService(IUserRepository userRepository, IPasswordHa
             user.LastName,
             user.Phone,
             user.DisplayName);
+
+    private static string UnusablePassword() =>
+        Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
 
     private static string? NullIfEmpty(string? value)
     {

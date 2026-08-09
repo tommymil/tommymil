@@ -29,6 +29,18 @@ internal static class UserSeedData
                 FirstName = "Tomasz",
                 LastName = "Trener",
                 Phone = "600123456"
+            },
+            // Trzecia droga w systemie. Bez tego konta portal rodzica dawało się obejrzeć
+            // wyłącznie po ręcznym założeniu użytkownika i powiązaniu go z dzieckiem,
+            // więc najczęściej nie oglądał go nikt.
+            new User
+            {
+                Email = "parent@lessonrunner.local",
+                PasswordHash = passwordHasher.Hash("parent12345"),
+                Role = UserRole.Parent,
+                FirstName = "Katarzyna",
+                LastName = "Kowalska",
+                Phone = "600500600"
             }
         ];
     }

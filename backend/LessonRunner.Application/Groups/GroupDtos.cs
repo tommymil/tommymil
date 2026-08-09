@@ -52,7 +52,11 @@ public sealed record ScheduledSessionDto(
     string? MeetingUrl,
     /// <summary>Link ustawiony wprost na terminie (bez podstawienia z grupy) - do formularza edycji.</summary>
     string? SessionMeetingUrl = null,
-    string? RecordingUrl = null);
+    string? RecordingUrl = null,
+    /// <summary>Czego nie zdążyliśmy - podpowiadane na kolejnym terminie tej grupy.</summary>
+    string? UnfinishedNote = null,
+    /// <summary>Podsumowanie dla rodzica - jedyny fragment debriefu widoczny w portalu.</summary>
+    string? ParentSummary = null);
 
 /// <summary>Ustawienie linku do spotkania i nagrania dla pojedynczego terminu.
 /// Puste wartości oznaczają wyczyszczenie - link grupy wraca wtedy do gry.</summary>
@@ -98,7 +102,11 @@ public sealed record CancelSessionDto(
     /// przez różne osoby i w różnym czasie.</summary>
     string? Compensation = null,
     /// <summary>Termin ważności kredytu, gdy rekompensatą jest kredyt.</summary>
-    DateOnly? CreditExpiresAt = null);
+    DateOnly? CreditExpiresAt = null,
+    /// <summary>Przesunąć materiał odwołanych zajęć na kolejne terminy? Lekcja z odwołanego
+    /// terminu wchodzi na najbliższy, reszta przesuwa się o jeden, a kurs wydłuża się
+    /// o jeden termin na końcu. Domyślnie nie - czasem zajęcia po prostu przepadają.</summary>
+    bool ShiftFollowingLessons = false);
 
 /// <summary>Wpis historii zmian terminu.</summary>
 public sealed record SessionChangeDto(

@@ -16,7 +16,25 @@ public sealed record ParentScheduleItemDto(
     DateTimeOffset ScheduledAt,
     string Status,
     string StatusLabel,
-    string? MeetingUrl);
+    string? MeetingUrl,
+    /// <summary>Dzieci tego rodzica zapisane na ten termin - do zgłoszenia nieobecności.</summary>
+    IReadOnlyList<ParentSessionChildDto>? Children = null,
+    /// <summary>Numer lekcji w kursie i długość kursu - „lekcja 7 z 12".
+    /// Rodzic pyta o postęp kursu częściej niż o pojedynczy termin.</summary>
+    int SequenceNumber = 0,
+    int CourseLength = 0,
+    string? InstructorName = null);
+
+/// <summary>Dziecko na konkretnym terminie wraz z informacją, czy zgłoszono już nieobecność.</summary>
+public sealed record ParentSessionChildDto(
+    Guid ParticipantId,
+    string FirstName,
+    string LastName,
+    bool AbsenceReported,
+    string? AbsenceNote);
+
+/// <summary>Zgłoszenie nieobecności dziecka przez opiekuna.</summary>
+public sealed record ReportAbsenceDto(Guid ParticipantId, string? Reason = null);
 
 /// <summary>Materiał lekcji udostępniany rodzicowi po zakończeniu zajęć.
 /// Świadomie NIE zawiera scenariusza prowadzenia ani notatek instruktora - tylko pliki
@@ -28,7 +46,13 @@ public sealed record ParentMaterialDto(
     string? LessonTitle,
     DateTimeOffset ScheduledAt,
     IReadOnlyList<ParentMaterialFileDto> Files,
-    string? RecordingUrl);
+    string? RecordingUrl,
+    /// <summary>Które z dzieci tego rodzica dotyczą materiału. Bez tego przy rodzeństwie
+    /// nie da się przefiltrować portalu po dziecku.</summary>
+    IReadOnlyList<Guid>? ParticipantIds = null,
+    /// <summary>Podsumowanie zajęć napisane przez instruktora z myślą o rodzicu.
+    /// Notatka wewnętrzna terminu nie przechodzi tędy w ogóle.</summary>
+    string? Summary = null);
 
 public sealed record ParentMaterialFileDto(
     string Label,
@@ -41,7 +65,8 @@ public sealed record ParentAttendanceItemDto(
     string GroupName,
     int PresentCount,
     int HeldCount,
-    int RatePercent);
+    int RatePercent,
+    Guid ParticipantId = default);
 
 public sealed record ParentInvoiceDto(
     Guid InvoiceId,
@@ -52,13 +77,125 @@ public sealed record ParentInvoiceDto(
     string Status,
     string StatusLabel,
     DateOnly DueDate,
-    DateTimeOffset? PaidAt);
+    DateTimeOffset? PaidAt,
+    Guid ParticipantId = default,
+    /// <summary>Czy dokument jest po terminie płatności. Liczone przy odczycie, bo status
+    /// „Overdue" w bazie zmienia się dopiero przy jakiejś operacji na fakturze.</summary>
+    bool IsOverdue = false);
+
+/// <summary>
+/// Kredyt zajęciowy w wersji dla rodzica.
+///
+/// Kredyty istniały w systemie od 27.07.2026, ale wyłącznie w panelu administratora —
+/// czyli osoba, której się należały, nie miała jak się o nich dowiedzieć.
+/// </summary>
+public sealed record ParentCreditDto(
+    Guid CreditId,
+    Guid ParticipantId,
+    string ChildName,
+    string? GroupName,
+    string Reason,
+    DateTimeOffset IssuedAt,
+    DateOnly? ExpiresAt);
+
+/// <summary>Postęp dziecka w kursie: ile lekcji za nim, ile przed nim.</summary>
+public sealed record ParentCourseProgressDto(
+    Guid ParticipantId,
+    Guid GroupId,
+    string GroupName,
+    int CompletedLessons,
+    int TotalLessons,
+    string? NextLessonTitle,
+    DateTimeOffset? NextSessionAt);
+
+/// <summary>
+/// Zgody opiekuna widziane jego oczami.
+///
+/// Do tej pory zgoda na przetwarzanie danych i na wizerunek były polami ustawianymi
+/// wyłącznie przez administratora — rodzic ich nie widział i nie mógł wycofać,
+/// mimo że przy RODO to on jest stroną udzielającą zgody.
+/// </summary>
+public sealed record ParentConsentDto(
+    Guid ParticipantId,
+    string ChildName,
+    bool DataProcessing,
+    DateTimeOffset? DataProcessingAt,
+    bool Image,
+    DateTimeOffset? ImageAt);
+
+/// <summary>
+/// Zmiana zgody przez rodzica.
+///
+/// Świadomie obejmuje **wyłącznie zgodę na wizerunek**. Zgoda na przetwarzanie danych
+/// jest warunkiem świadczenia usługi (wysyłka powiadomień, prowadzenie dziennika) —
+/// jej wycofanie to rozwiązanie umowy, a nie przełącznik w portalu, więc kierujemy
+/// z tym do administracji.
+/// </summary>
+public sealed record UpdateParentConsentDto(Guid ParticipantId, bool ImageConsent);
+
+/// <summary>
+/// Liczby, które rodzic sprawdza naprawdę.
+///
+/// Wcześniej portal pokazywał „Dzieci: 1", „Najbliższe terminy: 5" i „Rozliczenia: 3" —
+/// czyli liczbę faktur zamiast kwoty do zapłaty. Rodzic wie, ile ma dzieci; nie wie,
+/// ile jest winien i ile zajęć zostało w pakiecie.
+/// </summary>
+public sealed record ParentSummaryDto(
+    long OutstandingCents,
+    long OverdueCents,
+    string Currency,
+    DateOnly? NextDueDate,
+    int AvailableCredits,
+    int AttendancePercent,
+    ParentScheduleItemDto? NextSession);
+
+/// <summary>Wpis o postępie w wersji dla rodzica. Zawiera **wyłącznie pola pisane z myślą
+/// o rodzicu** — notatka terminu (uwagi instruktora dla zespołu) nie ma tu odpowiednika.</summary>
+public sealed record ParentProgressEntryDto(
+    DateTimeOffset UpdatedAt,
+    string AutonomyLabel,
+    int AutonomyRank,
+    bool LessonCompleted,
+    string? NoteForParent,
+    string? NextStep);
+
+public sealed record ParentProjectVersionDto(
+    int Version,
+    string? Url,
+    string? FileName,
+    string? DownloadUrl,
+    DateTimeOffset SubmittedAt,
+    string? InstructorComment);
+
+public sealed record ParentProjectDto(
+    Guid ProjectId,
+    string Title,
+    string? Description,
+    IReadOnlyList<ParentProjectVersionDto> Versions);
+
+public sealed record ParentChildProgressDto(
+    Guid ParticipantId,
+    string FirstName,
+    string LastName,
+    IReadOnlyList<ParentProgressEntryDto> Entries,
+    IReadOnlyList<ParentProjectDto> Projects);
 
 public sealed record ParentPortalDto(
     IReadOnlyList<ParentChildDto> Children,
     IReadOnlyList<ParentScheduleItemDto> Schedule,
     IReadOnlyList<ParentAttendanceItemDto> Attendance,
     IReadOnlyList<ParentInvoiceDto> Invoices,
-    IReadOnlyList<ParentMaterialDto> Materials);
+    IReadOnlyList<ParentMaterialDto> Materials,
+    IReadOnlyList<ParentChildProgressDto> Progress,
+    ParentSummaryDto? Summary = null,
+    IReadOnlyList<ParentCreditDto>? Credits = null,
+    IReadOnlyList<ParentCourseProgressDto>? CourseProgress = null,
+    IReadOnlyList<ParentConsentDto>? Consents = null);
 
-public sealed record ParentParticipantLinkDto(Guid ParentUserId, Guid ParticipantId);
+public sealed record ParentParticipantLinkDto(
+    Guid ParentUserId,
+    Guid ParticipantId,
+    /// <summary>Kim opiekun jest dla dziecka: „mama", „tata", „opiekun prawny".</summary>
+    string? Relation = null,
+    bool IsPrimaryContact = false,
+    bool ReceivesNotifications = true);

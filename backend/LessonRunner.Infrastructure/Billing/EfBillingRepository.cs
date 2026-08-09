@@ -250,12 +250,17 @@ internal sealed class EfBillingRepository(AppDbContext dbContext) : IBillingRepo
 
     public async Task<IReadOnlyList<LessonCredit>> ListCreditsAsync(CancellationToken cancellationToken)
     {
+        // SQLite nie sortuje po DateTimeOffset w SQL - materializujemy i porządkujemy po stronie
+        // klienta, tak jak sąsiednie metody tego repozytorium. Ta jedna została pominięta przy
+        // dopisywaniu kredytów 27.07.2026 i wywracała każde wywołanie z `NotSupportedException`.
         var documents = await dbContext.LessonCredits
             .AsNoTracking()
-            .OrderByDescending(credit => credit.IssuedAt)
             .ToListAsync(cancellationToken);
 
-        return documents.Select(ToDomain).ToList();
+        return documents
+            .OrderByDescending(credit => credit.IssuedAt)
+            .Select(ToDomain)
+            .ToList();
     }
 
     public async Task<LessonCredit?> GetCreditAsync(Guid id, CancellationToken cancellationToken)

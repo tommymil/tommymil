@@ -26,4 +26,8 @@ internal sealed class NotificationSettingsDocument
     public required string ReminderBody { get; set; }
     public required string AbsenceSubject { get; set; }
     public required string AbsenceBody { get; set; }
+
+    // Szablony zmiany terminu, podsumowania zajęć i przypomnienia o płatności NIE mają tu
+    // odpowiednika. Są wbudowane w domenę - patrz `NotificationTemplates`. Powód w komentarzu
+    // przy tej klasie.
 }

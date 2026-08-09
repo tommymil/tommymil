@@ -21,6 +21,9 @@ services:
       # Frontend i API są za tym samym originem (nginx proxuje /api), więc CORS zwykle
       # nie jest potrzebny. Ustaw PUBLIC_ORIGIN tylko, gdy backend stoi pod inną domeną.
       Cors__AllowedOrigins__0: ${PUBLIC_ORIGIN:-}
+      # Adres, od którego budowane są linki w e-mailach (reset hasła, zaproszenia). Backend
+      # nie zna adresu frontendu - za proxy widzi tylko własny port - więc musi go dostać wprost.
+      App__PublicOrigin: ${PUBLIC_ORIGIN:-http://localhost:${WEB_PORT:-8080}}
       BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:?ustaw BOOTSTRAP_ADMIN_EMAIL w .env}
       BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:?ustaw BOOTSTRAP_ADMIN_PASSWORD w .env}
       Backup__RootPath: /app/backups

@@ -5,6 +5,8 @@ using LessonRunner.Infrastructure.Billing;
 using LessonRunner.Infrastructure.Notifications;
 using LessonRunner.Infrastructure.Participants;
 using LessonRunner.Infrastructure.Parents;
+using LessonRunner.Infrastructure.Progress;
+using LessonRunner.Infrastructure.Safety;
 using LessonRunner.Infrastructure.Scheduling;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +17,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     internal DbSet<LessonDocument> Lessons => Set<LessonDocument>();
     internal DbSet<LessonRunSessionDocument> LessonRunSessions => Set<LessonRunSessionDocument>();
     internal DbSet<UserDocument> Users => Set<UserDocument>();
+    internal DbSet<AccountTokenDocument> AccountTokens => Set<AccountTokenDocument>();
     internal DbSet<GroupDocument> Groups => Set<GroupDocument>();
     internal DbSet<GroupEnrollmentDocument> GroupEnrollments => Set<GroupEnrollmentDocument>();
     internal DbSet<ScheduledSessionDocument> ScheduledSessions => Set<ScheduledSessionDocument>();
@@ -34,6 +37,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     internal DbSet<PaymentDocument> Payments => Set<PaymentDocument>();
     internal DbSet<LessonCreditDocument> LessonCredits => Set<LessonCreditDocument>();
     internal DbSet<ParentParticipantLinkDocument> ParentParticipantLinks => Set<ParentParticipantLinkDocument>();
+    internal DbSet<ProgressEntryDocument> ProgressEntries => Set<ProgressEntryDocument>();
+    internal DbSet<ProjectDocument> Projects => Set<ProjectDocument>();
+    internal DbSet<ProjectSubmissionDocument> ProjectSubmissions => Set<ProjectSubmissionDocument>();
+    internal DbSet<IncidentDocument> Incidents => Set<IncidentDocument>();
+    internal DbSet<SupportTicketDocument> SupportTickets => Set<SupportTicketDocument>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,6 +64,17 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             builder.Property(user => user.PasswordHash).IsRequired();
             builder.Property(user => user.Role).HasMaxLength(40).IsRequired();
             builder.Property(user => user.SecurityStamp).HasMaxLength(64).IsRequired().HasDefaultValue(string.Empty);
+        });
+
+        modelBuilder.Entity<AccountTokenDocument>(builder =>
+        {
+            builder.ToTable("AccountTokens");
+            builder.HasKey(token => token.Id);
+            // Skrót jest jednocześnie kluczem wyszukiwania - stąd indeks unikalny, a nie zwykły.
+            builder.Property(token => token.TokenHash).HasMaxLength(64).IsRequired();
+            builder.HasIndex(token => token.TokenHash).IsUnique();
+            builder.Property(token => token.Purpose).HasMaxLength(40).IsRequired();
+            builder.HasIndex(token => new { token.UserId, token.UsedAt });
         });
 
         modelBuilder.Entity<LessonRunSessionDocument>(builder =>
@@ -120,6 +139,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             builder.HasKey(session => session.Id);
             builder.Property(session => session.Status).HasMaxLength(40).IsRequired();
             builder.Property(session => session.InstructorNote).HasMaxLength(4000);
+            builder.Property(session => session.UnfinishedNote).HasMaxLength(2000);
+            builder.Property(session => session.ParentSummary).HasMaxLength(2000);
             builder.Property(session => session.MeetingUrl).HasMaxLength(1000);
             builder.Property(session => session.RecordingUrl).HasMaxLength(1000);
             builder.HasIndex(session => session.ScheduledAt);
@@ -137,6 +158,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             builder.ToTable("AttendanceRecords");
             builder.HasKey(record => record.Id);
             builder.Property(record => record.Status).HasMaxLength(40).IsRequired().HasDefaultValue(string.Empty);
+            builder.Property(record => record.LiveStatus).HasMaxLength(40).IsRequired().HasDefaultValue(string.Empty);
             builder.Property(record => record.Note).HasMaxLength(500);
             builder.HasIndex(record => new { record.ScheduledSessionId, record.ParticipantId }).IsUnique();
             builder.HasIndex(record => record.MakeupSessionId);
@@ -235,6 +257,38 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             builder.Property(settings => settings.AbsenceBody).HasMaxLength(4000).IsRequired();
         });
 
+        // Rozdział 8 dokumentu: incydenty są osobnym rejestrem, nie polem przy obecności.
+        // Brak kluczy obcych jest tu **celowy** - sprawa musi przetrwać usunięcie grupy
+        // i anonimizację dziecka, bo to ona jest dowodem w razie sporu.
+        modelBuilder.Entity<IncidentDocument>(builder =>
+        {
+            builder.ToTable("Incidents");
+            builder.HasKey(incident => incident.Id);
+            builder.Property(incident => incident.Kind).HasMaxLength(40).IsRequired();
+            builder.Property(incident => incident.Severity).HasMaxLength(20).IsRequired();
+            builder.Property(incident => incident.Status).HasMaxLength(20).IsRequired();
+            builder.Property(incident => incident.ParticipantIds).HasMaxLength(1000).IsRequired();
+            builder.Property(incident => incident.Description).HasMaxLength(4000).IsRequired();
+            builder.Property(incident => incident.ActionsTaken).HasMaxLength(4000);
+            builder.Property(incident => incident.Resolution).HasMaxLength(4000);
+            builder.HasIndex(incident => incident.Status);
+            builder.HasIndex(incident => incident.ReportedByUserId);
+        });
+
+        modelBuilder.Entity<SupportTicketDocument>(builder =>
+        {
+            builder.ToTable("SupportTickets");
+            builder.HasKey(ticket => ticket.Id);
+            builder.Property(ticket => ticket.Category).HasMaxLength(40).IsRequired();
+            builder.Property(ticket => ticket.Status).HasMaxLength(20).IsRequired();
+            builder.Property(ticket => ticket.Description).HasMaxLength(4000).IsRequired();
+            builder.Property(ticket => ticket.Resolution).HasMaxLength(4000);
+            // Najczęstsze zapytanie to „pokaż problemy tego dziecka" - historia jest tu
+            // wartościowsza niż pojedyncze zgłoszenie.
+            builder.HasIndex(ticket => ticket.ParticipantId);
+            builder.HasIndex(ticket => ticket.Status);
+        });
+
         modelBuilder.Entity<PricePlanDocument>(builder =>
         {
             builder.ToTable("PricePlans");
@@ -297,8 +351,51 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         {
             builder.ToTable("ParentParticipantLinks");
             builder.HasKey(link => link.Id);
+            builder.Property(link => link.Relation).HasMaxLength(60);
+            builder.Property(link => link.ReceivesNotifications).HasDefaultValue(true);
             builder.HasIndex(link => new { link.ParentUserId, link.ParticipantId }).IsUnique();
             builder.HasIndex(link => link.ParticipantId);
+        });
+
+        modelBuilder.Entity<ProgressEntryDocument>(builder =>
+        {
+            builder.ToTable("ProgressEntries");
+            builder.HasKey(entry => entry.Id);
+            builder.Property(entry => entry.Autonomy).HasMaxLength(40).IsRequired();
+            builder.Property(entry => entry.NoteForParent).HasMaxLength(2000);
+            builder.Property(entry => entry.NextStep).HasMaxLength(2000);
+            builder.HasIndex(entry => entry.ParticipantId);
+            // Jeden wpis na dziecko na termin: kolejne zapisy z kokpitu mają poprawiać ten sam
+            // wpis, a nie mnożyć wersje tej samej lekcji.
+            builder.HasIndex(entry => new { entry.SessionId, entry.ParticipantId }).IsUnique();
+        });
+
+        modelBuilder.Entity<ProjectDocument>(builder =>
+        {
+            builder.ToTable("Projects");
+            builder.HasKey(project => project.Id);
+            builder.Property(project => project.Title).HasMaxLength(200).IsRequired();
+            builder.Property(project => project.Description).HasMaxLength(2000);
+            builder.HasIndex(project => project.ParticipantId);
+            builder
+                .HasMany(project => project.Submissions)
+                .WithOne(submission => submission.Project!)
+                .HasForeignKey(submission => submission.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ProjectSubmissionDocument>(builder =>
+        {
+            builder.ToTable("ProjectSubmissions");
+            builder.HasKey(submission => submission.Id);
+            builder.Property(submission => submission.Url).HasMaxLength(1000);
+            builder.Property(submission => submission.FileUrl).HasMaxLength(1000);
+            builder.Property(submission => submission.FileName).HasMaxLength(260);
+            builder.Property(submission => submission.ContentType).HasMaxLength(160);
+            builder.Property(submission => submission.DownloadToken).HasMaxLength(64);
+            builder.Property(submission => submission.InstructorComment).HasMaxLength(2000);
+            builder.HasIndex(submission => submission.DownloadToken);
+            builder.HasIndex(submission => new { submission.ProjectId, submission.Version }).IsUnique();
         });
     }
 }

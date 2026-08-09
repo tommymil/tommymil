@@ -2,6 +2,7 @@ using LessonRunner.Application.Auth;
 using LessonRunner.Application.Billing;
 using LessonRunner.Application.Courses;
 using LessonRunner.Application.Lessons;
+using LessonRunner.Application.Notifications;
 using LessonRunner.Application.Participants;
 using LessonRunner.Application.Scheduling;
 using LessonRunner.Domain.Groups;
@@ -19,17 +20,30 @@ public sealed class GroupService(
     IParticipantRepository participantRepository,
     ICourseRepository? courseRepository = null,
     ISchedulingRepository? schedulingRepository = null,
-    IBillingService? billingService = null) : IGroupService
+    IBillingService? billingService = null,
+    // Opcjonalne, żeby starsze testy budujące serwis ręcznie nadal się kompilowały.
+    // Brak serwisu oznacza brak wysyłki, a nie wywróconą operację na terminie.
+    INotificationService? notificationService = null) : IGroupService
 {
+    /// <summary>
+    /// Lista grup dla panelu administratora.
+    ///
+    /// Instruktorów pobieramy **jednym zapytaniem przed pętlą**, a nie po jednym na grupę.
+    /// Wcześniej `GetByIdAsync` w pętli dawał klasyczne N+1: przy pięćdziesięciu grupach
+    /// pięćdziesiąt osobnych odczytów po tabeli, która ma kilkanaście wierszy. Przy kilkunastu
+    /// grupach to niewidoczne, przy pięćdziesięciu — odczuwalne (punkt 26 planu prac).
+    /// </summary>
     public async Task<IReadOnlyList<GroupSummaryDto>> GetSummariesAsync(CancellationToken cancellationToken)
     {
         var groups = await groupRepository.ListAsync(cancellationToken);
         var locationNames = await LocationNameMapAsync(cancellationToken);
+        var instructors = (await userRepository.ListAsync(cancellationToken))
+            .ToDictionary(user => user.Id);
         var summaries = new List<GroupSummaryDto>(groups.Count);
 
         foreach (var group in groups.OrderBy(group => group.Name))
         {
-            var instructor = await userRepository.GetByIdAsync(group.InstructorId, cancellationToken);
+            var instructor = instructors.GetValueOrDefault(group.InstructorId);
             var nextSession = group.Sessions
                 .Where(session => session.Status.IsActive())
                 .OrderBy(session => session.ScheduledAt)
@@ -303,6 +317,13 @@ public sealed class GroupService(
             ? ScheduledSessionStatus.CancelledByParent
             : ScheduledSessionStatus.CancelledByInstructor;
         await groupRepository.UpdateSessionAsync(session, cancellationToken);
+
+        // Znacznik „powiadomiono opiekunów” bierzemy z faktycznej wysyłki, a nie z deklaracji
+        // w formularzu. Dotąd zaznaczał go człowiek, a system zapisywał tę deklarację jako
+        // dowód przy reklamacji „nie dostaliśmy informacji o zmianie”.
+        var notified = await NotifyScheduleChangeAsync(
+            sessionId, previousScheduledAt: null, dto?.Reason, cancelled: true, cancellationToken);
+
         await RecordSessionChangeAsync(
             session,
             SessionChangeType.Cancelled,
@@ -311,15 +332,99 @@ public sealed class GroupService(
             reason: dto?.Reason,
             details: session.Status.Label(),
             actingUserId,
-            dto?.GuardiansNotified ?? false,
+            notified || (dto?.GuardiansNotified ?? false),
             cancellationToken);
 
         await ApplyCompensationAsync(group, session, dto, actingUserId, cancellationToken);
+
+        if (dto?.ShiftFollowingLessons == true)
+        {
+            await ShiftFollowingLessonsAsync(group, session, actingUserId, cancellationToken);
+        }
 
         var lessonTitles = await LessonTitleMapAsync(cancellationToken);
         var locationNames = await LocationNameMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
         return GroupMapping.ToSessionDto(session, group, lessonTitles, locationNames, instructorNames);
+    }
+
+    /// <summary>
+    /// Przesuwa materiał po odwołanych zajęciach: lekcja z odwołanego terminu wchodzi na
+    /// najbliższy zaplanowany, każda kolejna przesuwa się o jeden, a wypchnięta z końca
+    /// dostaje nowy termin tydzień po ostatnim. Kurs wydłuża się o jedne zajęcia.
+    ///
+    /// Daty terminów zostają nietknięte — przesuwamy przypisanie lekcji, nie kalendarz.
+    /// Dzięki temu rodzice nie muszą przestawiać niczego w swoim tygodniu, a materiał
+    /// zostaje zrealizowany w całości.
+    ///
+    /// Terminów zakończonych i odwołanych nie ruszamy.
+    /// </summary>
+    private async Task ShiftFollowingLessonsAsync(
+        Group group,
+        ScheduledSession cancelled,
+        Guid? actingUserId,
+        CancellationToken cancellationToken)
+    {
+        var following = group.Sessions
+            .Where(session => session.SequenceNumber > cancelled.SequenceNumber && session.Status.IsUpcoming())
+            .OrderBy(session => session.SequenceNumber)
+            .ToList();
+
+        if (following.Count == 0 || cancelled.LessonId is null)
+        {
+            return;
+        }
+
+        Guid? lessonToPlace = cancelled.LessonId;
+
+        foreach (var session in following)
+        {
+            var displaced = session.LessonId;
+            session.LessonId = lessonToPlace;
+            await groupRepository.UpdateSessionAsync(session, cancellationToken);
+            lessonToPlace = displaced;
+        }
+
+        await RecordSessionChangeAsync(
+            cancelled,
+            SessionChangeType.StatusChanged,
+            previousScheduledAt: null,
+            newScheduledAt: null,
+            reason: null,
+            details: $"Materiał przesunięty na kolejne terminy ({following.Count} zajęć)",
+            actingUserId,
+            guardiansNotified: false,
+            cancellationToken);
+
+        // Lekcja wypchnięta z ostatniego terminu potrzebuje nowego miejsca na końcu kursu.
+        if (lessonToPlace is not Guid trailingLessonId)
+        {
+            return;
+        }
+
+        var last = following[^1];
+        var holidays = await HolidayDatesAsync(cancellationToken);
+        var extraSession = new ScheduledSession
+        {
+            GroupId = group.Id,
+            LessonId = trailingLessonId,
+            ScheduledAt = MovePastHoliday(AddWeeksPreservingLocalTime(last.ScheduledAt, 1), holidays),
+            LocationId = last.LocationId,
+            SequenceNumber = group.Sessions.Max(session => session.SequenceNumber) + 1,
+            Status = ScheduledSessionStatus.Planned
+        };
+
+        await groupRepository.AddSessionAsync(extraSession, cancellationToken);
+        await RecordSessionChangeAsync(
+            extraSession,
+            SessionChangeType.Created,
+            previousScheduledAt: null,
+            newScheduledAt: extraSession.ScheduledAt,
+            reason: null,
+            details: "Termin dodany po przesunięciu materiału z odwołanych zajęć",
+            actingUserId,
+            guardiansNotified: false,
+            cancellationToken);
     }
 
     /// <summary>
@@ -387,6 +492,10 @@ public sealed class GroupService(
         await EnsureNotHolidayAsync(session.ScheduledAt, cancellationToken);
         await EnsureNoSchedulingConflictsAsync(group, [session], new HashSet<Guid> { session.Id }, cancellationToken);
         await groupRepository.UpdateSessionAsync(session, cancellationToken);
+
+        var notified = await NotifyScheduleChangeAsync(
+            sessionId, previousScheduledAt, dto.Reason, cancelled: false, cancellationToken);
+
         await RecordSessionChangeAsync(
             session,
             SessionChangeType.Rescheduled,
@@ -395,7 +504,7 @@ public sealed class GroupService(
             dto.Reason,
             details: null,
             actingUserId,
-            dto.GuardiansNotified,
+            notified || dto.GuardiansNotified,
             cancellationToken);
 
         var lessonTitles = await LessonTitleMapAsync(cancellationToken);
@@ -840,6 +949,38 @@ public sealed class GroupService(
                 change.GuardiansNotified,
                 change.ChangedAt))
             .ToList();
+    }
+
+    /// <summary>
+    /// Wysyła opiekunom informację o przełożeniu albo odwołaniu i mówi, czy cokolwiek wyszło.
+    ///
+    /// Błąd wysyłki nie może wywrócić samej operacji: lepiej odwołać zajęcia bez maila niż
+    /// nie odwołać wcale. Nieudana próba i tak zostaje w dzienniku wysyłek, a historia zmian
+    /// zapisze wtedy „bez powiadomienia” — czyli prawdę.
+    /// </summary>
+    private async Task<bool> NotifyScheduleChangeAsync(
+        Guid sessionId,
+        DateTimeOffset? previousScheduledAt,
+        string? reason,
+        bool cancelled,
+        CancellationToken cancellationToken)
+    {
+        if (notificationService is null)
+        {
+            return false;
+        }
+
+        try
+        {
+            var sent = await notificationService.NotifySessionRescheduledAsync(
+                sessionId, previousScheduledAt, reason, cancelled, cancellationToken);
+
+            return sent > 0;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     /// <summary>Dopisuje wpis do historii zmian terminu. Błąd zapisu historii nie może wywrócić

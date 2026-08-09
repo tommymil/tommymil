@@ -39,6 +39,14 @@ internal sealed class ScheduledSessionDocument
     public DateTimeOffset? StartedAt { get; set; }
     public DateTimeOffset? CompletedAt { get; set; }
     public string? InstructorNote { get; set; }
+
+    /// <summary>Czego nie zdążyliśmy - osobne pole, żeby dało się to podpowiedzieć
+    /// na kolejnym terminie zamiast szukać zdania w notatce.</summary>
+    public string? UnfinishedNote { get; set; }
+
+    /// <summary>Podsumowanie dla rodzica - jedyny fragment debriefu widoczny w portalu.</summary>
+    public string? ParentSummary { get; set; }
+
     public string? MeetingUrl { get; set; }
     public string? RecordingUrl { get; set; }
 
@@ -77,6 +85,10 @@ internal sealed class AttendanceRecordDocument
     public string? Note { get; set; }
     public DateTimeOffset? JoinedAt { get; set; }
     public DateTimeOffset? LeftAt { get; set; }
+
+    /// <summary>Znacznik pracy na żywo. Puste = rekord sprzed migracji
+    /// `AddSessionDebriefAndLiveStatus`; przy odczycie podstawiamy „Working".</summary>
+    public string LiveStatus { get; set; } = string.Empty;
 
     public bool MakeupRequired { get; set; }
     public Guid? MakeupSessionId { get; set; }

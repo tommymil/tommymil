@@ -131,6 +131,26 @@ public sealed class UserAdminServiceTests
     }
 
     [Fact]
+    public async Task CreateAsync_WithoutPassword_CreatesAccountNobodyCanLogIntoYet()
+    {
+        var service = BuildService(out var repository);
+        var hasher = new Pbkdf2PasswordHasher();
+
+        var created = await service.CreateAsync(new CreateUserDto("rodzic@x.pl", null, "parent"), CancellationToken.None);
+
+        var stored = await repository.GetByIdAsync(created.Id, CancellationToken.None);
+        Assert.NotNull(stored);
+        Assert.NotEmpty(stored!.PasswordHash);
+
+        // Konto czeka na zaproszenie. Nie ma osobnego stanu „brak hasła" - jest skrót z losowego
+        // ciągu, którego nikt nie zna - więc żadne oczywiste hasło nie otworzy tego konta.
+        foreach (var guess in new[] { "", " ", "password123", stored.Email })
+        {
+            Assert.False(hasher.Verify(guess, stored.PasswordHash));
+        }
+    }
+
+    [Fact]
     public async Task CreateAsync_RejectsShortPassword()
     {
         var service = BuildService(out _);

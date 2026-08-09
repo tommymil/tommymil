@@ -2,6 +2,7 @@ using LessonRunner.Application.Auth;
 using LessonRunner.Application.Lessons;
 using LessonRunner.Application.Notifications;
 using LessonRunner.Application.Participants;
+using LessonRunner.Application.Scheduling;
 using LessonRunner.Domain.Groups;
 using LessonRunner.Domain.Participants;
 
@@ -27,6 +28,28 @@ public sealed class SessionService(
             .OrderBy(session => session.ScheduledAt)
             .ThenBy(session => session.SequenceNumber)
             .ToList();
+    }
+
+    public async Task<byte[]> ExportScheduleIcsAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var schedule = await GetScheduleAsync(userId, cancellationToken);
+
+        var events = schedule
+            .Select(session => new CalendarEventDto(
+                session.Id,
+                $"{session.GroupName}: {session.LessonTitle ?? "zajęcia"}",
+                session.ScheduledAt,
+                CalendarExport.DefaultDurationMinutes,
+                session.SubstituteInstructorName is null ? null : $"Zastępstwo: {session.SubstituteInstructorName}",
+                session.LocationName,
+                session.MeetingUrl,
+                // Odwołane terminy zostają w pliku ze statusem CANCELLED, żeby przy ponownym
+                // imporcie zniknęły z kalendarza zamiast zostać tam jako duchy.
+                session.Status.StartsWith("cancelled", StringComparison.OrdinalIgnoreCase)
+                    || session.Status == "awaitingreschedule"))
+            .ToList();
+
+        return CalendarExport.ToIcs(events, "Grafik zajęć");
     }
 
     public async Task<ScheduledSessionDto?> GetSessionAsync(Guid sessionId, Guid userId, CancellationToken cancellationToken)
@@ -98,6 +121,63 @@ public sealed class SessionService(
         return GroupMapping.ToAttendanceDto(sessionId, session.Status, participants, session.Attendance, makeupOptions);
     }
 
+    /// <summary>
+    /// Ustawienie znacznika pracy jednego dziecka.
+    ///
+    /// Osobna, wąska operacja zamiast przepychania całej listy obecności: w trakcie zajęć
+    /// instruktor klika to co kilkadziesiąt sekund, a wysyłanie przy tym stanu dziesięciorga
+    /// dzieci groziłoby nadpisaniem czyjejś świeżej zmiany danymi sprzed chwili.
+    /// </summary>
+    public async Task<SessionAttendanceDto?> SetLiveStatusAsync(
+        Guid sessionId,
+        Guid userId,
+        SetLiveStatusDto dto,
+        CancellationToken cancellationToken)
+    {
+        var (group, session) = await LoadOwnedAsync(sessionId, userId, cancellationToken);
+
+        if (group is null || session is null)
+        {
+            return null;
+        }
+
+        var status = ParseLiveStatus(dto.LiveStatus);
+
+        if (status is null)
+        {
+            throw new ArgumentException("Nieznany znacznik pracy.");
+        }
+
+        var records = session.Attendance.ToList();
+        var record = records.FirstOrDefault(item => item.ParticipantId == dto.ParticipantId);
+
+        if (record is null)
+        {
+            // Dziecko bez wiersza obecności to najczęściej ktoś, kto właśnie dołączył.
+            // Tworzymy wiersz w stanie neutralnym - znacznik pracy nie jest deklaracją
+            // obecności i nie może za instruktora odhaczyć listy.
+            record = new AttendanceRecord
+            {
+                ScheduledSessionId = sessionId,
+                ParticipantId = dto.ParticipantId,
+                Status = AttendanceStatus.UnexcusedAbsence
+            };
+            records.Add(record);
+        }
+
+        record.LiveStatus = status.Value;
+        await groupRepository.SaveAttendanceAsync(sessionId, records, cancellationToken);
+
+        var participants = await AttendanceParticipantsAsync(group, session, cancellationToken);
+
+        // Świadomie **bez** listy terminów odrabiania. `MakeupSessionOptionsAsync` czyta
+        // wszystkie grupy i wszystkie lekcje, a ten endpoint jest wołany co kilkadziesiąt
+        // sekund w trakcie zajęć — to najczęściej wywoływana operacja w całym systemie.
+        // Lista terminów odrabiania i tak się w trakcie lekcji nie zmienia, więc front
+        // zachowuje tę, którą dostał przy otwarciu kokpitu.
+        return GroupMapping.ToAttendanceDto(sessionId, session.Status, participants, records);
+    }
+
     public async Task<SessionAttendanceDto?> SaveAttendanceAsync(
         Guid sessionId,
         Guid userId,
@@ -143,6 +223,10 @@ public sealed class SessionService(
                     }
 
                     record.Status = status;
+                    // Pominięty `LiveStatus` zostawia poprzednią wartość. Autozapis wysyła
+                    // tylko to, co użytkownik faktycznie zmienił, więc brak pola nie może
+                    // kasować znacznika ustawionego minutę wcześniej.
+                    record.LiveStatus = ParseLiveStatus(submittedEntry?.LiveStatus) ?? record.LiveStatus;
                     record.Note = NormalizeNote(submittedEntry?.Note);
                     record.JoinedAt = submittedEntry?.JoinedAt;
                     record.LeftAt = submittedEntry?.LeftAt;
@@ -157,6 +241,7 @@ public sealed class SessionService(
                     ScheduledSessionId = sessionId,
                     ParticipantId = participant.Id,
                     Status = status,
+                    LiveStatus = ParseLiveStatus(submittedEntry?.LiveStatus) ?? LiveWorkStatus.Working,
                     Note = NormalizeNote(submittedEntry?.Note),
                     JoinedAt = submittedEntry?.JoinedAt,
                     LeftAt = submittedEntry?.LeftAt,
@@ -194,7 +279,9 @@ public sealed class SessionService(
         session.Status = ScheduledSessionStatus.Completed;
         session.StartedAt ??= DateTimeOffset.UtcNow;
         session.CompletedAt = DateTimeOffset.UtcNow;
-        session.InstructorNote = string.IsNullOrWhiteSpace(dto.Note) ? null : dto.Note.Trim();
+        session.InstructorNote = Trimmed(dto.Note, 4000);
+        session.UnfinishedNote = Trimmed(dto.UnfinishedNote, 2000);
+        session.ParentSummary = Trimmed(dto.ParentSummary, 2000);
 
         await groupRepository.UpdateSessionAsync(session, cancellationToken);
 
@@ -215,11 +302,31 @@ public sealed class SessionService(
             {
                 await notificationService.NotifyAbsencesAsync(sessionId, absentParticipantIds, cancellationToken);
             }
+
+            // Podsumowanie idzie tylko wtedy, gdy instruktor je napisał. Pusty mail
+            // „zajęcia się odbyły" jest gorszy niż brak maila.
+            if (!string.IsNullOrWhiteSpace(session.ParentSummary))
+            {
+                await notificationService.NotifySessionSummaryAsync(sessionId, cancellationToken);
+            }
         }
 
         var lessonTitles = await LessonTitleMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
         return GroupMapping.ToSessionDto(session, group, lessonTitles, null, instructorNames);
+    }
+
+    /// <summary>Nierozpoznany albo pusty znacznik traktujemy jako „bez zmiany", a nie jako
+    /// „Working" - inaczej literówka we froncie kasowałaby stan całej listy.</summary>
+    private static LiveWorkStatus? ParseLiveStatus(string? value) =>
+        string.IsNullOrWhiteSpace(value)
+            ? null
+            : Enum.TryParse<LiveWorkStatus>(value, ignoreCase: true, out var parsed) ? parsed : null;
+
+    private static string? Trimmed(string? value, int maxLength)
+    {
+        var trimmed = value?.Trim();
+        return string.IsNullOrEmpty(trimmed) ? null : trimmed[..Math.Min(trimmed.Length, maxLength)];
     }
 
     private static string? NormalizeNote(string? note)

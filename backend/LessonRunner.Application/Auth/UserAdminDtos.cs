@@ -10,9 +10,12 @@ public sealed record UserListItemDto(
     string? Phone,
     string DisplayName);
 
+/// <summary>Zakładanie konta. <paramref name="Password"/> jest opcjonalne: puste oznacza konto
+/// bez hasła, do którego wysyłamy zaproszenie. Rodzic ustawia hasło sam i nikt nigdy nie zna
+/// cudzego hasła — dotąd admin musiał je wymyślić i przekazać kanałem, którego nie kontroluje.</summary>
 public sealed record CreateUserDto(
     string Email,
-    string Password,
+    string? Password,
     string Role,
     string? FirstName = null,
     string? LastName = null,

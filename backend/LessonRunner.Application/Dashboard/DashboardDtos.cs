@@ -35,8 +35,28 @@ public sealed record DashboardGroupFillDto(
     int? Capacity,
     int FillPercent);
 
+/// <summary>
+/// Pozycja listy „Wymaga uwagi".
+///
+/// Administrator otwiera panel z pytaniem „czym się dziś zająć", a dostawał tablicę
+/// sześciu liczb bez progów i bez trendu — „Frekwencja 87%" nie mówi, czy to dobrze.
+/// Każda pozycja tej listy jest konkretną sprawą z odnośnikiem do miejsca, w którym
+/// da się ją załatwić.
+/// </summary>
+public sealed record DashboardAttentionDto(
+    /// <summary>Rodzaj sprawy - front dobiera po nim ikonę: `overdue`, `nolesson`,
+    /// `noinstructor`, `lowattendance`, `expiringcredit`, `waitlist`.</summary>
+    string Kind,
+    string Title,
+    string Detail,
+    /// <summary>`danger` albo `warning` - czy to już problem, czy dopiero ostrzeżenie.</summary>
+    string Severity,
+    /// <summary>Ścieżka we froncie prowadząca do miejsca załatwienia sprawy.</summary>
+    string Path);
+
 public sealed record DashboardDto(
     DashboardKpiDto Kpis,
     IReadOnlyList<DashboardUpcomingSessionDto> UpcomingSessions,
     IReadOnlyList<DashboardInstructorLoadDto> InstructorLoads,
-    IReadOnlyList<DashboardGroupFillDto> GroupFill);
+    IReadOnlyList<DashboardGroupFillDto> GroupFill,
+    IReadOnlyList<DashboardAttentionDto>? Attention = null);

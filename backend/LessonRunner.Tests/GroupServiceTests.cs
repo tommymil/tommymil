@@ -195,6 +195,78 @@ public sealed class GroupServiceTests
             group.Id, sessionId, new SetSessionStatusDto("cos-czego-nie-ma"), null, CancellationToken.None));
     }
 
+    /// <summary>
+    /// Rozdział 10 dokumentu: po odwołaniu zajęć materiał ma się przesunąć, a nie przepaść.
+    /// Daty terminów zostają nietknięte — rodzic nie musi nic zmieniać w swoim tygodniu.
+    /// </summary>
+    [Fact]
+    public async Task CancelSessionAsync_ShiftsLessonsForward_AndExtendsCourseByOneSession()
+    {
+        var (service, lessons, _, instructor) = await BuildAsync();
+        var l1 = ReadyLesson("L1");
+        var l2 = ReadyLesson("L2");
+        var l3 = ReadyLesson("L3");
+        foreach (var lesson in new[] { l1, l2, l3 })
+        {
+            await lessons.AddAsync(lesson, CancellationToken.None);
+        }
+
+        var first = new DateTimeOffset(2026, 6, 15, 16, 0, 0, TimeSpan.Zero);
+        var group = await service.CreateAsync(
+            new CreateGroupDto("Grupa", instructor.Id, [l1.Id, l2.Id, l3.Id], first, []),
+            CancellationToken.None);
+
+        // Odwołujemy pierwsze zajęcia i przesuwamy materiał.
+        await service.CancelSessionAsync(
+            group.Id,
+            group.Sessions[0].Id,
+            new CancelSessionDto("Instruktor chory", ShiftFollowingLessons: true),
+            instructor.Id,
+            CancellationToken.None);
+
+        var after = await service.GetDetailsAsync(group.Id, CancellationToken.None);
+        var upcoming = after!.Sessions
+            .Where(session => session.Status == "planned")
+            .OrderBy(session => session.SequenceNumber)
+            .ToList();
+
+        // Kurs wydłużył się o jeden termin, a materiał przesunął się o jedną pozycję.
+        Assert.Equal(3, upcoming.Count);
+        Assert.Equal([l1.Id, l2.Id, l3.Id], upcoming.Select(session => session.LessonId));
+
+        // Daty istniejących terminów zostały nietknięte, nowy wypadł tydzień po ostatnim.
+        Assert.Equal(first.AddDays(7), upcoming[0].ScheduledAt);
+        Assert.Equal(first.AddDays(14), upcoming[1].ScheduledAt);
+        Assert.Equal(first.AddDays(21), upcoming[2].ScheduledAt);
+    }
+
+    [Fact]
+    public async Task CancelSessionAsync_WithoutShift_LeavesFollowingLessonsAlone()
+    {
+        var (service, lessons, _, instructor) = await BuildAsync();
+        var l1 = ReadyLesson("L1");
+        var l2 = ReadyLesson("L2");
+        await lessons.AddAsync(l1, CancellationToken.None);
+        await lessons.AddAsync(l2, CancellationToken.None);
+
+        var group = await service.CreateAsync(
+            new CreateGroupDto("Grupa", instructor.Id, [l1.Id, l2.Id], DateTimeOffset.UtcNow, []),
+            CancellationToken.None);
+
+        await service.CancelSessionAsync(
+            group.Id,
+            group.Sessions[0].Id,
+            new CancelSessionDto("Zajęcia przepadają"),
+            instructor.Id,
+            CancellationToken.None);
+
+        var after = await service.GetDetailsAsync(group.Id, CancellationToken.None);
+
+        // Bez przesunięcia kurs nie rośnie, a drugi termin nadal ma swoją lekcję.
+        Assert.Equal(2, after!.Sessions.Count);
+        Assert.Equal(l2.Id, after.Sessions.Single(session => session.SequenceNumber == 2).LessonId);
+    }
+
     [Fact]
     public async Task CancelSessionAsync_DistinguishesWhoCancelled()
     {

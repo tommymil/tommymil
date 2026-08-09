@@ -20,6 +20,41 @@ internal sealed class EfParentPortalRepository(AppDbContext dbContext) : IParent
             .Select(ToDomain)
             .ToList();
 
+    public async Task<IReadOnlyList<ParentParticipantLink>> ListByParticipantsAsync(
+        IReadOnlyList<Guid> participantIds,
+        CancellationToken cancellationToken)
+    {
+        if (participantIds.Count == 0)
+        {
+            return [];
+        }
+
+        var ids = participantIds.Distinct().ToList();
+        return (await dbContext.ParentParticipantLinks
+            .AsNoTracking()
+            .Where(link => ids.Contains(link.ParticipantId))
+            .ToListAsync(cancellationToken))
+            .Select(ToDomain)
+            .ToList();
+    }
+
+    public async Task<bool> UpdateAsync(ParentParticipantLink link, CancellationToken cancellationToken)
+    {
+        var document = await dbContext.ParentParticipantLinks
+            .FirstOrDefaultAsync(item => item.ParentUserId == link.ParentUserId && item.ParticipantId == link.ParticipantId, cancellationToken);
+
+        if (document is null)
+        {
+            return false;
+        }
+
+        document.Relation = link.Relation;
+        document.IsPrimaryContact = link.IsPrimaryContact;
+        document.ReceivesNotifications = link.ReceivesNotifications;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
     public async Task AddAsync(ParentParticipantLink link, CancellationToken cancellationToken)
     {
         dbContext.ParentParticipantLinks.Add(ToDocument(link));
@@ -46,6 +81,9 @@ internal sealed class EfParentPortalRepository(AppDbContext dbContext) : IParent
         Id = document.Id,
         ParentUserId = document.ParentUserId,
         ParticipantId = document.ParticipantId,
+        Relation = document.Relation,
+        IsPrimaryContact = document.IsPrimaryContact,
+        ReceivesNotifications = document.ReceivesNotifications,
         CreatedAt = document.CreatedAt
     };
 
@@ -54,6 +92,9 @@ internal sealed class EfParentPortalRepository(AppDbContext dbContext) : IParent
         Id = link.Id,
         ParentUserId = link.ParentUserId,
         ParticipantId = link.ParticipantId,
+        Relation = link.Relation,
+        IsPrimaryContact = link.IsPrimaryContact,
+        ReceivesNotifications = link.ReceivesNotifications,
         CreatedAt = link.CreatedAt
     };
 }

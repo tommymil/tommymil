@@ -21,4 +21,27 @@ internal sealed class InMemoryParentPortalRepository : IParentPortalRepository
 
     public Task<bool> DeleteAsync(Guid parentUserId, Guid participantId, CancellationToken cancellationToken) =>
         Task.FromResult(_links.RemoveAll(link => link.ParentUserId == parentUserId && link.ParticipantId == participantId) > 0);
+
+    public Task<IReadOnlyList<ParentParticipantLink>> ListByParticipantsAsync(
+        IReadOnlyList<Guid> participantIds,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<ParentParticipantLink> result = _links
+            .Where(link => participantIds.Contains(link.ParticipantId))
+            .ToList();
+        return Task.FromResult(result);
+    }
+
+    public Task<bool> UpdateAsync(ParentParticipantLink link, CancellationToken cancellationToken)
+    {
+        var index = _links.FindIndex(item => item.ParentUserId == link.ParentUserId && item.ParticipantId == link.ParticipantId);
+
+        if (index < 0)
+        {
+            return Task.FromResult(false);
+        }
+
+        _links[index] = link;
+        return Task.FromResult(true);
+    }
 }

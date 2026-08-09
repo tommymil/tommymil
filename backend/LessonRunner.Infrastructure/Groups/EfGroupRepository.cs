@@ -154,6 +154,8 @@ internal sealed class EfGroupRepository(AppDbContext dbContext) : IGroupReposito
         document.StartedAt = session.StartedAt;
         document.CompletedAt = session.CompletedAt;
         document.InstructorNote = session.InstructorNote;
+        document.UnfinishedNote = session.UnfinishedNote;
+        document.ParentSummary = session.ParentSummary;
         document.MeetingUrl = session.MeetingUrl;
         document.RecordingUrl = session.RecordingUrl;
 
@@ -173,6 +175,7 @@ internal sealed class EfGroupRepository(AppDbContext dbContext) : IGroupReposito
             if (existingByParticipant.TryGetValue(record.ParticipantId, out var document))
             {
                 document.Status = record.Status.ToString();
+                document.LiveStatus = record.LiveStatus.ToString();
                 document.Present = record.Present;
                 document.Note = record.Note;
                 document.JoinedAt = record.JoinedAt;
@@ -189,6 +192,7 @@ internal sealed class EfGroupRepository(AppDbContext dbContext) : IGroupReposito
                     ScheduledSessionId = sessionId,
                     ParticipantId = record.ParticipantId,
                     Status = record.Status.ToString(),
+                    LiveStatus = record.LiveStatus.ToString(),
                     Present = record.Present,
                     Note = record.Note,
                     JoinedAt = record.JoinedAt,
@@ -225,13 +229,17 @@ internal sealed class EfGroupRepository(AppDbContext dbContext) : IGroupReposito
 
     public async Task<IReadOnlyList<SessionChangeLog>> ListSessionChangesAsync(Guid groupId, CancellationToken cancellationToken)
     {
+        // SQLite nie sortuje po DateTimeOffset w SQL - filtrujemy po grupie w bazie
+        // (to się tłumaczy), a porządkujemy po stronie klienta.
         var documents = await dbContext.SessionChangeLogs
             .AsNoTracking()
             .Where(change => change.GroupId == groupId)
-            .OrderByDescending(change => change.ChangedAt)
             .ToListAsync(cancellationToken);
 
-        return documents.Select(ToDomain).ToList();
+        return documents
+            .OrderByDescending(change => change.ChangedAt)
+            .Select(ToDomain)
+            .ToList();
     }
 
     private static SessionChangeLog ToDomain(SessionChangeLogDocument document) => new()
@@ -295,6 +303,8 @@ internal sealed class EfGroupRepository(AppDbContext dbContext) : IGroupReposito
         StartedAt = document.StartedAt,
         CompletedAt = document.CompletedAt,
         InstructorNote = document.InstructorNote,
+        UnfinishedNote = document.UnfinishedNote,
+        ParentSummary = document.ParentSummary,
         MeetingUrl = document.MeetingUrl,
         RecordingUrl = document.RecordingUrl,
         Attendance = document.Attendance.Select(ToDomain).ToList()
@@ -310,6 +320,8 @@ internal sealed class EfGroupRepository(AppDbContext dbContext) : IGroupReposito
         Status = ParseEnum(
             document.Status,
             document.Present ? AttendanceStatus.Present : AttendanceStatus.UnexcusedAbsence),
+        // Rekordy sprzed migracji `AddSessionDebriefAndLiveStatus` maja pusty LiveStatus.
+        LiveStatus = ParseEnum(document.LiveStatus, LiveWorkStatus.Working),
         Note = document.Note,
         JoinedAt = document.JoinedAt,
         LeftAt = document.LeftAt,
@@ -356,6 +368,8 @@ internal sealed class EfGroupRepository(AppDbContext dbContext) : IGroupReposito
         StartedAt = session.StartedAt,
         CompletedAt = session.CompletedAt,
         InstructorNote = session.InstructorNote,
+        UnfinishedNote = session.UnfinishedNote,
+        ParentSummary = session.ParentSummary,
         MeetingUrl = session.MeetingUrl,
         RecordingUrl = session.RecordingUrl,
         Attendance = session.Attendance.Select(ToDocument).ToList()
@@ -367,6 +381,7 @@ internal sealed class EfGroupRepository(AppDbContext dbContext) : IGroupReposito
         ScheduledSessionId = record.ScheduledSessionId,
         ParticipantId = record.ParticipantId,
         Status = record.Status.ToString(),
+        LiveStatus = record.LiveStatus.ToString(),
         Present = record.Present,
         Note = record.Note,
         JoinedAt = record.JoinedAt,

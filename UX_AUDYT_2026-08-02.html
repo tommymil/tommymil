@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson Runner — audyt UX i kierunek projektowy (02.08.2026)</title>
+<style>
+  :root{
+    --ink:#12172a; --ink-2:#2c3550; --ink-3:#5a6484; --ink-4:#8a93ad;
+    --paper:#f6f7fb; --card:#ffffff; --line:#e4e7f0;
+    --brand:#4338ca; --brand-soft:#eef0ff;
+    --warm:#f97316; --warm-soft:#fff3e8;
+    --ok:#15803d; --ok-soft:#e7f7ec;
+    --warn:#b45309; --warn-soft:#fef6e3;
+    --crit:#be123c; --crit-soft:#ffeef2;
+    --r:14px; --sh:0 1px 2px rgba(18,23,42,.05), 0 8px 24px rgba(18,23,42,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:16px/1.65 "Segoe UI",Inter,system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px 96px}
+
+  header.top{background:linear-gradient(140deg,#1b1f3b 0%,#2f2a6e 45%,#4338ca 100%);color:#fff;padding:56px 0 44px;margin-bottom:36px}
+  header.top .wrap{padding-bottom:0}
+  .kicker{text-transform:uppercase;letter-spacing:.14em;font-size:12px;font-weight:700;color:#b9bdf5}
+  header.top h1{font-size:38px;line-height:1.15;margin:10px 0 12px;font-weight:800;letter-spacing:-.02em}
+  header.top p{margin:0;max-width:74ch;color:#d3d6f3;font-size:17px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .meta span{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+    padding:6px 13px;border-radius:999px;font-size:13px;color:#e8e9fb}
+
+  nav.tabs{position:sticky;top:0;z-index:20;background:rgba(246,247,251,.92);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);margin-bottom:32px}
+  nav.tabs .wrap{display:flex;gap:4px;overflow-x:auto;padding-top:8px;padding-bottom:0}
+  nav.tabs button{appearance:none;border:0;background:none;font:inherit;font-size:14px;font-weight:600;
+    color:var(--ink-3);padding:12px 15px;border-bottom:2.5px solid transparent;cursor:pointer;white-space:nowrap}
+  nav.tabs button:hover{color:var(--ink)}
+  nav.tabs button[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand)}
+  nav.tabs button:focus-visible{outline:2px solid var(--brand);outline-offset:-2px;border-radius:6px}
+
+  section.panel[hidden]{display:none}
+  h2.sec{font-size:26px;letter-spacing:-.015em;margin:44px 0 6px;font-weight:800}
+  h2.sec:first-child{margin-top:0}
+  .lede{color:var(--ink-3);margin:0 0 22px;max-width:78ch}
+  h3.sub{font-size:17px;margin:32px 0 12px;font-weight:700;color:var(--ink-2)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
+
+  /* ustalenia */
+  .find{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--ink-4);
+    border-radius:12px;padding:18px 20px;margin-bottom:14px;box-shadow:var(--sh)}
+  .find.k{border-left-color:var(--crit)} .find.w{border-left-color:var(--warn)} .find.i{border-left-color:var(--brand)}
+  .find-h{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .find-h h4{margin:0;font-size:16px;font-weight:700;flex:1;min-width:240px;letter-spacing:-.01em}
+  .tag{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
+    padding:4px 9px;border-radius:999px;white-space:nowrap}
+  .t-k{background:var(--crit-soft);color:var(--crit)}
+  .t-w{background:var(--warn-soft);color:var(--warn)}
+  .t-i{background:var(--brand-soft);color:var(--brand)}
+  .find p{margin:10px 0 0;color:var(--ink-2);font-size:15px}
+  .find .fix{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);
+    font-size:14.5px;color:var(--ink-2)}
+  .find .fix b{color:var(--ok)}
+  code{background:#eef0f6;padding:2px 6px;border-radius:5px;font-size:.88em;
+    font-family:"Cascadia Mono",Consolas,monospace;color:var(--ink-2)}
+
+  /* karty ról */
+  .role-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin:20px 0 8px}
+  .role{padding:22px;border-radius:var(--r);border:1px solid var(--line);background:var(--card);box-shadow:var(--sh)}
+  .role h4{margin:0 0 4px;font-size:18px}
+  .role .who{font-size:13px;color:var(--ink-4);margin:0 0 14px}
+  .role ul{margin:0;padding-left:18px;font-size:14.5px;color:var(--ink-2)}
+  .role li{margin-bottom:7px}
+  .score{display:flex;align-items:baseline;gap:8px;margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line)}
+  .score b{font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .score span{font-size:13px;color:var(--ink-4)}
+  .bar{height:7px;background:#eceef5;border-radius:99px;overflow:hidden;margin-top:8px}
+  .bar i{display:block;height:100%;border-radius:99px}
+
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);font-size:14.5px;margin:14px 0}
+  th{text-align:left;background:#f3f4fa;font-size:12px;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--ink-3);padding:11px 14px;border-bottom:1px solid var(--line)}
+  td{padding:12px 14px;border-bottom:1px solid #f0f1f7;vertical-align:top;color:var(--ink-2)}
+  tr:last-child td{border-bottom:0}
+  td b{color:var(--ink)}
+
+  /* palety */
+  .swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;margin:14px 0 6px}
+  .sw{border-radius:11px;overflow:hidden;border:1px solid var(--line);background:var(--card)}
+  .sw .chip{height:62px}
+  .sw .lbl{padding:8px 10px;font-size:12px;line-height:1.4}
+  .sw .lbl b{display:block;font-size:12.5px}
+  .sw .lbl span{color:var(--ink-4);font-family:"Cascadia Mono",Consolas,monospace;font-size:11px}
+
+  .scale{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;margin:12px 0}
+  .scale div{background:var(--brand-soft);border:1px solid #d6daff;border-radius:6px;
+    display:flex;align-items:flex-end;justify-content:center;font-size:10px;color:var(--brand);
+    font-weight:700;padding-bottom:3px}
+
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+  @media(max-width:820px){.split{grid-template-columns:1fr}}
+  .box{padding:18px 20px;border-radius:12px;border:1px solid var(--line);background:var(--card);box-shadow:var(--sh)}
+  .box.bad{border-color:#f6d3dc;background:var(--crit-soft)}
+  .box.good{border-color:#c9e9d5;background:var(--ok-soft)}
+  .box h5{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.07em}
+  .box.bad h5{color:var(--crit)} .box.good h5{color:var(--ok)}
+  .box ul{margin:0;padding-left:18px;font-size:14.5px;color:var(--ink-2)} .box li{margin-bottom:6px}
+
+  /* makieta */
+  .mock{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--card);
+    box-shadow:var(--sh);margin:16px 0;font-size:13px}
+  .mock-bar{background:#f3f4fa;border-bottom:1px solid var(--line);padding:9px 14px;
+    font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:700}
+  .mock-body{padding:20px}
+  .hero-next{background:linear-gradient(135deg,#fff3e8,#ffe6d0);border:1px solid #ffd3ae;
+    border-radius:14px;padding:20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+  .hero-next .when{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--warm)}
+  .hero-next .what{font-size:21px;font-weight:800;margin:3px 0 2px;letter-spacing:-.01em}
+  .hero-next .sub{color:var(--ink-3);font-size:14px}
+  .btn{display:inline-block;background:var(--warm);color:#fff;border-radius:10px;
+    padding:11px 20px;font-weight:700;font-size:14px}
+  .btn.g{background:#fff;color:var(--ink-2);border:1px solid var(--line)}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+  .tile{border:1px solid var(--line);border-radius:11px;padding:14px}
+  .tile b{display:block;font-size:19px;letter-spacing:-.01em}
+  .tile span{font-size:12.5px;color:var(--ink-4)}
+
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .seg span{padding:7px 13px;font-size:13px;font-weight:600;color:var(--ink-3);border-right:1px solid var(--line)}
+  .seg span:last-child{border-right:0}
+  .seg span.on{background:var(--ok-soft);color:var(--ok)}
+  .row-kid{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #f0f1f7;flex-wrap:wrap}
+  .row-kid:last-child{border-bottom:0}
+  .av{width:34px;height:34px;border-radius:10px;background:var(--brand-soft);color:var(--brand);
+    display:grid;place-items:center;font-weight:800;font-size:12px}
+  .row-kid .nm{flex:1;min-width:120px;font-weight:600}
+
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin:16px 0}
+  ol.steps li{counter-increment:s;position:relative;padding:16px 20px 16px 60px;margin-bottom:10px;
+    background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh)}
+  ol.steps li::before{content:counter(s);position:absolute;left:18px;top:16px;width:26px;height:26px;
+    background:var(--brand);color:#fff;border-radius:8px;display:grid;place-items:center;
+    font-size:13px;font-weight:800}
+  ol.steps b{display:block;margin-bottom:3px;font-size:15.5px}
+  ol.steps p{margin:0;font-size:14.5px;color:var(--ink-3)}
+
+  /* Lista wdrożona: numerki zielone, pod każdym punktem notka o tym, gdzie wylądował. */
+  ol.steps-done li::before{background:var(--ok)}
+  ol.steps-done li{border-left:3px solid var(--ok-soft)}
+  .done-note{margin-top:10px !important;padding-top:10px;border-top:1px dashed var(--line);
+    color:var(--ink-2) !important;font-size:14px !important}
+  .done-note b{display:inline !important;font-size:14px !important;color:var(--ok)}
+
+  .phase{border-left:3px solid var(--brand);padding:2px 0 2px 20px;margin:0 0 26px}
+  .phase h4{margin:0 0 3px;font-size:17px}
+  .phase .cost{font-size:12.5px;color:var(--ink-4);margin:0 0 10px}
+  .phase ul{margin:0;padding-left:18px;font-size:14.5px;color:var(--ink-2)}
+  .phase li{margin-bottom:6px}
+
+  /* --- postęp wdrożenia --- */
+  .progress-hero{margin-top:26px;max-width:640px}
+  .progress-bar-lg{height:12px;border-radius:99px;background:rgba(255,255,255,.16);overflow:hidden}
+  .progress-bar-lg i{display:block;height:100%;border-radius:99px;
+    background:linear-gradient(90deg,#7dd3a8,#4ade80)}
+  .progress-hero-legend{display:flex;flex-wrap:wrap;gap:18px;margin-top:10px;
+    font-size:13px;color:#d3d6f3}
+  .progress-hero-legend b{color:#fff;font-size:15px}
+
+  .st{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+    padding:3px 9px;border-radius:999px;white-space:nowrap;display:inline-block}
+  .st-done{background:var(--ok-soft);color:var(--ok)}
+  .st-later{background:#eef0f6;color:var(--ink-3)}
+  .st-blocked{background:var(--warn-soft);color:var(--warn)}
+
+  .find-h .st{margin-left:auto}
+
+  .stage{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--sh);margin-bottom:16px;overflow:hidden}
+  .stage-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    padding:16px 20px;border-bottom:1px solid var(--line);background:#fbfcfe}
+  .stage-head h3{margin:0;font-size:16px;flex:1;min-width:200px}
+  .stage-head .cnt{font-size:13px;color:var(--ink-4)}
+  .stage ul{list-style:none;margin:0;padding:8px 20px 16px}
+  .stage li{display:flex;gap:12px;align-items:flex-start;padding:9px 0;
+    border-bottom:1px solid #f2f3f8;font-size:14.5px;color:var(--ink-2)}
+  .stage li:last-child{border-bottom:0}
+  .stage li .mark{flex-shrink:0;width:18px;height:18px;border-radius:50%;
+    display:grid;place-items:center;font-size:11px;font-weight:800;margin-top:2px}
+  .mark-done{background:var(--ok-soft);color:var(--ok)}
+  .mark-later{background:#eef0f6;color:var(--ink-4)}
+  .stage li b{color:var(--ink)}
+  .stage li small{display:block;color:var(--ink-4);font-size:13px;margin-top:2px}
+
+  .warn-box{background:var(--warn-soft);border:1px solid #f0dcae;border-radius:12px;
+    padding:16px 20px;margin:18px 0;font-size:14.5px;color:var(--ink-2)}
+  .warn-box h4{margin:0 0 8px;font-size:15px;color:var(--warn)}
+  .warn-box ul{margin:8px 0 0;padding-left:18px}
+  .warn-box li{margin-bottom:5px}
+
+  footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);
+    font-size:13px;color:var(--ink-4)}
+  .note{background:var(--brand-soft);border:1px solid #d6daff;border-radius:12px;
+    padding:16px 20px;font-size:14.5px;color:var(--ink-2);margin:18px 0}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="kicker">Lesson Runner · audyt UX z 2 sierpnia · stan wdrożenia z 3 sierpnia 2026</div>
+    <h1>Trzy role, jeden interfejs.<br>Dwie z nich zasługują na własny.</h1>
+    <p>Backend jest dojrzały — model danych trafnie odwzorowuje realia szkoły. Interfejs został
+    zbudowany tak, jakby wszyscy użytkownicy byli administratorami: ten sam panel, ta sama gęstość,
+    ta sama chłodna paleta. Ten dokument pokazuje, gdzie to boli, co zrobić najpierw —
+    i co już zostało zrobione.</p>
+
+    <div class="progress-hero">
+      <div class="progress-bar-lg" aria-hidden="true">
+        <i style="width:90%"></i>
+      </div>
+      <div class="progress-hero-legend">
+        <span><b>36</b> wdrożonych</span>
+        <span><b>0</b> w toku</span>
+        <span><b>4</b> odłożonych świadomie</span>
+      </div>
+    </div>
+
+    <div class="meta">
+      <span>24 ekrany · 10 631 linii TSX · 3 790 linii CSS</span>
+      <span>40 ustaleń · 90% zamkniętych</span>
+      <span>Role: Admin · Instruktor · Rodzic</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap" role="tablist">
+    <button role="tab" aria-selected="true" data-t="p0">Streszczenie</button>
+    <button role="tab" aria-selected="false" data-t="p8">Postęp prac</button>
+    <button role="tab" aria-selected="false" data-t="p1">Rodzic</button>
+    <button role="tab" aria-selected="false" data-t="p2">Instruktor</button>
+    <button role="tab" aria-selected="false" data-t="p3">Administracja</button>
+    <button role="tab" aria-selected="false" data-t="p4">Nawigacja i szkielet</button>
+    <button role="tab" aria-selected="false" data-t="p5">Warstwa wizualna</button>
+    <button role="tab" aria-selected="false" data-t="p6">Dostępność</button>
+    <button role="tab" aria-selected="false" data-t="p7">Plan wdrożenia</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ============ POSTĘP PRAC ============ -->
+<section class="panel" id="p8" hidden>
+  <h2 class="sec">Postęp prac</h2>
+  <p class="lede">Stan na 3 sierpnia 2026. Cztery etapy planu wdrożenia są zamknięte,
+  do tego domknięty etap C z <code>STATUS.md</code> i dwa punkty etapu E.
+  Cztery ustalenia zostały świadomie odłożone — każde z podanym powodem.</p>
+
+  <div class="warn-box">
+    <h4>Stan weryfikacji</h4>
+    <p style="margin:0 0 10px"><b>✓ Backend kompiluje się bez błędów.</b> ~2000 linii C#
+    napisanych bez dostępu do kompilatora przeszło za pierwszym razem.</p>
+    <p style="margin:0 0 10px"><b>✓ Frontend: <code>tsc</code> i <code>vite build</code>
+    przechodzą.</b></p>
+    <p style="margin:0 0 10px"><b>✓ Testy backendu: 205 z 208.</b> Trzy błędy — i to jest
+    najciekawszy wynik całej pracy: <b>żaden nie pochodził z przebudowy</b>. Wszystkie trzy
+    to błędy produkcyjne siedzące w kodzie od lipca, a jeden z nich testy zobaczyły tylko
+    dlatego, że nowy pulpit zaczął czytać dane, których wcześniej nikt nie czytał.
+    Naprawione — szczegóły w <code>STATUS.md</code>.</p>
+    <p style="margin:0 0 10px"><b>✓ Testy frontendu: 151 ze 151.</b> Pierwszy przebieg dał
+    145/151. Sześć błędów, z czego <b>jeden</b> w kodzie produkcyjnym: pułapka fokusu w oknach
+    modalnych nie działała, bo opierała się na własności DOM, która w tym kontekście zawsze
+    jest pusta. Pozostałe pięć to wady moich testów — asercja przed dokończeniem ładowania,
+    dwa testy zależne od czasu, kolidujące dane testowe i zbyt szerokie zapytanie.</p>
+    <p style="margin:0"><b>? Zostaje:</b> potwierdzić <code>dotnet test</code> po poprawkach,
+    sprawdzić migrację <code>AddSessionDebriefAndLiveStatus</code> na kopii bazy
+    (<code>.Designer.cs</code> i snapshot powstały ręcznie) i przeklikać aplikację —
+    tego ostatniego żaden test nie zastąpi.</p>
+  </div>
+
+  <h3 class="sub">Etapy z planu wdrożenia</h3>
+
+  <div class="stage">
+    <div class="stage-head">
+      <h3>Etap 1 — fundament komponentowy</h3>
+      <span class="cnt">6 z 6</span>
+      <span class="st st-done">Zamknięty</span>
+    </div>
+    <ul>
+      <li><span class="mark mark-done">✓</span><div><b>Tokeny projektowe</b>
+        <small>Zero kolorów wpisanych wprost w <code>styles.css</code> (było 27× <code>#4f46e5</code>),
+        zero łatek trybu ciemnego per komponent (było 7). Doszły tokeny statusów.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Podział arkusza stylów</b>
+        <small><code>tokens</code> · <code>base</code> · <code>components</code> · <code>shell</code> ·
+        <code>cockpit</code> · <code>admin</code>. Odstępy z 16 wartości do 9.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Biblioteka komponentów</b>
+        <small>Dialog, EmptyState, Skeleton, StatusBadge, SegmentedControl, Tabs, ActionMenu.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Dostępność</b>
+        <small>Globalny <code>:focus-visible</code>, odnośnik do treści, pułapka fokusu
+        i Escape we wszystkich oknach, korekta tokenu <code>--text-muted</code>.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Koniec z natywnymi oknami przeglądarki</b>
+        <small>Siedem wywołań <code>window.confirm/prompt/alert</code> zastąpił
+        <code>DialogProvider</code>. Usunięcie grupy nie miało <b>żadnego</b> potwierdzenia.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Trasy błędów</b>
+        <small><code>errorElement</code>, trasa 404 i ekran 403 zamiast cichego przekierowania.</small></div></li>
+    </ul>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head">
+      <h3>Etap 2 — portal rodzica</h3>
+      <span class="cnt">7 z 7</span>
+      <span class="st st-done">Zamknięty</span>
+    </div>
+    <ul>
+      <li><span class="mark mark-done">✓</span><div><b>Własny układ dla roli rodzica</b>
+        <small>Górna belka zamiast 292-pikselowego paska z dwiema pozycjami, dolna nawigacja
+        na telefonie, ciepła skóra <code>data-skin="parent"</code>.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Hierarchia zamiast siedmiu sekcji naraz</b>
+        <small>Kafel najbliższych zajęć z przyciskiem „Dołącz”, cztery liczby, reszta pod zakładkami.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Wskaźniki, które coś znaczą</b>
+        <small>Kwota do zapłaty z terminem, postęp w kursie, kredyty, frekwencja.
+        Zamiast „Rozliczenia: 3”, czyli liczby faktur.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Kredyty zajęciowe w portalu</b>
+        <small>Istniały od lipca, ale tylko w panelu administratora.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Dialog zgłoszenia nieobecności</b>
+        <small>Z opisem skutków, zamiast <code>window.prompt</code>. Plus toast potwierdzający.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Zgody opiekuna i przełącznik dziecka</b>
+        <small>Rodzic zarządza zgodą na wizerunek sam; przy rodzeństwie filtr obejmuje wszystkie sekcje.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Daty względne i karta projektu</b>
+        <small>„dziś o 17:00”, poprawna pluralizacja, najnowsza wersja projektu na wierzchu.</small></div></li>
+    </ul>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head">
+      <h3>Etap 3 — kokpit instruktora</h3>
+      <span class="cnt">7 z 7</span>
+      <span class="st st-done">Zamknięty</span>
+    </div>
+    <ul>
+      <li><span class="mark mark-done">✓</span><div><b>Stała szyna zamiast trzech nakładek</b>
+        <small>Scenariusz nie znika przy odhaczaniu obecności, wpisywaniu postępów ani kończeniu zajęć.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Autozapis obecności</b>
+        <small>Zmiany żyły w stanie komponentu do kliknięcia „Zapisz”, a zamknięcie okna
+        nie ostrzegało. Teraz pasek „Zapisano 17:12”.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Segmentowa obecność</b>
+        <small>Trzy najczęstsze stany od razu, reszta pod „Więcej”. Było pięć kontrolek na dziecko.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Znaczniki pracy na żywo</b>
+        <small>Pracuje / potrzebuje pomocy / skończył / problem techniczny, z sortowaniem po pilności.
+        Punkt 25 planu prac i rozdział 4 dokumentu koncepcyjnego.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Strukturalne zakończenie zajęć</b>
+        <small>Notatka wewnętrzna, „czego nie zdążyliśmy”, podsumowanie dla rodzica —
+        zamiast jednego pola tekstowego.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Przypomnienie o przerwie</b>
+        <small>Belka po 42 minutach, nie okno modalne.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Widok dnia w grafiku</b>
+        <small>Plus połączenie „Kalendarza”, „Grafiku” i „Szybkiego startu” w jedną pozycję menu.</small></div></li>
+    </ul>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head">
+      <h3>Etap 4 — panel administracji</h3>
+      <span class="cnt">7 z 7</span>
+      <span class="st st-done">Zamknięty</span>
+    </div>
+    <ul>
+      <li><span class="mark mark-done">✓</span><div><b>Kreator odwołania zajęć</b>
+        <small>Z podsumowaniem skutków przed potwierdzeniem: ile dzieci, ile kredytów,
+        co z materiałem, co z powiadomieniem.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Odwołanie zbiorcze</b>
+        <small>Ferie i święta: zaznaczenie wielu terminów, jedno okno.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Menu akcji zamiast <code>select</code></b>
+        <small>Wybór pozycji w liście rozwijanej wykonywał operację natychmiast, bez cofnięcia.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Zakładki w szczegółach grupy</b>
+        <small>Formularze wyszły z wierszy listy do okien dialogowych.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Pulpit „Wymaga uwagi”</b>
+        <small>Terminy bez lekcji, grupy bez prowadzącego, niska frekwencja, faktury po terminie,
+        wygasające kredyty — zamiast sześciu liczb bez progów.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Wyszukiwanie globalne</b>
+        <small><code>Ctrl+K</code>. Instruktor przeszukuje wyłącznie swoje grupy; rodzic nie ma tu wstępu.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Okruszki i szuflada mobilna</b>
+        <small>Zamiast napisu „Dostępne opcje są po lewej stronie” i menu rozwijanego nad treścią.</small></div></li>
+    </ul>
+  </div>
+
+  <h3 class="sub">Poza audytem — z planu prac projektu</h3>
+
+  <div class="stage">
+    <div class="stage-head">
+      <h3>Etap C, D i E z <code>STATUS.md</code></h3>
+      <span class="cnt">4 zrobione · 1 zablokowany</span>
+    </div>
+    <ul>
+      <li><span class="mark mark-done">✓</span><div><b>Etap C p.13 — pozostałe typy powiadomień</b>
+        <small>Zmiana terminu, odwołanie, podsumowanie zajęć, przypomnienie o płatności.
+        Znacznik „powiadomiono opiekunów” wypełnia się teraz z faktycznej wysyłki,
+        a nie z checkboxa zaznaczanego ręcznie. <b>Etap C zamknięty.</b></small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Etap E p.27 — CI na każdy push</b>
+        <small><code>dotnet build/test</code> i <code>npm build/test</code> w dwóch niezależnych zadaniach.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Etap E p.26 — dwa najgorsze miejsca wydajnościowe</b>
+        <small>N+1 w <code>GetSummariesAsync</code> i czytanie wszystkich grup przy każdym
+        kliknięciu znacznika pracy — najczęściej wywoływanej operacji w systemie.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Testy</b>
+        <small>Trzy pliki przepisane pod nowe widoki, pięć nowych (Dialog, DialogContext,
+        SegmentedControl, CancelSessionDialog, datetime), trzy nowe trasy w <code>ApiAuthorizationTests</code>.</small></div></li>
+      <li><span class="mark mark-done">✓</span><div><b>Etap D p.15–16 — incydenty i zgłoszenia techniczne</b>
+        <small>Dwa <b>osobne</b> rejestry, bo zepsuty mikrofon i nękanie dziecka nie mają ze sobą
+        nic wspólnego poza tym, że oba są zdarzeniem — a wspólna tabela wymuszałaby wspólne
+        uprawnienia. Incydent nie trafia do portalu rodzica w żadnej formie; instruktor widzi
+        wyłącznie własne zgłoszenia (wśród rodzajów jest „zachowanie osoby prowadzącej”).
+        W kokpicie: „Zapisz problem” tuż przy znaczniku pracy — znacznik znika po zajęciach,
+        zgłoszenie zostaje — a historia problemów dziecka pokazuje się <b>nad</b> formularzem,
+        razem z tym, co pomogło poprzednim razem. <b>Punkt 14 MVP zamknięty: 13 z 14.</b></small></div></li>
+      <li><span class="mark mark-later">—</span><div><b>Etap D p.17–20 — reszta</b>
+        <small>Test techniczny przed pierwszymi zajęciami, zapasowy link i zadanie awaryjne,
+        osobne zgody na nagrywanie i publikację, eksport RODO z retencją. Odblokowane —
+        powłoka wróciła, migracje generują się normalnie.</small></div></li>
+    </ul>
+  </div>
+
+  <h3 class="sub">Świadomie odłożone</h3>
+  <table>
+    <thead><tr><th>Ustalenie</th><th>Dlaczego nie teraz</th></tr></thead>
+    <tbody>
+      <tr><td><b>Kanał kontaktu rodzic–szkoła</b></td>
+        <td>Wymaga encji <code>Message</code>. Log wysyłek pokrywa dziś kierunek
+        szkoła → rodzic; brakuje odwrotnego i powiązania w wątek. <b>Ostatni</b> otwarty
+        punkt MVP.</td></tr>
+      <tr><td><b>Miniatury projektów dziecka</b></td>
+        <td>Karta projektu ma już datę, komentarz i wyróżnioną najnowszą wersję. Miniatura
+        wymaga generowania podglądu z pliku <code>.sb3</code> — osobny temat.</td></tr>
+      <tr><td><b>Profil dziecka w kokpicie</b></td>
+        <td>Poziom, tempo, znajomość środowisk. Potrzebuje pól, których model uczestnika
+        nie ma — punkt 24 planu prac.</td></tr>
+      <tr><td><b>Wydajność portalu rodzica</b></td>
+        <td><code>ParentPortalService</code> czyta wszystkie grupy i filtruje w pamięci.
+        Poprawka wymaga nowej metody repozytorium — odłożona, żeby nie dokładać
+        niezweryfikowanej warstwy dostępu do danych.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">Znalezione przy wdrażaniu, czego audyt nie widział</h3>
+  <div class="split">
+    <div class="box bad">
+      <h5>Błędy w kodzie sprzed audytu</h5>
+      <ul>
+        <li><b>Cudzysłowy.</b> <code>CLAUDE.md</code> wymaga par <code>„…”</code>, a w kilkunastu
+        plikach otwierający był zamykany zwykłym <code>"</code>. Test-strażnik powinien był to
+        wyłapać. Poprawione w 38 plikach.</li>
+        <li><b>„Sprawdźanie sesji”</b> w <code>RouteGuards</code> — ślad po dawnym find-and-replace
+        z nadgorliwą podmianą.</li>
+        <li><b>Cztery zapytania, które nie działały na SQLite.</b> Lista kredytów, historia
+        zmian terminów, postępy dziecka i formularz „nie pamiętam hasła” wywracały się przy
+        każdym wywołaniu — SQLite nie tłumaczy <code>DateTimeOffset</code> w sortowaniu
+        i porównaniach. Reszta repozytoriów obchodziła to od dawna; te cztery wyłamywały się
+        z konwencji. <b>Trzy z nich nie miały żadnego testu</b> — wyszły z przeszukania kodu
+        po tym, jak czwarta zapaliła się na czerwono.</li>
+        <li><b>Podwójny zapis wersji projektu dziecka.</b> Serwis dopisywał wersję i do
+        repozytorium, i do lokalnego grafu — przy implementacji in-memory to ten sam obiekt.</li>
+        <li><b>Pułapka fokusu w oknach modalnych nie działała.</b> Filtr elementów opierał się
+        na <code>offsetParent</code>, który w jsdom jest zawsze pusty, a w przeglądarce
+        zawodzi przy <code>position: fixed</code> — czyli dokładnie tam, gdzie stoją te okna.
+        Fokus nigdy nie wchodził do okna. To był <b>mój</b> błąd, wprowadzony razem
+        z komponentem, i jedyny błąd produkcyjny z sześciu czerwonych testów frontendu.</li>
+      </ul>
+    </div>
+    <div class="box bad">
+      <h5>Błędy popełnione przy wdrażaniu</h5>
+      <ul>
+        <li><b>„w sobota o 17:00”.</b> Nowa funkcja dat sklejała przyimek z mianownikiem
+        z <code>Intl</code>, który nie zna polskiej deklinacji. Wyszło dopiero przy pisaniu testu —
+        dokładnie ten rodzaj błędu, który przechodzi przez przegląd i ląduje w mailu do rodzica.</li>
+        <li><b>Wyłączenie przypomnień wyciszało informację o odwołaniu zajęć.</b> Podpiąłem
+        wysyłkę pod jeden przełącznik bez rozróżnienia. Odwołanie idzie teraz zawsze —
+        rodzic, który przywiezie dziecko na odwołane zajęcia, ma prawo do pretensji.</li>
+        <li><b>Klucz deduplikacji mógł przekroczyć kolumnę</b> i przy obcięciu wygasić drugą
+        wiadomość. Błąd dotyczył też kluczy sprzed audytu.</li>
+        <li><b>Kreator odwołania mówił nieprawdę.</b> Twierdził „wiadomości wyślij osobno
+        w panelu Powiadomienia”, choć od chwili wdrożenia powiadomień e-maile o odwołaniu
+        wychodzą same. Okno, które źle opisuje skutki, jest gorsze niż okno bez opisu —
+        bo administrator mu ufa. Poprawione we wszystkich trzech oknach (odwołanie,
+        odwołanie zbiorcze, przełożenie) razem z testem.</li>
+        <li><b>Audyt przeszacował duplikaty CSS.</b> Z dziesięciu „duplikatów” dziewięć to
+        poprawny wzorzec „reguła wspólna + nadpisanie”. Faktycznie zbędny był jeden.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:20px">
+    <b>Dlaczego to jest w raporcie.</b> Trzy z czterech powyższych znalazłem sam, przeglądając
+    własny kod przed pierwszą kompilacją — nie wyszły z testów ani z przeglądu przez człowieka.
+    Przy tej ilości niezweryfikowanego kodu taki przegląd jest wart więcej niż kolejna funkcja,
+    i to dlatego <b>CI trafiło do repozytorium przed etapem D</b>.
+  </div>
+</section>
+
+<!-- ============ STRESZCZENIE ============ -->
+<section class="panel" id="p0">
+  <h2 class="sec">Co wyszło z analizy</h2>
+  <p class="lede">Przeczytałem <code>system_zajec_online_programowanie_dla_dzieci.md</code>,
+  <code>STATUS.md</code>, <code>AUDYT_2026-07-27.md</code>, <code>PLAN.md</code> i <code>README.md</code>,
+  a potem przejrzałem wszystkie 24 strony frontendu, <code>AppShell</code>, router i cały arkusz stylów.</p>
+
+  <div class="note">
+    <b>Jedno zdanie na wynos:</b> system operacyjnie jest już dobry — problem polegał na tym,
+    że rodzic (czyli klient, który płaci) i instruktor (czyli osoba pracująca pod presją czasu
+    w trakcie zajęć) korzystali z interfejsu zaprojektowanego pod administratora przeglądającego
+    dane na spokojnie przy dużym monitorze.
+  </div>
+
+  <div class="box good">
+    <h5>Ten dokument opisuje stan sprzed wdrożenia</h5>
+    <p style="margin:0;font-size:14.5px;color:var(--ink-2)">Zakładki z ustaleniami zostawiam
+    w czasie przeszłym audytu — po to, żeby dało się zobaczyć, z czego wyszliśmy i dlaczego
+    każda decyzja wyglądała tak, a nie inaczej. <b>Co z tego zostało zrobione i co zostało
+    świadomie odłożone — zakładka „Postęp prac”.</b></p>
+  </div>
+
+  <div class="role-grid">
+    <div class="role">
+      <h4>Portal rodzica</h4>
+      <p class="who">Klient. Wchodzi 2–3 razy w tygodniu, najczęściej z telefonu, po jedną informację.</p>
+      <ul>
+        <li>Siedem sekcji rozwiniętych naraz na jednej stronie</li>
+        <li>Zgłoszenie nieobecności przez <code>window.prompt</code></li>
+        <li>KPI liczą rzeczy nieistotne dla rodzica</li>
+        <li>Brak salda, kredytów i kanału kontaktu</li>
+        <li>Ten sam ciemnogranatowy panel co administracja</li>
+      </ul>
+      <div class="score"><b>4/10</b><span>→ 10 z 12 ustaleń wdrożonych</span></div>
+      <div class="bar"><i style="width:83%;background:var(--ok)"></i></div>
+    </div>
+    <div class="role">
+      <h4>Kokpit instruktora</h4>
+      <p class="who">Prowadzi 90 minut, jedną ręką, przy dzieciach. Nie ma czasu szukać.</p>
+      <ul>
+        <li>Scenariusz, obecność i postępy w trzech osobnych modalach</li>
+        <li>5 kontrolek na dziecko przy odhaczaniu obecności</li>
+        <li>Obecność ginie przy zamknięciu modala bez zapisu</li>
+        <li>Brak panelu „kto potrzebuje pomocy”</li>
+        <li>Mocne strony: timery, okno przerwy, oś kursu</li>
+      </ul>
+      <div class="score"><b>6/10</b><span>→ 9 z 10 ustaleń wdrożonych</span></div>
+      <div class="bar"><i style="width:90%;background:var(--ok)"></i></div>
+    </div>
+    <div class="role">
+      <h4>Panel administracji</h4>
+      <p class="who">Zna system, używa go codziennie, toleruje gęstość — ale nie ryzyko.</p>
+      <ul>
+        <li>Odwołanie zajęć rozsypane po wierszu listy</li>
+        <li><code>select</code> jako menu akcji — bez potwierdzenia i bez cofnięcia</li>
+        <li>Usunięcie grupy bez żadnego potwierdzenia</li>
+        <li>Dashboard to sześć liczb bez „co wymaga uwagi dziś”</li>
+        <li>Brak operacji masowych (ferie, przeniesienia)</li>
+      </ul>
+      <div class="score"><b>6/10</b><span>→ 8 z 8 ustaleń wdrożonych</span></div>
+      <div class="bar"><i style="width:100%;background:var(--ok)"></i></div>
+    </div>
+  </div>
+
+  <h3 class="sub">Pięć rzeczy, które naprawiłbym najpierw <span class="st st-done">Wszystkie wdrożone 3.08.2026</span></h3>
+  <ol class="steps steps-done">
+    <li><b>Zamienić wszystkie <code>window.prompt / confirm / alert</code> na komponent dialogu.</b>
+      <p>Siedem miejsc w kodzie, w tym zgłaszanie nieobecności przez rodzica i nieodwracalna
+      anonimizacja RODO. Natywne okna nie są stylowane, nie działają przewidywalnie na mobile
+      i nie da się w nich pokazać skutków decyzji.</p>
+      <p class="done-note"><b>Zrobione:</b> <code>components/ui/Dialog.tsx</code> +
+      <code>features/dialog/DialogContext.tsx</code>. W kodzie nie ma już ani jednego wywołania
+      natywnego okna. Usunięcie grupy i anonimizacja wymagają przepisania nazwy.</p></li>
+
+    <li><b>Przebudować portal rodzica na hierarchię „jedna odpowiedź na wejściu”.</b>
+      <p>Wielki kafel „Najbliższe zajęcia: wtorek 17:00, za 2 dni — Dołącz”, a reszta pod zakładkami.
+      Osobny layout mobile-first, bez sidebara administracyjnego.</p>
+      <p class="done-note"><b>Zrobione:</b> <code>ParentShell.tsx</code> (górna belka, dolna
+      nawigacja na telefonie, skóra <code>data-skin="parent"</code>) i przepisany
+      <code>ParentPortalPage.tsx</code> z kaflem najbliższych zajęć i pięcioma zakładkami.</p></li>
+
+    <li><b>Wyjąć obecność z modala i zrobić z niej stały panel kokpitu.</b>
+      <p>Segmentowy przełącznik z trzema najczęstszymi stanami, autozapis, reszta statusów pod „więcej”.</p>
+      <p class="done-note"><b>Zrobione:</b> <code>features/presenter/SessionRail.tsx</code>.
+      Doszły też znaczniki pracy na żywo (punkt 25 planu prac), sortowane po pilności.</p></li>
+
+    <li><b>Zrobić z odwołania zajęć jeden kreator z podsumowaniem skutków.</b>
+      <p>„8 dzieci dostanie kredyt · 8 e-maili wyjdzie o 14:20 · kurs wydłuży się o tydzień.
+      Potwierdź.” Dziś to cztery kontrolki w wierszu i ręczny checkbox „powiadomiono opiekunów”.</p>
+      <p class="done-note"><b>Zrobione:</b> <code>CancelSessionDialog.tsx</code>. Ręczny checkbox
+      zniknął w pierwotnym znaczeniu — e-maile o odwołaniu wychodzą automatycznie i bezwarunkowo,
+      a historia zmian zapisuje <b>wynik</b> tej wysyłki, nie deklarację człowieka. Checkbox
+      został jako ślad kanału zapasowego (telefon, SMS).</p></li>
+
+    <li><b>Wprowadzić tokeny projektowe i rozdzielić dwie skóry.</b>
+      <p>Panel roboczy (gęsty, spokojny) i portal rodzica (ciepły, przestronny). Dziś <code>#4f46e5</code>
+      występuje 27 razy wpisany wprost w arkuszu, a odstępy mają 16 różnych wartości.</p>
+      <p class="done-note"><b>Zrobione:</b> <code>styles/tokens.css</code> — dwie warstwy tokenów,
+      zero kolorów wpisanych wprost w warstwie widoków, zero łatek trybu ciemnego per komponent.</p></li>
+  </ol>
+
+  <div class="note">
+    <b>Ta lista jest historyczna.</b> Zostawiam ją w trybie rozkazującym, w jakim powstała,
+    bo pokazuje, od czego wyszliśmy. Aktualny stan wszystkich 40 ustaleń — zakładka
+    <b>Postęp prac</b>.
+  </div>
+
+  <h3 class="sub">Rozkład ustaleń i stan wdrożenia</h3>
+  <table>
+    <thead><tr><th>Obszar</th><th>Krytyczne</th><th>Istotne</th><th>Warte zrobienia</th><th>Razem</th><th>Wdrożone</th></tr></thead>
+    <tbody>
+      <tr><td><b>Portal rodzica</b></td><td>4</td><td>5</td><td>3</td><td><b>12</b></td>
+        <td><span class="st st-done">10</span></td></tr>
+      <tr><td><b>Kokpit instruktora</b></td><td>2</td><td>5</td><td>3</td><td><b>10</b></td>
+        <td><span class="st st-done">9</span></td></tr>
+      <tr><td><b>Administracja</b></td><td>3</td><td>4</td><td>1</td><td><b>8</b></td>
+        <td><span class="st st-done">8</span></td></tr>
+      <tr><td><b>Nawigacja i szkielet</b></td><td>1</td><td>3</td><td>3</td><td><b>7</b></td>
+        <td><span class="st st-done">7</span></td></tr>
+      <tr><td><b>Wizualna i dostępność</b></td><td>1</td><td>3</td><td>—</td><td><b>4</b></td>
+        <td><span class="st st-done">4</span></td></tr>
+    </tbody>
+  </table>
+  <p class="lede">Dwa odłożone ustalenia (kanał kontaktu ze szkołą, profil dziecka w kokpicie)
+  wymagają zmian w modelu danych. Trzecie — miniatury projektów — wymaga generowania podglądu
+  z pliku <code>.sb3</code>. Wszystkie trzy mają uzasadnienie w zakładce <b>Postęp prac</b>.</p>
+</section>
+
+<!-- ============ RODZIC ============ -->
+<section class="panel" id="p1" hidden>
+  <h2 class="sec">Portal rodzica</h2>
+  <p class="lede">Najważniejszy ekran w całym systemie z punktu widzenia firmy — bo to jedyny,
+  który widzi osoba płacąca. W chwili audytu był najsłabszy: <code>ParentPortalPage.tsx</code>,
+  414 linii, jedna strona, siedem sekcji rozwiniętych jednocześnie.</p>
+
+  <div class="box good" style="margin-bottom:20px">
+    <h5>Stan na 3.08.2026</h5>
+    <p style="margin:0;font-size:14.5px;color:var(--ink-2)">Wdrożone <b>10 z 12</b> ustaleń.
+    Odłożone: kanał kontaktu ze szkołą (wymaga nowej tabeli) i miniatury projektów
+    (wymagają generowania podglądu z pliku <code>.sb3</code>). Szczegóły w zakładce
+    <b>Postęp prac</b>.</p>
+  </div>
+
+  <div class="find k">
+    <div class="find-h"><h4>Zgłoszenie nieobecności działa przez <code>window.prompt</code></h4><span class="tag t-k">Krytyczne</span></div>
+    <p>Rodzic klika „Zgłoś nieobecność”, dostaje surowe okno systemowe z pytaniem o powód, a przy
+    błędzie — <code>window.alert</code>. Brak walidacji, brak potwierdzenia, brak stylu, brak
+    przewidywalnego zachowania na iOS. To najbardziej amatorski moment w aplikacji i trafia
+    dokładnie w klienta. Do tego portal nie używa istniejącego już <code>ToastContext</code> —
+    po zgłoszeniu rodzic widzi tylko przeładowanie listy.</p>
+    <div class="fix"><b>Naprawa:</b> dialog z polem powodu, wyborem dziecka, informacją o skutku
+    („nie wyślemy Ci maila o nieobecności; jeśli zgłaszasz wcześniej niż 24 h przed zajęciami,
+    przysługuje kredyt”) i toastem potwierdzającym.</div>
+  </div>
+
+  <div class="find k">
+    <div class="find-h"><h4>Wszystko naraz, bez hierarchii</h4><span class="tag t-k">Krytyczne</span></div>
+    <p>Wskaźniki · dzieci · plan · materiały · postępy i projekty · frekwencja · rozliczenia —
+    siedem bloków jeden pod drugim, każdy o równej wadze wizualnej. Rodzic wchodzi po jedno pytanie:
+    <i>kiedy są zajęcia i gdzie kliknąć</i>. Dostaje ścianę.</p>
+    <div class="fix"><b>Naprawa:</b> jeden dominujący kafel „Następne zajęcia” z przyciskiem
+    Dołącz, pod nim maksymalnie trzy skróty, reszta pod zakładkami
+    (Plan · Postępy · Materiały · Rozliczenia).</div>
+  </div>
+
+  <div class="find k">
+    <div class="find-h"><h4>Wskaźniki liczą rzeczy nieistotne dla rodzica</h4><span class="tag t-k">Krytyczne</span></div>
+    <p>„Dzieci: 1”, „Najbliższe terminy: 5”, „Rozliczenia: 3”. Rodzic wie, ile ma dzieci.
+    „Rozliczenia: 3” to liczba faktur, nie kwota do zapłaty — najważniejsza liczba w tym
+    module w ogóle się nie pojawia. Kredyty zajęciowe, które backend ma od 27.07, w portalu
+    nie istnieją.</p>
+    <div class="fix"><b>Naprawa:</b> cztery liczby, które rodzic sprawdza naprawdę —
+    <i>do zapłaty</i> (kwota + termin), <i>zajęć w pakiecie</i>, <i>kredytów do wykorzystania</i>,
+    <i>frekwencja dziecka</i>.</div>
+  </div>
+
+  <div class="find k">
+    <div class="find-h"><h4>Interfejs administracyjny podany rodzicowi</h4><span class="tag t-k">Krytyczne</span></div>
+    <p>Rodzic dostaje ten sam szkielet co administrator: 292-pikselowy sidebar, w którym ma
+    <b>dwie</b> pozycje („Portal” i „Mój profil”), belkę z napisem „Dostępne opcje są po lewej
+    stronie” i chłodną granatowo-indygową paletę panelu SaaS. Poniżej 760 px sidebar rozwija się
+    w blok kafelków na górze strony — rodzic na telefonie przewija zanim dojdzie do treści.</p>
+    <div class="fix"><b>Naprawa:</b> osobny layout dla roli <code>Parent</code> — górna belka
+    zamiast sidebara, dolna nawigacja na mobile, cieplejsza paleta, większy krój.
+    To zmiana w <code>AppShell</code>, nie przepisywanie aplikacji.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Rodzeństwo miesza się w jednym strumieniu</h4><span class="tag t-w">Istotne</span></div>
+    <p>Przy dwójce dzieci plan, postępy i materiały są wymieszane i filtruje się je wzrokiem.
+    Dokument koncepcyjny wprost przewiduje rodzeństwo (rabat, jedno urządzenie, równoległe zajęcia).</p>
+    <div class="fix"><b>Naprawa:</b> przełącznik dziecka na górze portalu (opcja „Wszystkie”),
+    filtrujący wszystkie sekcje naraz.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>„Link pojawi się przed zajęciami” — kiedy?</h4><span class="tag t-w">Istotne</span></div>
+    <p>Komunikat bez terminu każe rodzicowi wracać i sprawdzać. Klasyczne źródło telefonów do szkoły.</p>
+    <div class="fix"><b>Naprawa:</b> „Link będzie aktywny 15 minut przed zajęciami (wt. 16:45)”
+    plus przypomnienie mailowe ze zmienną <code>{{link}}</code>, która już działa.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Projekty dziecka jako rząd przycisków „Wersja 1, 2, 3”</h4><span class="tag t-w">Istotne</span><span class="st st-done">Częściowo</span></div>
+    <p>Rodzic chce <i>zobaczyć</i>, co dziecko zrobiło. Dostaje pobieranie pliku <code>.sb3</code>,
+    którego na swoim komputerze nie otworzy. Brak daty przy wersji, brak miniatury, brak
+    informacji, która wersja jest najnowsza. Do tego widoczna w interfejsie klienta pluralizacja
+    awaryjna: <code>„3 wersje/wersji”</code>.</p>
+    <div class="fix"><b>Naprawa:</b> karta projektu z miniaturą (zrzut ekranu), datą, komentarzem
+    instruktora i jednym wyróżnionym „Najnowsza wersja”; starsze pod „Historia”.
+    Poprawna pluralizacja przez <code>Intl.PluralRules</code>.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Brak kanału kontaktu ze szkołą</h4><span class="tag t-w">Istotne</span><span class="st st-later">Odłożone</span></div>
+    <p>Rozdział 6 dokumentu mówi wprost, że ustalenia mają być zapisywane w systemie, a instruktor
+    nie ma obsługiwać spraw przez telefon, e-mail i komunikator naraz. Portal nie ma nawet
+    formularza „mam pytanie”. Encji <code>Message</code> nadal brakuje.</p>
+    <div class="fix"><b>Naprawa:</b> prosty wątek per dziecko — rodzic pisze, administracja
+    odpowiada, wszystko w audycie. Nie czat na żywo; skrzynka z historią.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Rodzic nie zarządza własnymi zgodami</h4><span class="tag t-w">Istotne</span></div>
+    <p>Zgoda na nagrywanie i publikację prac to dziś pole ustawiane przez administratora.
+    Rodzic ich nie widzi i nie może wycofać — a przy RODO to on jest stroną.</p>
+    <div class="fix"><b>Naprawa:</b> sekcja „Zgody” w portalu z historią zmian i datą.</div>
+  </div>
+
+  <div class="find i">
+    <div class="find-h"><h4>Daty bez języka potocznego</h4><span class="tag t-i">Warte zrobienia</span></div>
+    <p><code>formatDateTime</code> podaje wszędzie pełną datę. Dla rodzica różnica między
+    „12.08.2026, 17:00” a „jutro o 17:00” jest różnicą między czytaniem a rozumieniem.</p>
+    <div class="fix"><b>Naprawa:</b> <code>Intl.RelativeTimeFormat("pl")</code> dla horyzontu
+    ±7 dni, pełna data dalej.</div>
+  </div>
+
+  <h3 class="sub">Jak mógłby wyglądać portal po zmianie</h3>
+  <div class="mock">
+    <div class="mock-bar">Portal rodzica · widok po wejściu</div>
+    <div class="mock-body">
+      <div class="hero-next">
+        <div style="flex:1;min-width:250px">
+          <div class="when">Wtorek · za 2 dni · 17:00</div>
+          <div class="what">Roblox Studio — Tor przeszkód</div>
+          <div class="sub">Zosia · grupa Roblox Wt 17:00 · prowadzi Anna K. · lekcja 7 z 12</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <span class="btn">Dołącz do zajęć</span>
+          <span class="btn g">Zgłoś nieobecność</span>
+        </div>
+      </div>
+      <div class="tiles">
+        <div class="tile"><b>149,00 zł</b><span>do zapłaty do 10.08</span></div>
+        <div class="tile"><b>5 z 12</b><span>zajęć w pakiecie</span></div>
+        <div class="tile"><b>1</b><span>kredyt do wykorzystania</span></div>
+        <div class="tile"><b>92%</b><span>frekwencja Zosi</span></div>
+      </div>
+      <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="seg"><span class="on">Plan</span><span>Postępy</span><span>Materiały</span><span>Rozliczenia</span><span>Zgody</span></span>
+      </div>
+    </div>
+  </div>
+  <p class="lede">Jedna dominująca odpowiedź, cztery liczby, które rodzic sprawdza naprawdę,
+  reszta schowana za zakładkami. Te same dane co dziś — inna hierarchia.</p>
+</section>
+
+<!-- ============ INSTRUKTOR ============ -->
+<section class="panel" id="p2" hidden>
+  <h2 class="sec">Kokpit instruktora</h2>
+  <p class="lede">Najmocniejsza część aplikacji pod względem pomysłu — timery, oś kursu, okno przerwy,
+  stan prowadzenia zapisywany per termin. Problem leżał w warstwowaniu: wszystko, co instruktor
+  robi <i>obok</i> scenariusza, wypychało scenariusz z ekranu.</p>
+
+  <div class="box good" style="margin-bottom:20px">
+    <h5>Stan na 3.08.2026</h5>
+    <p style="margin:0;font-size:14.5px;color:var(--ink-2)">Wdrożone <b>9 z 10</b> ustaleń.
+    Odłożone: profil dziecka w kokpicie (poziom, tempo, znajomość środowisk) — model uczestnika
+    nie ma jeszcze tych pól, to punkt 24 planu prac.</p>
+  </div>
+
+  <div class="find k">
+    <div class="find-h"><h4>Trzy modale zamiast jednego stałego panelu</h4><span class="tag t-k">Krytyczne</span></div>
+    <p>W trakcie zajęć instruktor przełącza się między scenariuszem, listą obecności, panelem
+    postępów i oknem zakończenia — każde jako <code>overlay</code> zasłaniający scenariusz.
+    Żeby odhaczyć spóźnione dziecko, trzeba zgubić z oczu krok lekcji, na którym się właśnie jest.</p>
+    <div class="fix"><b>Naprawa:</b> stały prawy panel (szyna) z zakładkami Obecność / Grupa /
+    Postępy, zwijany do paska. Scenariusz nigdy nie znika.</div>
+  </div>
+
+  <div class="find k">
+    <div class="find-h"><h4>Obecność ginie przy zamknięciu modala</h4><span class="tag t-k">Krytyczne</span></div>
+    <p>Zmiany żyją w stanie komponentu do momentu kliknięcia „Zapisz obecność”. „Zamknij” nie
+    ostrzega. W trakcie zajęć, przy dziesięciorgu dzieci, ta strata jest kwestią czasu —
+    a obecność to dokument, którym broni się reklamacje.</p>
+    <div class="fix"><b>Naprawa:</b> autozapis po każdej zmianie (backend przyjmuje już
+    częściową listę i nie kasuje nietkniętych wierszy) plus dyskretne „Zapisano 17:12”.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Pięć kontrolek na dziecko</h4><span class="tag t-w">Istotne</span></div>
+    <p>Checkbox obecności + select statusu (9 pozycji) + pole notatki + checkbox „do odrobienia”
+    + select terminu odrabiania. Przy dziesięciorgu dzieci to pięćdziesiąt kontrolek w jednym
+    modalu, w trakcie prowadzenia zajęć. Bogaty model statusów z etapu A1 jest słuszny —
+    ale nie każdy status jest równie częsty.</p>
+    <div class="fix"><b>Naprawa:</b> segmentowy przełącznik z trzema stanami pokrywającymi 90%
+    przypadków, reszta pod „…”. Odrabianie ustawia się później, poza zajęciami.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Brak panelu „kto potrzebuje pomocy”</h4><span class="tag t-w">Istotne</span></div>
+    <p>Rozdział 4 dokumentu opisuje go jako podstawowe narzędzie przy różnym tempie dzieci
+    (punkt 25 planu). To właśnie ta funkcja odróżnia platformę do prowadzenia zajęć od kalendarza
+    z listą obecności.</p>
+    <div class="fix"><b>Naprawa:</b> w szynie kokpitu wiersz na dziecko z trzema znacznikami
+    — pracuje / potrzebuje pomocy / skończył — ustawianymi jednym kliknięciem przez instruktora
+    i sortującymi listę.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Instruktor nie widzi, kogo uczy</h4><span class="tag t-w">Istotne</span><span class="st st-later">Odłożone</span></div>
+    <p>W kokpicie są imiona i nazwiska — i nic więcej. Brak poziomu dziecka, tempa, historii
+    problemów technicznych, ostatniego ukończonego etapu, poprzedniej notatki. Zastępstwo wchodzi
+    na zajęcia całkowicie na ślepo, mimo że to jeden z głównych scenariuszy z rozdziału 10.</p>
+    <div class="fix"><b>Naprawa:</b> rozwijana karta dziecka w szynie: ostatni wpis postępu,
+    ostatnie trzy notatki, znane problemy techniczne. Dane w większości już są.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>„Zakończ zajęcia” to jedno pole tekstowe</h4><span class="tag t-w">Istotne</span></div>
+    <p>Dokument oczekuje po zajęciach: czego nie zdążyliśmy, zadania domowego i podsumowania
+    dla rodzica. Dziś instruktor wpisuje wszystko w jedno <code>textarea</code>, z którego nic
+    nie da się odczytać maszynowo ani pokazać rodzicowi.</p>
+    <div class="fix"><b>Naprawa:</b> trzy krótkie pola: <i>notatka wewnętrzna</i>,
+    <i>czego nie zdążyliśmy</i> (wchodzi na kolejny termin), <i>podsumowanie dla rodzica</i>
+    (idzie do portalu). Pierwsze dwa opcjonalne.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Przypomnienie o przerwie nie jest odpalane z planu</h4><span class="tag t-w">Istotne</span></div>
+    <p>Okno przerwy istnieje i działa, ale instruktor musi o nim pamiętać sam.
+    „Instruktor zapomni o przerwie” to pierwsza pozycja na liście problemów z rozdziału 5.</p>
+    <div class="fix"><b>Naprawa:</b> po 40–45 minutach od startu dyskretna belka
+    „Czas na przerwę — otwórz okno przerwy”. Nie modal.</div>
+  </div>
+
+  <div class="find i">
+    <div class="find-h"><h4>Grafik tłumaczy sam siebie</h4><span class="tag t-i">Warte zrobienia</span></div>
+    <p>Nad listą kursów widnieje zdanie: „Podświetlona jest lekcja na te zajęcia. Masz dostęp do
+    wcześniejszych (powtórka) i kolejnych (przygotowanie).” Jeśli listę trzeba objaśniać zdaniem,
+    lista jest źle zaprojektowana.</p>
+    <div class="fix"><b>Naprawa:</b> zrealizowane lekcje wyszarzone ze znacznikiem, bieżąca
+    wyróżniona kolorem i przyciskiem „Prowadź”, przyszłe zwinięte pod „Kolejne lekcje (5)”.
+    Objaśnienie znika samo.</div>
+  </div>
+
+  <div class="find i">
+    <div class="find-h"><h4>Brak widoku dnia</h4><span class="tag t-i">Warte zrobienia</span></div>
+    <p>„Mój grafik” to lista kursów. Instruktor rano zadaje inne pytanie: co mam dzisiaj i o której.
+    Kafel „Najbliższe zajęcia” pokazuje tylko jedne.</p>
+    <div class="fix"><b>Naprawa:</b> nagłówek „Dziś: 2 zajęcia — 16:00 Scratch, 17:45 Roblox”
+    nad listą kursów.</div>
+  </div>
+
+  <div class="find i">
+    <div class="find-h"><h4>Trzy pozycje w menu na jedną potrzebę</h4><span class="tag t-i">Warte zrobienia</span></div>
+    <p>„Kalendarz”, „Grafik” i „Szybki start” — do tego dwie pierwsze mają w sidebarze
+    <b>tę samą ikonę</b> <code>CalendarDays</code>. „Szybki start — uruchom lekcję bez grafiku”
+    wygląda na narzędzie deweloperskie, nie funkcję produkcyjną.</p>
+    <div class="fix"><b>Naprawa:</b> jeden „Grafik” z przełącznikiem dzień/tydzień/kurs.
+    Podgląd konspektu poza terminem przenieść do biblioteki lekcji.</div>
+  </div>
+</section>
+
+<!-- ============ ADMIN ============ -->
+<section class="panel" id="p3" hidden>
+  <h2 class="sec">Panel administracji</h2>
+  <p class="lede">Funkcjonalnie najbogatszy i najbardziej dojrzały obszar. Główne ryzyko nie polegało
+  na tym, że czegoś brakuje, tylko że operacje nieodwracalne były za łatwe, a najważniejsza
+  operacja w systemie była rozsypana po wierszu listy.</p>
+
+  <div class="box good" style="margin-bottom:20px">
+    <h5>Stan na 3.08.2026</h5>
+    <p style="margin:0;font-size:14.5px;color:var(--ink-2)">Wdrożone <b>8 z 8</b> ustaleń.</p>
+  </div>
+
+  <div class="find k">
+    <div class="find-h"><h4>Odwołanie zajęć rozsypane po wierszu</h4><span class="tag t-k">Krytyczne</span></div>
+    <p>Rozdział 10 dokumentu opisuje to jako operację „jednym ruchem”: odwołaj + powód + powiadom +
+    rekompensata + przesuń numerację. Backend to potrafi (<code>CancelSessionDto.Compensation</code>,
+    <code>ShiftFollowingLessons</code>) — interfejs rozbija to na cztery kontrolki wciśnięte
+    w wiersz listy terminów: pole powodu, select rekompensaty, dwa checkboxy.
+    <code>SessionRow</code> ma dziesięć propsów i osiem stanów lokalnych. Administrator nie widzi,
+    <i>co się stanie</i>, zanim kliknie.</p>
+    <div class="fix"><b>Naprawa:</b> dialog-kreator z podsumowaniem skutków: <i>„Odwołujesz zajęcia
+    12.08 · 8 dzieci · każde dostanie 1 kredyt · 8 e-maili wyjdzie teraz · kurs wydłuży się
+    o tydzień (koniec: 3.11 zamiast 27.10)”</i> i jednym przyciskiem potwierdzenia.</div>
+  </div>
+
+  <div class="find k">
+    <div class="find-h"><h4>Usunięcie grupy bez potwierdzenia</h4><span class="tag t-k">Krytyczne</span></div>
+    <p><code>AdminGroupsPage</code> ma przycisk „Usuń” prosto w karcie grupy, a
+    <code>removeGroup</code> woła API od razu. Sąsiednie ekrany (kursy, konspekty) mają
+    przynajmniej <code>window.confirm</code>. Tutaj nie ma nic — jedno błędne kliknięcie
+    kasuje grupę z terminami i zapisami.</p>
+    <div class="fix"><b>Naprawa:</b> dialog z konsekwencjami („12 terminów, 8 zapisanych dzieci”),
+    a lepiej: archiwizacja zamiast usuwania.</div>
+  </div>
+
+  <div class="find k">
+    <div class="find-h"><h4><code>select</code> użyty jako menu akcji</h4><span class="tag t-k">Krytyczne</span></div>
+    <p><code>&lt;select value=""&gt;Zmień status…&lt;/select&gt;</code> wykonuje zmianę statusu
+    natychmiast po wybraniu pozycji, bez potwierdzenia, i dociąga powód z pola tekstowego obok,
+    które użytkownik mógł zostawić puste. Nie da się tego cofnąć. Dodatkowo select nie jest
+    kontrolką akcji — użytkownik oczekuje, że wybór czegoś w liście rozwijanej to jeszcze nie
+    jest decyzja.</p>
+    <div class="fix"><b>Naprawa:</b> menu akcji (przycisk „…”) otwierające dialog z powodem
+    jako polem wymaganym.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>„Powiadomiono opiekunów” jako ręczny checkbox</h4><span class="tag t-w">Istotne</span></div>
+    <p>System prosi człowieka o zadeklarowanie faktu, którego sam nie sprawdza, i zapisuje tę
+    deklarację do historii jako dowód. Przy reklamacji „nie dostaliśmy informacji o zmianie”
+    ten checkbox nie obroni niczego. <code>STATUS.md</code> zresztą to przewiduje —
+    ma się wypełniać automatycznie po etapie C.</p>
+    <div class="fix"><b>Naprawa:</b> wysyłkę odpalać z dialogu odwołania, a znacznik ustawiać
+    z <code>NotificationLog</code>. Checkbox zastąpić informacją „Wysłano 8 wiadomości, 12.08 14:20”.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Dashboard pokazuje liczby, nie zadania</h4><span class="tag t-w">Istotne</span></div>
+    <p>Sześć wskaźników bez trendu, bez progów, bez wskazania, co wymaga reakcji. „Frekwencja 87%”
+    nie mówi, czy to dobrze. Administrator otwiera panel z pytaniem „czym się dziś zająć”,
+    a dostaje tablicę wyników.</p>
+    <div class="fix"><b>Naprawa:</b> sekcja „Wymaga uwagi” na górze: faktury po terminie,
+    terminy bez przypisanej lekcji, grupy bez instruktora, dzieci z frekwencją poniżej 50%,
+    kredyty wygasające w tym miesiącu, zgłoszenia bez odpowiedzi. Każda pozycja to link
+    do konkretnego działania.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Brak operacji masowych</h4><span class="tag t-w">Istotne</span></div>
+    <p>Ferie zimowe to dziś odwołanie każdego terminu z osobna, w każdej grupie z osobna.
+    Przeniesienie trójki dzieci do innej grupy to sześć operacji. Rozesłanie informacji do
+    jednej grupy nie istnieje.</p>
+    <div class="fix"><b>Naprawa:</b> zaznaczanie wielu terminów w kalendarzu z jedną akcją
+    zbiorczą; zaznaczanie uczestników z akcją „przenieś do grupy”.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Anonimizacja RODO za jednym natywnym potwierdzeniem</h4><span class="tag t-w">Istotne</span></div>
+    <p>Operacja jawnie nieodwracalna („danych osobowych nie da się odzyskać”) chroniona tym samym
+    <code>window.confirm</code>, co usunięcie konspektu. Odruch „OK” jest silniejszy niż czytanie.</p>
+    <div class="fix"><b>Naprawa:</b> dialog wymagający wpisania nazwiska dziecka, z wypisaniem,
+    co zostanie usunięte, a co zachowane (historia obecności zostaje).</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Ekran szczegółów grupy robi wszystko</h4><span class="tag t-w">Istotne</span></div>
+    <p>663 linie: ustawienia grupy, dodawanie terminu, lista terminów z formularzami inline,
+    historia zmian, uczestnicy, frekwencja. Każdy wiersz terminu potrafi rozwinąć trzy różne
+    formularze. To najgęstszy widok w aplikacji i jednocześnie ten, w którym wykonuje się
+    najbardziej ryzykowne operacje.</p>
+    <div class="fix"><b>Naprawa:</b> zakładki (Terminy · Uczestnicy · Frekwencja · Historia ·
+    Ustawienia), akcje na terminie wyłącznie w dialogach, wiersz zostaje wierszem.</div>
+  </div>
+
+  <div class="find i">
+    <div class="find-h"><h4>Brak globalnego wyszukiwania</h4><span class="tag t-i">Warte zrobienia</span></div>
+    <p>Znalezienie dziecka wymaga wejścia w Uczestników i przefiltrowania listy. Przy pięćdziesięciu
+    grupach i trzystu dzieciach — a do tego celu system się przygotowuje — to najczęstsza
+    czynność w panelu.</p>
+    <div class="fix"><b>Naprawa:</b> pasek wyszukiwania w belce górnej (skrót <code>Ctrl+K</code>)
+    obejmujący dzieci, grupy, opiekunów i konspekty.</div>
+  </div>
+</section>
+
+<!-- ============ NAWIGACJA ============ -->
+<section class="panel" id="p4" hidden>
+  <h2 class="sec">Nawigacja i szkielet aplikacji</h2>
+  <p class="lede"><code>AppShell.tsx</code> obsługiwał wszystkie trzy role jednym układem, filtrując
+  pozycje menu flagami <code>adminOnly</code> / <code>staffOnly</code> / <code>parentOnly</code>.
+  Ekonomiczne w kodzie i kosztowne w odbiorze.</p>
+
+  <div class="box good" style="margin-bottom:20px">
+    <h5>Stan na 3.08.2026</h5>
+    <p style="margin:0;font-size:14.5px;color:var(--ink-2)">Wdrożone <b>7 z 7</b> ustaleń.
+    Rola <code>Parent</code> ma własny szkielet (<code>ParentShell</code>) i nie widzi już
+    bocznego menu w ogóle.</p>
+  </div>
+
+  <div class="find k">
+    <div class="find-h"><h4>Belka górna zajęta przez instrukcję obsługi</h4><span class="tag t-k">Krytyczne</span></div>
+    <p>Najcenniejsze miejsce w interfejsie — pasek widoczny na każdym ekranie — zawiera napis
+    <i>„Dostępne opcje są po lewej stronie”</i>. To nie jest nagłówek, to podpowiedź, że nawigacja
+    nie jest oczywista. A brakuje tam wszystkiego, co powinno być: nazwy bieżącego ekranu, ścieżki
+    powrotu, wyszukiwania, powiadomień.</p>
+    <div class="fix"><b>Naprawa:</b> ścieżka okruszków po lewej (<i>Grupy › Roblox Wt 17:00 ›
+    Terminy</i>), wyszukiwanie pośrodku, dzwonek i konto po prawej.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Brak nawigacji mobilnej</h4><span class="tag t-w">Istotne</span></div>
+    <p>Poniżej 760 px <code>.app-shell</code> przechodzi na <code>display:block</code>, a sidebar
+    ląduje w całości nad treścią jako siatka kafelków. Dla administratora oznacza to dwanaście
+    pozycji do przewinięcia przed dotarciem do zawartości; dla rodzica — dwie pozycje
+    zajmujące pół ekranu. Brak hamburgera, szuflady i dolnej nawigacji.</p>
+    <div class="fix"><b>Naprawa:</b> szuflada z ikoną menu dla panelu roboczego, dolna nawigacja
+    (Plan · Postępy · Rozliczenia · Konto) dla rodzica.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Brak okruszków przy trzech poziomach zagnieżdżenia</h4><span class="tag t-w">Istotne</span></div>
+    <p>Ścieżka Grupy → Szczegóły grupy → Kokpit terminu nie zostawia śladu. Jedyny powrót to
+    strzałka wewnątrz treści, a z kokpitu — przycisk „Wróć do grafiku”, który zawsze prowadzi
+    do grafiku, także gdy przyszło się z panelu administratora.</p>
+    <div class="fix"><b>Naprawa:</b> okruszki w belce, generowane z trasy.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Router bez <code>errorElement</code> i bez trasy 404</h4><span class="tag t-w">Istotne</span></div>
+    <p>Wejście na nieistniejący adres albo błąd renderowania daje surowy ekran React Routera —
+    po polsku brzmi to jak awaria serwera. Nie ma też ekranu „nie masz uprawnień” z sensowną
+    ścieżką dalej.</p>
+    <div class="fix"><b>Naprawa:</b> <code>errorElement</code> na trasie głównej,
+    trasa <code>*</code> i ekran 403 kierujący do panelu właściwego dla roli.</div>
+  </div>
+
+  <div class="find i">
+    <div class="find-h"><h4>Sidebar rodzica z dwiema pozycjami</h4><span class="tag t-i">Warte zrobienia</span></div>
+    <p>292 piksele stałej szerokości na „Portal” i „Mój profil”. Sekcja o nazwie „Rodzic”
+    wewnątrz portalu rodzica dodatkowo mówi użytkownikowi, kim jest — informacja,
+    której nie potrzebuje.</p>
+    <div class="fix"><b>Naprawa:</b> dla roli <code>Parent</code> układ bez sidebara.</div>
+  </div>
+
+  <div class="find i">
+    <div class="find-h"><h4>Dwie pozycje menu, jedna ikona</h4><span class="tag t-i">Warte zrobienia</span></div>
+    <p>„Kalendarz” i „Grafik” używają <code>CalendarDays</code>. Ikona przestaje wtedy pełnić
+    swoją funkcję — nie odróżnia.</p>
+    <div class="fix"><b>Naprawa:</b> po połączeniu obu widoków problem znika sam.</div>
+  </div>
+
+  <div class="find i">
+    <div class="find-h"><h4>Brak pustych stanów i szkieletów ładowania</h4><span class="tag t-i">Warte zrobienia</span></div>
+    <p>Poza ekranem grup wszystkie stany puste to jedno zdanie w szarym akapicie
+    (<code>„Brak faktur.”</code>), a wszystkie stany ładowania to tekst „Ładowanie…”,
+    który po podmianie na treść powoduje przeskok układu.</p>
+    <div class="fix"><b>Naprawa:</b> komponenty <code>EmptyState</code> (ikona, zdanie,
+    jedno działanie) i <code>Skeleton</code> o wymiarach docelowej treści.</div>
+  </div>
+</section>
+
+<!-- ============ WIZUALNA ============ -->
+<section class="panel" id="p5" hidden>
+  <h2 class="sec">Warstwa wizualna</h2>
+  <p class="lede">W chwili audytu: 3 790 linii w jednym pliku <code>styles.css</code>, dziesięć
+  zmiennych CSS obejmujących wyłącznie tło i kolor tekstu. Cała reszta — marka, semantyka,
+  promienie, cienie, odstępy, typografia — wpisana wprost.</p>
+
+  <div class="box good" style="margin-bottom:20px">
+    <h5>Stan na 3.08.2026</h5>
+    <p style="margin:0;font-size:14.5px;color:var(--ink-2)">Warstwa tokenów wdrożona w całości.
+    Arkusz podzielony na sześć plików, <b>zero</b> kolorów wpisanych wprost w warstwie widoków,
+    <b>zero</b> łatek trybu ciemnego per komponent. Paleta i skale poniżej to stan faktyczny
+    w <code>styles/tokens.css</code>, a nie propozycja.</p>
+  </div>
+
+  <div class="split">
+    <div class="box bad">
+      <h5>Stan obecny</h5>
+      <ul>
+        <li><code>#4f46e5</code> wpisany wprost <b>27 razy</b>, obok <code>#2563eb</code> 7 razy —
+        dwa różne kolory pełnią rolę koloru głównego</li>
+        <li><b>16 różnych wartości</b> odstępu <code>gap</code>: 2, 3, 4, 5, 6, 7, 8, 9, 10, 12,
+        14, 16, 18, 20, 24, 28 px — brak rytmu</li>
+        <li><b>17 różnych</b> rozmiarów tekstu, z czego 60 wystąpień to 12–13 px</li>
+        <li>Tryb ciemny łatany punktowo: <code>:root[data-theme="dark"] .note-error</code>,
+        <code>.subject-pill</code>, <code>.order-pill</code> — bo kolory nie są tokenami</li>
+        <li>Selektor <code>.sub-item</code> zdefiniowany dwa razy, przy czym druga reguła
+        odwraca <code>align-items</code> z pierwszej — do scalenia
+        <span style="color:var(--ink-4)">(sprawdzone przy wdrożeniu: pozostałe dziewięć
+        „duplikatów” to poprawny wzorzec „reguła wspólna + nadpisanie”, nie błąd)</span></li>
+        <li>Jeden komponent w katalogu <code>ui/</code>: <code>Button</code></li>
+      </ul>
+    </div>
+    <div class="box good">
+      <h5>Stan docelowy</h5>
+      <ul>
+        <li>Dwie warstwy tokenów: bazowa (paleta) i semantyczna
+        (<code>--color-danger</code>, <code>--surface-raised</code>)</li>
+        <li>Skala odstępów co 4 px: 4 · 8 · 12 · 16 · 24 · 32 · 48</li>
+        <li>Sześć stopni typografii, tekst bazowy 15 px (rodzic: 16 px)</li>
+        <li>Tryb ciemny wynikający z tokenów, bez nadpisań per komponent</li>
+        <li>Arkusz podzielony: tokeny · baza · komponenty · widoki</li>
+        <li>Biblioteka: Dialog, Toast, Select, Table, EmptyState, Skeleton,
+        StatusBadge, SegmentedControl, Tabs</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="sub">Dwie skóry, jeden system</h3>
+  <p class="lede">Administracja i instruktor potrzebują gęstości i spokoju — pracują w tym
+  codziennie. Rodzic potrzebuje ciepła i przestrzeni — wchodzi rzadko, z telefonu, i to on jest
+  klientem firmy uczącej dzieci. To ten sam system tokenów z inną warstwą semantyczną,
+  nie dwie aplikacje.</p>
+
+  <h4 style="font-size:14px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);margin:24px 0 0">
+  Panel roboczy — admin i instruktor</h4>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#312e81"></div><div class="lbl"><b>Granat 900</b><span>#312e81</span></div></div>
+    <div class="sw"><div class="chip" style="background:#4338ca"></div><div class="lbl"><b>Marka 600</b><span>#4338ca</span></div></div>
+    <div class="sw"><div class="chip" style="background:#818cf8"></div><div class="lbl"><b>Marka 400</b><span>#818cf8</span></div></div>
+    <div class="sw"><div class="chip" style="background:#eef0ff"></div><div class="lbl"><b>Marka 50</b><span>#eef0ff</span></div></div>
+    <div class="sw"><div class="chip" style="background:#f6f7fb"></div><div class="lbl"><b>Tło</b><span>#f6f7fb</span></div></div>
+    <div class="sw"><div class="chip" style="background:#12172a"></div><div class="lbl"><b>Tekst</b><span>#12172a</span></div></div>
+  </div>
+
+  <h4 style="font-size:14px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);margin:24px 0 0">
+  Portal rodzica — akcent ciepły</h4>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#c2410c"></div><div class="lbl"><b>Akcent 700</b><span>#c2410c</span></div></div>
+    <div class="sw"><div class="chip" style="background:#f97316"></div><div class="lbl"><b>Akcent 500</b><span>#f97316</span></div></div>
+    <div class="sw"><div class="chip" style="background:#fdba74"></div><div class="lbl"><b>Akcent 300</b><span>#fdba74</span></div></div>
+    <div class="sw"><div class="chip" style="background:#fff3e8"></div><div class="lbl"><b>Akcent 50</b><span>#fff3e8</span></div></div>
+    <div class="sw"><div class="chip" style="background:#fffbf7"></div><div class="lbl"><b>Tło ciepłe</b><span>#fffbf7</span></div></div>
+    <div class="sw"><div class="chip" style="background:#3f3b32"></div><div class="lbl"><b>Tekst ciepły</b><span>#3f3b32</span></div></div>
+  </div>
+
+  <h4 style="font-size:14px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);margin:24px 0 0">
+  Semantyka — wspólna dla obu skór</h4>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#15803d"></div><div class="lbl"><b>Sukces</b><span>--ok</span></div></div>
+    <div class="sw"><div class="chip" style="background:#b45309"></div><div class="lbl"><b>Ostrzeżenie</b><span>--warn</span></div></div>
+    <div class="sw"><div class="chip" style="background:#be123c"></div><div class="lbl"><b>Błąd</b><span>--danger</span></div></div>
+    <div class="sw"><div class="chip" style="background:#0369a1"></div><div class="lbl"><b>Informacja</b><span>--info</span></div></div>
+    <div class="sw"><div class="chip" style="background:#64748b"></div><div class="lbl"><b>Neutralny</b><span>--muted</span></div></div>
+    <div class="sw"><div class="chip" style="background:#7c3aed"></div><div class="lbl"><b>Kredyt</b><span>--credit</span></div></div>
+  </div>
+
+  <div class="note">
+    <b>Osobne tokeny na statusy zajęć.</b> Jest ich już dziesięć (zaplanowane, potwierdzone,
+    w toku, zakończone, odwołane przez instruktora, odwołane przez rodzica, przerwane technicznie,
+    niezrealizowane, czeka na termin) i dziewięć statusów obecności. Dziś każdy dostaje kolor
+    ad hoc w <code>styles.css</code>. Powinny mieć własną mapę tokenów, żeby ten sam status
+    wyglądał identycznie w kalendarzu, w grupie, w kokpicie i w portalu rodzica.
+  </div>
+
+  <h3 class="sub">Skala odstępów</h3>
+  <div class="scale">
+    <div style="width:4px;height:34px">4</div>
+    <div style="width:8px;height:42px">8</div>
+    <div style="width:12px;height:50px">12</div>
+    <div style="width:16px;height:58px">16</div>
+    <div style="width:24px;height:68px">24</div>
+    <div style="width:32px;height:78px">32</div>
+    <div style="width:48px;height:90px">48</div>
+  </div>
+  <p class="lede">Siedem wartości zamiast szesnastu. Wszystko, co dziś ma 18 lub 20 px,
+  idzie na 16 lub 24 — różnicy nikt nie zauważy, a układ zacznie mieć rytm.</p>
+
+  <h3 class="sub">Typografia</h3>
+  <table>
+    <thead><tr><th>Rola</th><th>Rozmiar</th><th>Grubość</th><th>Zastosowanie</th></tr></thead>
+    <tbody>
+      <tr><td><b>display</b></td><td>32 / 38 px</td><td>800</td><td>Nagłówek portalu rodzica, ekran logowania</td></tr>
+      <tr><td><b>h1</b></td><td>26 px</td><td>700</td><td>Tytuł ekranu</td></tr>
+      <tr><td><b>h2</b></td><td>19 px</td><td>700</td><td>Nagłówek sekcji</td></tr>
+      <tr><td><b>body</b></td><td>15 px <span style="color:var(--ink-4)">(rodzic 16)</span></td><td>400</td><td>Tekst podstawowy</td></tr>
+      <tr><td><b>small</b></td><td>13 px</td><td>400</td><td>Metadane, podpisy</td></tr>
+      <tr><td><b>label</b></td><td>12 px</td><td>700</td><td>Etykiety, nadtytuły, znaczniki</td></tr>
+    </tbody>
+  </table>
+  <p class="lede">W chwili audytu 12 i 13 px odpowiadały za 60 z około 110 deklaracji rozmiaru —
+  interfejs był po prostu drobny. Dla panelu roboczego do obrony, dla rodzica na telefonie nie.
+  Skóra <code>data-skin="parent"</code> podnosi tekst bazowy do 16 px.</p>
+
+  <h3 class="sub">Ton wizualny dla firmy uczącej dzieci</h3>
+  <div class="split">
+    <div class="box">
+      <h5 style="color:var(--brand)">Co zachować</h5>
+      <ul>
+        <li>Lucide jako jedna, spójna rodzina ikon — działa dobrze</li>
+        <li>Tryb ciemny (kokpit przy wieczornych zajęciach)</li>
+        <li>Karty z delikatnym obramowaniem zamiast ciężkich cieni</li>
+        <li>Inicjały grup i uczestników jako awatary</li>
+        <li>Powściągliwość panelu roboczego — to nie ma być kolorowo</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h5 style="color:var(--warm)">Co dodać w portalu rodzica</h5>
+      <ul>
+        <li>Ciepły akcent i większe promienie (16–20 px)</li>
+        <li>Ilustracje w stanach pustych zamiast szarych zdań</li>
+        <li>Miniatury projektów dziecka — to główny dowód wartości usługi</li>
+        <li>Pasek postępu kursu („lekcja 7 z 12”) jako element narracji</li>
+        <li>Odznaki umiejętności przy dziecku — bez punktów i rankingów</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note">
+    <b>Czego świadomie nie robić:</b> grywalizacji z punktami i rankingami dla dzieci.
+    Dokument koncepcyjny odkłada ją do „funkcji na później”, a przy zajęciach, gdzie skala postępu
+    celowo mierzy samodzielność, a nie wynik, ranking podważyłby własną metodykę.
+  </div>
+</section>
+
+<!-- ============ DOSTĘPNOŚĆ ============ -->
+<section class="panel" id="p6" hidden>
+  <h2 class="sec">Dostępność</h2>
+  <p class="lede">Aplikacja miała polskie etykiety, sensowną strukturę nagłówków i
+  <code>prefers-reduced-motion</code>. Braki dotyczyły przede wszystkim obsługi z klawiatury —
+  a instruktor prowadzący zajęcia to modelowy użytkownik klawiatury, bo drugą ręką robi coś innego.</p>
+
+  <div class="box good" style="margin-bottom:20px">
+    <h5>Stan na 3.08.2026</h5>
+    <p style="margin:0;font-size:14.5px;color:var(--ink-2)">Wdrożone <b>4 z 4</b> ustalenia
+    plus korekta kontrastu. Komponent <code>Dialog</code> ma test pokrywający pułapkę fokusu,
+    Escape i powrót fokusu na element wywołujący.</p>
+  </div>
+
+  <div class="find k">
+    <div class="find-h"><h4>Styl fokusu zdefiniowany dla dwóch elementów w całej aplikacji</h4><span class="tag t-k">Krytyczne</span></div>
+    <p><code>:focus-visible</code> pojawia się w arkuszu dwa razy: <code>.action-item</code>
+    i <code>.screen-image-button</code>; do tego <code>.login-form input</code> ma zwykły
+    <code>:focus</code>. Wszystko pozostałe —
+    przyciski, linki nawigacji, pola formularzy, przełączniki obecności — polega na domyślnym
+    obramowaniu przeglądarki, które na kolorowych tłach potrafi być niewidoczne.</p>
+    <div class="fix"><b>Naprawa:</b> jedna globalna reguła
+    <code>:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px }</code>
+    plus wariant jasny dla ciemnych powierzchni.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Modale bez pułapki fokusu</h4><span class="tag t-w">Istotne</span></div>
+    <p>Wszystkie trzy użycia <code>.overlay</code> to zwykły <code>div</code> — bez
+    <code>role="dialog"</code>, bez <code>aria-modal</code>, bez przeniesienia fokusu, bez
+    zamykania klawiszem Escape i bez powrotu fokusu na element wywołujący. Dotyczy listy obecności,
+    panelu postępów i zakończenia zajęć, czyli wszystkich najczęstszych operacji instruktora.
+    Wzorzec jest już w kodzie — podgląd zrzutu ekranu w <code>PresenterCockpit</code> ma
+    <code>role="dialog"</code> i <code>aria-modal</code> — tylko nie został wyniesiony
+    do wspólnego komponentu.</p>
+    <div class="fix"><b>Naprawa:</b> jeden komponent <code>Dialog</code> oparty na
+    <code>&lt;dialog&gt;</code> lub Radix — rozwiązuje to raz dla wszystkich miejsc.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Zmiany stanu nie są ogłaszane</h4><span class="tag t-w">Istotne</span></div>
+    <p><code>aria-live</code> jest tylko w komponencie toastów, a toasty są używane na czterech
+    z dwudziestu czterech ekranów. „Zapisano obecność”, „Ładowanie dashboardu…”,
+    „Nie udało się pobrać portalu” dla czytnika ekranu po prostu nie istnieją.</p>
+    <div class="fix"><b>Naprawa:</b> <code>aria-live="polite"</code> na stanach ładowania i pustych,
+    <code>role="alert"</code> na błędach, oraz konsekwentne używanie toastów wszędzie zamiast
+    lokalnych komunikatów.</div>
+  </div>
+
+  <div class="find w">
+    <div class="find-h"><h4>Brak odnośnika do treści</h4><span class="tag t-w">Istotne</span></div>
+    <p>Użytkownik klawiatury przechodzi przez dwanaście pozycji sidebara przy każdym wejściu
+    na ekran.</p>
+    <div class="fix"><b>Naprawa:</b> „Przejdź do treści” jako pierwszy element,
+    widoczny dopiero przy fokusie.</div>
+  </div>
+
+  <div class="note">
+    <b>Kontrast do sprawdzenia.</b> <code>--text-muted: #64748b</code> na <code>--surface-2: #f8fafc</code>
+    daje około 4,3 : 1 — poniżej progu 4,5 : 1 dla tekstu podstawowego, a w tym kolorze wyświetlane
+    są wszystkie metadane w rozmiarze 12–13 px (klasa <code>.cue-empty</code>, znaczniki
+    <code>small</code>). Wystarczy przesunąć token na <code>#556070</code>.
+  </div>
+</section>
+
+<!-- ============ PLAN ============ -->
+<section class="panel" id="p7" hidden>
+  <h2 class="sec">Plan wdrożenia</h2>
+  <p class="lede">Kolejność jak w <code>STATUS.md</code> — według usuwanego bólu, nie wielkości kodu.
+  Etapy 1 i 2 dają największą zmianę w odbiorze przy najmniejszym ryzyku, bo prawie nie ruszają
+  backendu.</p>
+
+  <div class="box good" style="margin-bottom:24px">
+    <h5>Wszystkie cztery etapy zamknięte 3.08.2026</h5>
+    <p style="margin:0;font-size:14.5px;color:var(--ink-2)">Ta zakładka pokazuje <b>pierwotny
+    plan</b> — zostawiam ją niezmienioną, żeby dało się porównać zamiar z wykonaniem.
+    Faktyczny stan każdej pozycji jest w zakładce <b>Postęp prac</b>. Rzeczy, które przy
+    wdrażaniu okazały się inne, niż zakładał plan, opisałem tam osobno.</p>
+  </div>
+
+  <div class="phase">
+    <h4>Etap 1 — fundament komponentowy</h4>
+    <p class="cost">Bez zmian w API. Odblokowuje wszystko dalsze.</p>
+    <ul>
+      <li>Tokeny projektowe: paleta, skala odstępów, typografia, promienie, cienie, statusy</li>
+      <li>Podział <code>styles.css</code> na tokeny / bazę / komponenty / widoki; usunięcie
+      dziesięciu zduplikowanych selektorów</li>
+      <li>Komponenty: <code>Dialog</code>, <code>EmptyState</code>, <code>Skeleton</code>,
+      <code>StatusBadge</code>, <code>SegmentedControl</code>, <code>Tabs</code></li>
+      <li>Globalny <code>:focus-visible</code>, odnośnik do treści, korekta tokenu
+      <code>--text-muted</code></li>
+      <li>Wymiana wszystkich siedmiu <code>window.prompt / confirm / alert</code> na dialogi;
+      toasty na wszystkich ekranach</li>
+      <li><code>errorElement</code>, trasa 404 i ekran 403</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <h4>Etap 2 — portal rodzica</h4>
+    <p class="cost">Największy zwrot wizerunkowy. Dane w większości już są w API.</p>
+    <ul>
+      <li>Osobny układ dla roli <code>Parent</code>: górna belka, dolna nawigacja na mobile,
+      ciepła paleta, tekst 16 px</li>
+      <li>Kafel „Najbliższe zajęcia” jako dominanta, zakładki na resztę</li>
+      <li>Nowe wskaźniki: do zapłaty, zajęć w pakiecie, kredyty, frekwencja</li>
+      <li>Przełącznik dziecka przy rodzeństwie</li>
+      <li>Dialog zgłaszania nieobecności z informacją o skutku i potwierdzeniem</li>
+      <li>Karta projektu z miniaturą, datą i wyróżnioną najnowszą wersją</li>
+      <li>Daty względne (<code>Intl.RelativeTimeFormat</code>), poprawna pluralizacja</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <h4>Etap 3 — kokpit instruktora</h4>
+    <p class="cost">Wymaga drobnych zmian w API (autozapis obecności, strukturalne zakończenie zajęć).</p>
+    <ul>
+      <li>Stała szyna boczna zamiast trzech modali: Obecność / Grupa / Postępy</li>
+      <li>Segmentowy przełącznik obecności z trzema stanami i autozapisem</li>
+      <li>Znaczniki „potrzebuje pomocy / skończył / problem techniczny” — punkt 25 planu</li>
+      <li>Karta dziecka w kokpicie: ostatni postęp, notatki, znane problemy</li>
+      <li>Przypomnienie o przerwie wyliczane z planu lekcji</li>
+      <li>Zakończenie zajęć na trzech polach zamiast jednego</li>
+      <li>Grafik z widokiem dnia; połączenie „Kalendarza”, „Grafiku” i „Szybkiego startu”</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <h4>Etap 4 — panel administracji</h4>
+    <p class="cost">Głównie przepięcie istniejących możliwości backendu na inny interfejs.</p>
+    <ul>
+      <li>Kreator odwołania zajęć z podsumowaniem skutków przed potwierdzeniem</li>
+      <li>Wysyłka powiadomień z dialogu, znacznik z <code>NotificationLog</code> zamiast checkboxa</li>
+      <li>Menu akcji zamiast <code>select</code> jako spustu operacji; potwierdzenia przy
+      usuwaniu grupy i anonimizacji</li>
+      <li>Szczegóły grupy w zakładkach, formularze wyjęte z wierszy listy</li>
+      <li>Dashboard „Wymaga uwagi” zamiast sześciu liczb</li>
+      <li>Operacje masowe: ferie, przenoszenie uczestników, wiadomość do grupy</li>
+      <li>Wyszukiwanie globalne <code>Ctrl+K</code>, okruszki w belce</li>
+    </ul>
+  </div>
+
+  <div class="phase" style="border-left-color:var(--ink-4)">
+    <h4>Poza zakresem UX — ale blokuje doświadczenie</h4>
+    <p class="cost">Braki funkcjonalne z <code>STATUS.md</code>, bez których część ekranów nie ma czego pokazać.</p>
+    <ul>
+      <li><b>Encja <code>Message</code></b> — bez niej portal rodzica nie ma kanału kontaktu,
+      a rozdział 6 dokumentu pozostaje niezrealizowany</li>
+      <li><b>Zgłoszenia techniczne i test przed pierwszymi zajęciami</b> (etap D) —
+      dziś biała plama, a w zajęciach z programowania to główne źródło straconego czasu</li>
+      <li><b>Profil dziecka</b>: poziom, tempo, znajomość środowisk — bez tego kokpit nie ma
+      czego pokazać instruktorowi o uczestnikach</li>
+      <li><b>Pakiety zajęć</b> — bez nich „zajęć w pakiecie” w portalu rodzica nie da się policzyć</li>
+    </ul>
+  </div>
+
+  <h3 class="sub">Gdyby dało się zrobić tylko trzy rzeczy</h3>
+  <table>
+    <thead><tr><th>Zmiana</th><th>Nakład</th><th>Efekt</th></tr></thead>
+    <tbody>
+      <tr><td><b>Komponent Dialog i likwidacja natywnych okien</b></td><td>Mały</td>
+        <td>Znika najbardziej amatorski element interfejsu; nieodwracalne operacje przestają
+        być chronione jednym „OK”</td></tr>
+      <tr><td><b>Portal rodzica: hierarchia i własny układ</b></td><td>Średni</td>
+        <td>Klient przestaje dostawać panel administracyjny; spada liczba telefonów
+        „kiedy są zajęcia i gdzie link”</td></tr>
+      <tr><td><b>Tokeny projektowe</b></td><td>Średni</td>
+        <td>Każda kolejna zmiana wizualna staje się tania; tryb ciemny przestaje wymagać
+        łatek per komponent</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  Audyt wykonany 2 sierpnia 2026 na podstawie dokumentacji projektu
+  (<code>system_zajec_online_programowanie_dla_dzieci.md</code>, <code>STATUS.md</code>,
+  <code>AUDYT_2026-07-27.md</code>, <code>PLAN.md</code>, <code>README.md</code>) oraz przeglądu
+  całego kodu frontendu w <code>frontend/lesson-runner-web/src</code>. Ustalenia odnoszą się do
+  interfejsu — model danych i warstwa uprawnień zostały ocenione w audycie z 27.07.2026.
+  <br><br>
+  <b>Wdrożenie: 3 sierpnia 2026.</b> Pełny opis zmian wraz z uzasadnieniem każdej decyzji
+  projektowej znajduje się w <code>STATUS.md</code>, w sekcjach „Zmiany z 03.08.2026”.
+  Zakładka <b>Postęp prac</b> w tym dokumencie zestawia ustalenia audytu ze stanem faktycznym.
+</footer>
+
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('nav.tabs button');
+  const panels = document.querySelectorAll('section.panel');
+  tabs.forEach(btn => btn.addEventListener('click', () => {
+    tabs.forEach(b => b.setAttribute('aria-selected', String(b === btn)));
+    panels.forEach(p => { p.hidden = (p.id !== btn.dataset.t); });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }));
+</script>
+</body>
+</html>

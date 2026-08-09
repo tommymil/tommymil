@@ -1,0 +1,79 @@
+# Etap E p.27 planu prac.
+#
+# Powód powstania jest konkretny: przebudowa interfejsu z 03.08.2026 trafiła do repozytorium
+# bez ani jednego przebiegu `dotnet build` i `npm test` — środowisko, w którym powstawała,
+# nie miało .NET SDK, a `vitest` nie kończył się na zamontowanym dysku. Taka sytuacja nie
+# powinna być możliwa dwa razy.
+#
+# Świadomie **dwa osobne zadania zamiast jednego**: frontend i backend psują się niezależnie,
+# a zielony jeden z nich to informacja, którą warto mieć od razu, bez czekania na drugi.
+# `fail-fast` domyślnie nie ma tu znaczenia — zadania nie są macierzą.
+
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+# Nowy push do tej samej gałęzi anuluje poprzedni przebieg. Przy pracy z kilkoma commitami
+# pod rząd interesuje nas wynik ostatniego, a nie kolejka nieaktualnych.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (.NET)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          # Wersja z `README.md`. Trzymamy ją tutaj wprost, a nie w `global.json`, żeby
+          # podbicie SDK było widoczne w przeglądzie zmian.
+          dotnet-version: "10.0.x"
+
+      - name: Przywróć zależności
+        run: dotnet restore
+
+      # `--no-restore`, bo restore już był. Ostrzeżenia nie wywracają budowania:
+      # projekt ma ich trochę zastanych, a CI ma pilnować regresji, nie sprzątać.
+      - name: Zbuduj
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Testy
+        run: dotnet test --no-build --configuration Release --verbosity normal
+
+  frontend:
+    name: Frontend (React + Vite)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/lesson-runner-web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/lesson-runner-web/package-lock.json
+
+      # `npm ci` zamiast `npm install`: instaluje dokładnie to, co w lockfile, i wywala się,
+      # gdy `package.json` rozjechał się z `package-lock.json`.
+      - name: Zainstaluj zależności
+        run: npm ci
+
+      # `npm run build` to `tsc && vite build`, więc pokrywa też sprawdzenie typów.
+      - name: Zbuduj
+        run: npm run build
+
+      - name: Testy
+        run: npm test

@@ -402,6 +402,13 @@ namespace LessonRunner.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("LeftAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("LiveStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("");
+
                     b.Property<bool>("MakeupRequired")
                         .HasColumnType("INTEGER");
 
@@ -544,6 +551,10 @@ namespace LessonRunner.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ParentSummary")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("RecordingUrl")
                         .HasMaxLength(1000)
                         .HasColumnType("TEXT");
@@ -565,6 +576,10 @@ namespace LessonRunner.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("SubstituteInstructorId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("UnfinishedNote")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("LocationId");
@@ -584,15 +599,15 @@ namespace LessonRunner.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ChangeType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTimeOffset>("ChangedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("ChangedByUserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ChangeType")
-                        .IsRequired()
-                        .HasMaxLength(40)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Details")
@@ -742,10 +757,22 @@ namespace LessonRunner.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsPrimaryContact")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid>("ParentUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("ParticipantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("ReceivesNotifications")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Relation")
+                        .HasMaxLength(60)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -826,6 +853,47 @@ namespace LessonRunner.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Participants", (string)null);
+                });
+
+            modelBuilder.Entity("LessonRunner.Infrastructure.Persistence.AccountTokenDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("IssuedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "UsedAt");
+
+                    b.ToTable("AccountTokens", (string)null);
                 });
 
             modelBuilder.Entity("LessonRunner.Infrastructure.Persistence.LessonDocument", b =>
@@ -949,6 +1017,281 @@ namespace LessonRunner.Infrastructure.Persistence.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("LessonRunner.Infrastructure.Progress.ProgressEntryDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("AuthorUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Autonomy")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("LessonCompleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("LessonId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NextStep")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NoteForParent")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ParticipantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SessionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParticipantId");
+
+                    b.HasIndex("SessionId", "ParticipantId")
+                        .IsUnique();
+
+                    b.ToTable("ProgressEntries", (string)null);
+                });
+
+            modelBuilder.Entity("LessonRunner.Infrastructure.Progress.ProjectDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("LessonId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ParticipantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParticipantId");
+
+                    b.ToTable("Projects", (string)null);
+                });
+
+            modelBuilder.Entity("LessonRunner.Infrastructure.Progress.ProjectSubmissionDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContentType")
+                        .HasMaxLength(160)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DownloadToken")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FileName")
+                        .HasMaxLength(260)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FileUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InstructorComment")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long?>("SizeBytes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("SubmittedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SubmittedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Url")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DownloadToken");
+
+                    b.HasIndex("ProjectId", "Version")
+                        .IsUnique();
+
+                    b.ToTable("ProjectSubmissions", (string)null);
+                });
+
+            modelBuilder.Entity("LessonRunner.Infrastructure.Safety.IncidentDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActionsTaken")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("AssignedToUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ParticipantIds")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ReportedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Resolution")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SessionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReportedByUserId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("Incidents", (string)null);
+                });
+
+            modelBuilder.Entity("LessonRunner.Infrastructure.Safety.SupportTicketDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("CostLessonTime")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ParticipantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ReportedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Resolution")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SessionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParticipantId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("SupportTickets", (string)null);
+                });
+
             modelBuilder.Entity("LessonRunner.Infrastructure.Scheduling.HolidayDocument", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1042,6 +1385,17 @@ namespace LessonRunner.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("LessonRunner.Infrastructure.Progress.ProjectSubmissionDocument", b =>
+                {
+                    b.HasOne("LessonRunner.Infrastructure.Progress.ProjectDocument", "Project")
+                        .WithMany("Submissions")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("LessonRunner.Infrastructure.Courses.CourseDocument", b =>
                 {
                     b.Navigation("Lessons");
@@ -1057,6 +1411,11 @@ namespace LessonRunner.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("LessonRunner.Infrastructure.Groups.ScheduledSessionDocument", b =>
                 {
                     b.Navigation("Attendance");
+                });
+
+            modelBuilder.Entity("LessonRunner.Infrastructure.Progress.ProjectDocument", b =>
+                {
+                    b.Navigation("Submissions");
                 });
 #pragma warning restore 612, 618
         }
