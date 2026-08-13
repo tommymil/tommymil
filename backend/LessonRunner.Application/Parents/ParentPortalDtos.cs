@@ -199,3 +199,20 @@ public sealed record ParentParticipantLinkDto(
     string? Relation = null,
     bool IsPrimaryContact = false,
     bool ReceivesNotifications = true);
+
+/// <summary>
+/// Wynik założenia konta opiekunowi z karty dziecka.
+///
+/// <paramref name="Created"/> odróżnia nowe konto od podpięcia istniejącego — przy drugim
+/// dziecku tej samej rodziny zakładamy tylko powiązanie i nie ma po co wysyłać zaproszenia.
+/// <paramref name="InvitationSent"/> mówi, czy poszła poczta: token powstaje także wtedy,
+/// gdy wysyłka padnie, a administracja musi widzieć różnicę, zamiast czekać na rodzica,
+/// który niczego nie dostał.
+/// </summary>
+public sealed record GuardianAccountResultDto(
+    Guid ParentUserId,
+    string Email,
+    string DisplayName,
+    bool Created,
+    bool InvitationSent,
+    string? Error = null);

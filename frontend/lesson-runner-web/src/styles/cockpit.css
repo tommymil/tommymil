@@ -1,0 +1,472 @@
+/* ============================================================================
+   KOKPIT PROWADZENIA
+   Scenariusz plus stała szyna z panelem grupy. Wcześniej lista obecności, postępy
+   i zakończenie zajęć były trzema niezależnymi nakładkami zasłaniającymi scenariusz.
+   ========================================================================== */
+
+.cockpit-layout {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr) 340px;
+  align-items: start;
+}
+
+.cockpit-rail-closed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cockpit-stage {
+  min-width: 0;
+}
+
+/* Pasek poleceń ma trzy jednoznaczne strefy. Etykiety są celowo zawsze widoczne:
+   prowadzący nie musi odgadywać, czy przycisk steruje czasem, widokiem czy terminem. */
+.presenter-command-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(360px, 1.2fr);
+  margin-bottom: var(--space-2);
+  overflow: hidden;
+}
+
+.presenter-control-group {
+  align-content: start;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+}
+
+.presenter-control-group + .presenter-control-group {
+  border-left: 1px solid var(--border);
+}
+
+.presenter-control-group-primary {
+  background: var(--color-brand-soft);
+}
+
+.presenter-control-group + .presenter-control-group-session {
+  background: var(--surface-2);
+  border-left: 0;
+  border-top: 1px solid var(--border);
+  grid-column: 1 / -1;
+}
+
+.presenter-control-label {
+  color: var(--text-muted);
+  font-size: var(--text-label);
+  font-weight: 800;
+  letter-spacing: 0.045em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.presenter-control-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.presenter-control-group-session .presenter-control-actions {
+  justify-content: flex-end;
+}
+
+.presenter-control-actions .button {
+  min-height: 38px;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+.presenter-control-link {
+  display: inline-flex;
+  text-decoration: none;
+}
+
+.presenter-topbar {
+  align-items: center;
+}
+
+.presenter-topbar > :first-child {
+  min-width: 0;
+}
+
+.presenter-topbar .presenter-clock {
+  flex: 0 0 auto;
+}
+
+.session-rail {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: var(--space-3);
+  max-height: calc(100vh - var(--space-6));
+  overflow: auto;
+  padding: var(--space-3);
+  position: sticky;
+  top: var(--space-4);
+}
+
+.session-rail-tabs {
+  display: grid;
+  gap: var(--space-1);
+  grid-template-columns: 1fr 1fr;
+}
+
+.session-rail-tabs button {
+  align-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  font-size: var(--text-small);
+  font-weight: 700;
+  gap: var(--space-2);
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+.session-rail-tabs button[aria-selected="true"] {
+  background: var(--color-brand-soft);
+  border-color: var(--color-brand-border);
+  color: var(--color-brand-strong);
+}
+
+/* Licznik dzieci czekających na instruktora. Sygnał, który ma być widoczny
+   nawet wtedy, gdy otwarta jest druga zakładka szyny. */
+.rail-badge {
+  background: var(--live-help-soft);
+  border-radius: var(--radius-pill);
+  color: var(--live-help);
+  font-size: 11px;
+  padding: 1px 7px;
+}
+
+.session-rail-save {
+  align-items: center;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--text-small);
+  gap: var(--space-2);
+  min-height: 30px;
+}
+
+.rail-dot {
+  background: var(--color-warning);
+  border-radius: 50%;
+  height: 7px;
+  width: 7px;
+}
+
+.session-rail-list {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rail-row {
+  border: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+/* Kolor lewej krawedzi niesie stan pracy. Lista jest posortowana po pilnosci
+   po stronie backendu, więc czekający są na górze - kolor tylko to potwierdza. */
+.rail-live-needshelp {
+  background: var(--live-help-soft);
+  border-left-color: var(--live-help);
+}
+
+.rail-live-blocked {
+  background: var(--live-blocked-soft);
+  border-left-color: var(--live-blocked);
+}
+
+.rail-live-finished {
+  border-left-color: var(--live-done);
+}
+
+.rail-row-head {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: space-between;
+}
+
+.rail-name {
+  font-size: var(--text-small);
+  font-weight: 700;
+}
+
+.rail-live,
+.rail-attendance {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.rail-attendance-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: space-between;
+}
+
+.rail-attendance-more {
+  border-top: 1px dashed var(--border);
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.rail-hint {
+  align-items: center;
+  display: flex;
+  font-size: var(--text-label);
+  font-weight: 700;
+  gap: var(--space-1);
+}
+
+.rail-hint-help { color: var(--live-help); }
+.rail-hint-blocked { color: var(--live-blocked); }
+.rail-hint-done { color: var(--live-done); }
+
+/* Znacznik „problem techniczny” i zapis zgłoszenia stoją w jednej linii: znacznik znika
+   po zajęciach, zgłoszenie zostaje. Przycisk jest tuż obok, żeby ta różnica nie wymagała
+   szukania - w trakcie zajęć nikt nie szuka. */
+.rail-blocked-action {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: space-between;
+}
+
+/* ----------------------------------------------------------------------------
+   HISTORIA PROBLEMÓW W OKNIE ZGŁOSZENIA
+   -------------------------------------------------------------------------- */
+.support-history {
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+}
+
+.support-history h3 {
+  align-items: center;
+  display: flex;
+  font-size: var(--text-label);
+  gap: var(--space-1);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.support-history ul {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.support-history li {
+  display: grid;
+  gap: 2px;
+}
+
+.support-history-head {
+  font-size: var(--text-small);
+  font-weight: 700;
+}
+
+.support-history-desc {
+  color: var(--text-mid);
+  font-size: var(--text-small);
+}
+
+/* To jest właściwy powód istnienia tej sekcji: co pomogło poprzednim razem. */
+.support-history-fix {
+  color: var(--color-success);
+  font-size: var(--text-small);
+}
+
+/* Szyna schodzi pod scenariusz na wąskich ekranach - obok nie ma już na nią miejsca,
+   a scenariusz jest wazniejszy. */
+@media (max-width: 1100px) {
+  .cockpit-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .session-rail {
+    max-height: none;
+    position: static;
+  }
+
+  .presenter-control-group-session .presenter-control-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .presenter-command-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .presenter-control-group + .presenter-control-group,
+  .presenter-control-group-session {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    grid-column: auto;
+  }
+
+  .presenter-control-actions {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .presenter-control-actions .button,
+  .presenter-control-link {
+    width: 100%;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   PRZYPOMNIENIE O PRZERWIE
+   Belka, a nie okno modalne: przypomnienie w połowie zajęć nie może przerywać
+   tego, co instruktor właśnie robi.
+   -------------------------------------------------------------------------- */
+.break-reminder {
+  align-items: center;
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-md);
+  color: var(--color-warning);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--text-small);
+  font-weight: 700;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.break-reminder-close {
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: inherit;
+  cursor: pointer;
+  margin-left: auto;
+  padding: var(--space-1);
+}
+
+/* ----------------------------------------------------------------------------
+   GRAFIK INSTRUKTORA — WIDOK DNIA
+   Instruktor rano pyta „co mam dzisiaj i o której”, a nie „jak wyglądają kursy”.
+   -------------------------------------------------------------------------- */
+.today-strip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+}
+
+.today-strip-head {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+}
+
+.today-strip-head h2 {
+  font-size: var(--text-h2);
+  margin: 0;
+}
+
+.today-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.today-row {
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+
+.today-row.is-now {
+  background: var(--color-brand-soft);
+  border-color: var(--color-brand-border);
+}
+
+.today-time {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  min-width: 62px;
+}
+
+.today-main {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 180px;
+}
+
+.today-main small {
+  color: var(--text-muted);
+  font-size: var(--text-small);
+}
+
+.today-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Zwinięte kolejne lekcje kursu. */
+.course-upcoming {
+  border-top: 1px solid var(--border);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+.course-upcoming summary {
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--text-small);
+  font-weight: 700;
+}
+
+.course-upcoming summary:hover {
+  color: var(--text);
+}
+
+/* „Czego nie zdążyliśmy” z poprzednich zajęć, widoczne wprost na osi kursu. */
+.course-unfinished {
+  color: var(--color-warning);
+  font-size: var(--text-small);
+  font-weight: 600;
+}

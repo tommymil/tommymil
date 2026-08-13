@@ -10,7 +10,15 @@ public sealed record CreateLessonDto(
     IReadOnlyList<string> Tags,
     CreateLessonProjectFilesDto? ProjectFiles,
     IReadOnlyList<CreateLessonStepDto> Steps,
-    int? Order = null);
+    int? Order = null,
+    /// <summary>Cel dydaktyczny lekcji — czego dziecko ma się nauczyć.</summary>
+    string? Objective = null,
+    /// <summary>Po zajęciach dziecko potrafi… (sprawdzalne kryteria).</summary>
+    IReadOnlyList<string>? SuccessCriteria = null,
+    /// <summary>Co przygotować przed zajęciami.</summary>
+    IReadOnlyList<string>? Preparation = null,
+    /// <summary>Zadanie domowe albo co pokazać rodzicom.</summary>
+    IReadOnlyList<string>? Homework = null);
 
 public sealed record CreateLessonProjectFilesDto(
     CreateLessonProjectFileDto? Starter,
@@ -65,9 +73,22 @@ internal static class CreateLessonDtoMapping
             Status = status,
             Tags = dto.Tags.Select(tag => tag.Trim()).Where(tag => tag.Length > 0).ToList(),
             ProjectFiles = dto.ProjectFiles.ToProjectFiles(),
-            Steps = dto.Steps.Select((step, index) => step.ToStep(index + 1)).ToList()
+            Steps = dto.Steps.Select((step, index) => step.ToStep(index + 1)).ToList(),
+            Objective = NullIfBlank(dto.Objective),
+            SuccessCriteria = CleanList(dto.SuccessCriteria),
+            Preparation = CleanList(dto.Preparation),
+            Homework = CleanList(dto.Homework)
         };
     }
+
+    private static string? NullIfBlank(string? value)
+    {
+        var trimmed = value?.Trim();
+        return string.IsNullOrEmpty(trimmed) ? null : trimmed;
+    }
+
+    private static List<string> CleanList(IReadOnlyList<string>? values) =>
+        (values ?? []).Select(value => value.Trim()).Where(value => value.Length > 0).ToList();
 
     private static LessonProjectFiles ToProjectFiles(this CreateLessonProjectFilesDto? dto)
     {

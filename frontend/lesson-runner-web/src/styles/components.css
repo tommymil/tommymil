@@ -1,0 +1,649 @@
+/* ============================================================================
+   KOMPONENTY WSPOLDZIELONE
+   Wszystko tutaj korzysta wyłącznie z tokenów semantycznych, więc działa
+   w obu motywach i w obu skórach bez dopisywania łatek.
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   DIALOG
+   Jeden komponent zastępuje window.prompt / window.confirm / window.alert
+   oraz trzy ręcznie sklejone nakładki `.overlay` bez pułapki fokusu.
+   -------------------------------------------------------------------------- */
+.dialog-scrim {
+  align-items: center;
+  background: var(--overlay-scrim);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  /* Pionowo więcej niż poziomo: wysokie okna (postępy, obecność) dobijają do limitu
+     wysokości i wtedy ten odstęp jest jedynym marginesem, jaki im zostaje. */
+  padding: var(--space-6) var(--space-4);
+  position: fixed;
+  z-index: 60;
+}
+
+/*
+   Przewija się wyłącznie treść, nie całe okno.
+
+   Przy `overflow: auto` na całej karcie długa lista (postępy dziesięciorga dzieci)
+   zabierała ze sobą nagłówek i przyciski: po przewinięciu w dół znikało „Zapisz postępy",
+   a górna wyściółka zjeżdżała poza kadr, więc pierwszy wiersz przyklejał się do krawędzi.
+   Stąd kolumna flex z jednym elementem, który się kurczy.
+ */
+.dialog {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-height: 100%;
+  max-width: 560px;
+  overflow: hidden;
+  padding: var(--space-5);
+  width: 100%;
+}
+
+.dialog-wide {
+  max-width: 860px;
+}
+
+/* Wariant przycisku dla operacji nieodwracalnych. Wcześniej „Usuń grupę” i „Zapisz”
+   wyglądały identycznie. */
+.button-danger {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: #ffffff;
+}
+
+.button-danger:hover:not(:disabled) {
+  filter: brightness(0.94);
+}
+
+.dialog-head {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.dialog-head-row {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+}
+
+.dialog-close {
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: var(--space-1);
+}
+
+.dialog-close:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.dialog-head h2 {
+  font-size: var(--text-h2);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.dialog-head p {
+  color: var(--text-muted);
+  font-size: var(--text-small);
+  margin: 0;
+}
+
+.dialog-body {
+  display: grid;
+  gap: var(--space-3);
+  /* `min-height: 0` jest tu konieczne: element siatki/flexa domyślnie nie kurczy się
+     poniżej swojej treści, więc bez tego okno rosłoby dalej zamiast przewijać listę. */
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.dialog-head,
+.dialog-actions {
+  flex-shrink: 0;
+}
+
+/* Niskie okno (telefon w poziomie, laptop 13" z otwartymi narzędziami): margines
+   z hukiem zabierałby miejsce samej treści, więc wracamy do wąskiego. */
+@media (max-height: 600px) {
+  .dialog-scrim {
+    padding: var(--space-4);
+  }
+}
+
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+/* Podsumowanie skutków decyzji. Używane w kreatorze odwołania zajęć: przed
+   potwierdzeniem administrator ma zobaczyć, co się stanie, a nie domyślać się. */
+.dialog-consequences {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+}
+
+.dialog-consequences li {
+  align-items: flex-start;
+  color: var(--text-mid);
+  display: flex;
+  font-size: var(--text-small);
+  gap: var(--space-2);
+}
+
+.dialog-consequences ul {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dialog-consequences svg {
+  color: var(--color-brand);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.dialog-danger .dialog-head h2 {
+  color: var(--color-danger);
+}
+
+/* Potwierdzenie przez przepisanie nazwy. Odruch "OK" jest silniejszy niz
+   czytanie, więc operacje nieodwracalne (anonimizacja RODO, usunięcie grupy)
+   wymagają przepisania nazwy zamiast jednego kliknięcia. */
+.dialog-typed-confirm {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.dialog-typed-confirm code {
+  background: var(--color-danger-soft);
+  border-radius: var(--radius-sm);
+  color: var(--color-danger);
+  font-weight: 700;
+  padding: 2px 6px;
+}
+
+/* ----------------------------------------------------------------------------
+   STAN PUSTY
+   -------------------------------------------------------------------------- */
+.empty-state {
+  align-items: center;
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: var(--space-3);
+  justify-items: center;
+  padding: var(--space-6) var(--space-5);
+  text-align: center;
+}
+
+.empty-state-icon {
+  align-items: center;
+  background: var(--color-brand-soft);
+  border-radius: var(--radius-lg);
+  color: var(--color-brand);
+  display: flex;
+  height: 52px;
+  justify-content: center;
+  width: 52px;
+}
+
+.empty-state h3 {
+  font-size: var(--text-h2);
+  margin: 0;
+}
+
+.empty-state p {
+  color: var(--text-muted);
+  font-size: var(--text-small);
+  margin: 0;
+  max-width: 46ch;
+}
+
+.empty-state-compact {
+  padding: var(--space-5) var(--space-4);
+}
+
+/* ----------------------------------------------------------------------------
+   SZKIELET ŁADOWANIA
+   Tekst „Ładowanie...” podmieniany na treść powodował przeskok układu.
+   -------------------------------------------------------------------------- */
+.skeleton {
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  display: block;
+}
+
+.skeleton-stack {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.skeleton-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   ZNACZNIK STATUSU
+   Jeden komponent dla statusów terminu, obecności i pracy na żywo — kolory
+   przychodzą z tokenów, więc ten sam status wygląda tak samo wszędzie.
+   -------------------------------------------------------------------------- */
+.status-badge {
+  align-items: center;
+  background: var(--badge-soft, var(--color-muted-soft));
+  border-radius: var(--radius-pill);
+  color: var(--badge-ink, var(--color-muted));
+  display: inline-flex;
+  font-size: var(--text-label);
+  font-weight: 800;
+  gap: var(--space-1);
+  letter-spacing: 0.02em;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.status-badge-dot::before {
+  background: currentColor;
+  border-radius: 50%;
+  content: "";
+  height: 6px;
+  width: 6px;
+}
+
+.badge-planned { --badge-ink: var(--status-planned); --badge-soft: var(--status-planned-soft); }
+.badge-confirmed { --badge-ink: var(--status-confirmed); --badge-soft: var(--status-confirmed-soft); }
+.badge-inprogress { --badge-ink: var(--status-inprogress); --badge-soft: var(--status-inprogress-soft); }
+.badge-completed { --badge-ink: var(--status-completed); --badge-soft: var(--status-completed-soft); }
+.badge-cancelled { --badge-ink: var(--status-cancelled); --badge-soft: var(--status-cancelled-soft); }
+.badge-technical { --badge-ink: var(--status-technical); --badge-soft: var(--status-technical-soft); }
+.badge-pending { --badge-ink: var(--status-pending); --badge-soft: var(--status-pending-soft); }
+.badge-success { --badge-ink: var(--color-success); --badge-soft: var(--color-success-soft); }
+.badge-warning { --badge-ink: var(--color-warning); --badge-soft: var(--color-warning-soft); }
+.badge-danger { --badge-ink: var(--color-danger); --badge-soft: var(--color-danger-soft); }
+.badge-info { --badge-ink: var(--color-info); --badge-soft: var(--color-info-soft); }
+.badge-credit { --badge-ink: var(--color-credit); --badge-soft: var(--color-credit-soft); }
+.badge-neutral { --badge-ink: var(--color-muted); --badge-soft: var(--color-muted-soft); }
+
+/* ----------------------------------------------------------------------------
+   PRZEŁĄCZNIK SEGMENTOWY
+   Obecność w kokpicie: trzy stany pokrywające większość przypadków zamiast
+   selecta z dziewięcioma pozycjami przy każdym dziecku.
+   -------------------------------------------------------------------------- */
+.segmented {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  overflow: hidden;
+}
+
+.segmented button {
+  background: none;
+  border: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--text-small);
+  font-weight: 700;
+  padding: var(--space-2) var(--space-3);
+  white-space: nowrap;
+}
+
+.segmented button + button {
+  border-left: 1px solid var(--border);
+}
+
+.segmented button:hover:not([aria-pressed="true"]) {
+  color: var(--text);
+}
+
+.segmented button[aria-pressed="true"] {
+  background: var(--seg-soft, var(--color-brand-soft));
+  color: var(--seg-ink, var(--color-brand));
+}
+
+.segmented button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.seg-present { --seg-ink: var(--attend-present); --seg-soft: var(--attend-present-soft); }
+.seg-late { --seg-ink: var(--attend-late); --seg-soft: var(--attend-late-soft); }
+.seg-absent { --seg-ink: var(--attend-absent); --seg-soft: var(--attend-absent-soft); }
+
+/* ----------------------------------------------------------------------------
+   ZAKŁADKI
+   -------------------------------------------------------------------------- */
+.tabs {
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+  overflow-x: auto;
+}
+
+.tabs button {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--text-small);
+  font-weight: 700;
+  padding: var(--space-3) var(--space-4);
+  white-space: nowrap;
+}
+
+.tabs button:hover {
+  color: var(--text);
+}
+
+.tabs button[aria-selected="true"] {
+  border-bottom-color: var(--color-brand);
+  color: var(--color-brand);
+}
+
+.tabs button:focus-visible {
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  outline-offset: -2px;
+}
+
+.tab-count {
+  background: var(--color-muted-soft);
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-left: var(--space-2);
+  padding: 1px 7px;
+}
+
+.tabs button[aria-selected="true"] .tab-count {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+}
+
+/* ----------------------------------------------------------------------------
+   MENU AKCJI
+   Zastępuje <select> używany jako spust operacji. Wybór pozycji w liście
+   rozwijanej nie powinien być nieodwracalną decyzją.
+   -------------------------------------------------------------------------- */
+.action-menu {
+  position: relative;
+}
+
+.action-menu-trigger {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-mid);
+  cursor: pointer;
+  display: flex;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+.action-menu-trigger:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.action-menu-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  display: grid;
+  min-width: 220px;
+  padding: var(--space-1);
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 30;
+}
+
+.action-menu-list button {
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--text-mid);
+  cursor: pointer;
+  font-size: var(--text-small);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+}
+
+.action-menu-list button:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.action-menu-list button.is-danger {
+  color: var(--color-danger);
+}
+
+.action-menu-list button.is-danger:hover {
+  background: var(--color-danger-soft);
+}
+
+.action-menu-list hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: var(--space-1) 0;
+}
+
+/* ----------------------------------------------------------------------------
+   OKRUSZKI
+   -------------------------------------------------------------------------- */
+.breadcrumbs {
+  align-items: center;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--text-small);
+  gap: var(--space-2);
+}
+
+.breadcrumbs a:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.breadcrumbs span[aria-current] {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.breadcrumbs-sep {
+  color: var(--border-strong);
+}
+
+/* ----------------------------------------------------------------------------
+   WYSZUKIWANIE GLOBALNE
+   -------------------------------------------------------------------------- */
+.global-search-trigger {
+  align-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  font-size: var(--text-small);
+  gap: var(--space-2);
+  max-width: 340px;
+  padding: var(--space-2) var(--space-3);
+  width: 100%;
+}
+
+.global-search-trigger:hover {
+  border-color: var(--border-strong);
+  color: var(--text-mid);
+}
+
+.global-search-trigger kbd {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 11px;
+  margin-left: auto;
+  padding: 1px 6px;
+}
+
+.global-search-scrim {
+  align-items: flex-start;
+  background: var(--overlay-scrim);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 10vh var(--space-4) var(--space-4);
+  position: fixed;
+  z-index: 70;
+}
+
+.global-search-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-3);
+  display: grid;
+  max-width: 620px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.global-search-panel input {
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 17px;
+  padding: var(--space-4);
+}
+
+.global-search-panel input:focus-visible {
+  outline-offset: -2px;
+}
+
+.global-search-results {
+  display: grid;
+  max-height: 52vh;
+  overflow: auto;
+  padding: var(--space-1);
+}
+
+.global-search-results a,
+.global-search-results button {
+  align-items: center;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--text-mid);
+  cursor: pointer;
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+}
+
+.global-search-results a:hover,
+.global-search-results button:hover,
+.global-search-results .is-active {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.global-search-kind {
+  color: var(--text-muted);
+  font-size: var(--text-label);
+  margin-left: auto;
+  text-transform: uppercase;
+}
+
+.global-search-empty {
+  color: var(--text-muted);
+  font-size: var(--text-small);
+  padding: var(--space-5);
+  text-align: center;
+}
+
+/* ----------------------------------------------------------------------------
+   EKRAN BŁĘDU / 404 / 403
+   -------------------------------------------------------------------------- */
+.fault-page {
+  align-items: center;
+  display: grid;
+  gap: var(--space-4);
+  justify-items: center;
+  min-height: 60vh;
+  padding: var(--space-7) var(--space-4);
+  text-align: center;
+}
+
+.fault-page .fault-code {
+  color: var(--color-brand);
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.fault-page h1 {
+  font-size: var(--text-h1);
+  margin: 0;
+}
+
+.fault-page p {
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 52ch;
+}
+
+.fault-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: center;
+}

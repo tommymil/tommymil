@@ -43,6 +43,8 @@ Konta startowe — **tylko w środowisku Development**, na produkcji nie powstaj
 
 - `admin@lessonrunner.local` / `admin12345` (Admin)
 - `instructor@lessonrunner.local` / `teacher12345` (Instructor)
+- `parent@lessonrunner.local` / `parent12345` (Parent) — powiązany z Zofią Kowalską i Janem
+  Kowalskim, więc portal rodzica ma co pokazać (w tym przełącznik dziecka)
 
 ## Uruchomienie przez Docker
 
@@ -59,6 +61,23 @@ docker compose up --build
 
 HTTPS zapewnia reverse proxy przed aplikacją. Jeżeli API ma samo obsługiwać TLS, ustaw
 `Security__ForceHttps=true` — domyślnie wyłączone, bo za proxy powodowałoby pętlę przekierowań.
+
+### Zaufane proxy (`Security:TrustedProxyNetworks`)
+
+Poza trybem Development aplikacja czyta adres klienta z `X-Forwarded-For`, ale **tylko od proxy
+z zaufanej sieci**. Domyślnie są to pętla zwrotna i zakresy prywatne
+(`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) — nginx w compose mieści się w drugim z nich.
+
+Ta lista nie jest ozdobnikiem. Gdy proxy do niej nie należy, nagłówek jest odrzucany i **wszyscy
+użytkownicy dzielą jeden adres IP**, więc limit „10 nieudanych logowań na 5 minut" staje się
+limitem na całą szkołę: dziesięć pomyłek jednej osoby blokuje pozostałym logowanie. W drugą
+stronę pusta lista (zaufanie wszystkim) pozwoliłaby obejść ten limit samym nagłówkiem.
+
+Gdy proxy stoi pod adresem publicznym, podaj jego zakres wprost:
+
+```json
+{ "Security": { "TrustedProxyNetworks": [ "203.0.113.7/32" ] } }
+```
 
 ## Baza danych
 

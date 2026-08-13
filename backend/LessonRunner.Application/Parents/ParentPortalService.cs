@@ -24,7 +24,11 @@ public sealed class ParentPortalService(
     IBillingRepository billingRepository,
     // Opcjonalne, żeby starsze testy budujące serwis ręcznie nadal się kompilowały. Brak
     // repozytorium oznacza pusty dorobek, a nie wywrócony portal.
-    IProgressRepository? progressRepository = null) : IParentPortalService
+    IProgressRepository? progressRepository = null,
+    // Potrzebne wyłącznie do zakładania konta opiekunowi z karty dziecka - reszta portalu
+    // działa bez nich.
+    IUserAdminService? userAdminService = null,
+    IAccountTokenService? accountTokenService = null) : IParentPortalService
 {
     public async Task<ParentPortalDto> GetPortalAsync(Guid parentUserId, CancellationToken cancellationToken)
     {
@@ -46,7 +50,7 @@ public sealed class ParentPortalService(
         var invoices = await billingRepository.ListInvoicesAsync(cancellationToken);
         var credits = await billingRepository.ListCreditsAsync(cancellationToken);
         var instructorNames = (await userRepository.ListAsync(cancellationToken))
-            .ToDictionary(user => user.Id, user => user.DisplayName);
+            .ToDictionary(user => user.Id, InstructorName);
 
         var groupsByParticipant = BuildGroupMap(groups, participantIds);
         var children = participants
@@ -291,6 +295,19 @@ public sealed class ParentPortalService(
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Podpis prowadzącego na ekranie rodzica.
+    ///
+    /// Świadomie nie sięgamy po <c>User.DisplayName</c>: przy koncie bez wpisanego imienia
+    /// zwraca ono adres e-mail, więc służbowy adres pracownika lądował u klienta szkoły
+    /// jako „prowadzi jan.kowalski@...". Rodzicowi wystarczy wtedy sama rola.
+    /// </summary>
+    private static string InstructorName(User user)
+    {
+        var full = $"{user.FirstName} {user.LastName}".Trim();
+        return full.Length > 0 ? full : "Instruktor";
     }
 
     private static bool IsUnpaid(InvoiceStatus status) =>
@@ -604,6 +621,106 @@ public sealed class ParentPortalService(
 
     public Task<bool> UnlinkAsync(Guid parentUserId, Guid participantId, CancellationToken cancellationToken) =>
         parentRepository.DeleteAsync(parentUserId, participantId, cancellationToken);
+
+    /// <summary>
+    /// Konto opiekuna zakładane wprost z karty dziecka.
+    ///
+    /// Kolejność jest tu istotna: najpierw konto, potem powiązanie, a zaproszenie na końcu.
+    /// Gdyby poczta szła przed powiązaniem, rodzic mógłby ustawić hasło i zalogować się do
+    /// pustego portalu, zanim ktokolwiek podpiąłby mu dziecko.
+    ///
+    /// Istniejące konto **wiążemy, ale go nie zapraszamy** - ma już swoje hasło, a drugi mail
+    /// z linkiem do ustawiania hasła przy zapisie drugiego dziecka wygląda jak próba przejęcia
+    /// konta.
+    /// </summary>
+    public async Task<GuardianAccountResultDto?> CreateGuardianAccountAsync(
+        Guid participantId,
+        Guid? actingUserId,
+        CancellationToken cancellationToken)
+    {
+        if (userAdminService is null || accountTokenService is null)
+        {
+            throw new InvalidOperationException("Zakładanie kont opiekunów nie jest skonfigurowane.");
+        }
+
+        var participant = await participantRepository.GetByIdAsync(participantId, cancellationToken);
+
+        if (participant is null)
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(participant.GuardianEmail))
+        {
+            throw new ArgumentException(
+                "Dziecko nie ma zapisanego adresu e-mail opiekuna. Uzupełnij go w danych uczestnika.");
+        }
+
+        var email = User.NormalizeEmail(participant.GuardianEmail);
+        var existing = await userRepository.GetByEmailAsync(email, cancellationToken);
+
+        if (existing is not null && existing.Role != UserRole.Parent)
+        {
+            throw new InvalidOperationException(
+                $"Konto {email} istnieje już w innej roli. Opiekun musi mieć osobny adres.");
+        }
+
+        var (firstName, lastName) = SplitGuardianName(participant.GuardianName);
+        var parentUserId = existing?.Id;
+        var displayName = existing?.DisplayName ?? email;
+
+        if (existing is null)
+        {
+            var created = await userAdminService.CreateAsync(
+                new CreateUserDto(email, null, nameof(UserRole.Parent), firstName, lastName, participant.GuardianPhone),
+                cancellationToken);
+
+            parentUserId = created.Id;
+            displayName = created.DisplayName;
+        }
+
+        await LinkAsync(
+            parentUserId!.Value,
+            participantId,
+            participant.GuardianRelation,
+            isPrimaryContact: true,
+            receivesNotifications: true,
+            cancellationToken);
+
+        if (existing is not null)
+        {
+            return new GuardianAccountResultDto(parentUserId.Value, email, displayName, Created: false, InvitationSent: false);
+        }
+
+        var invitation = await accountTokenService.SendInvitationAsync(parentUserId.Value, actingUserId, cancellationToken);
+
+        return new GuardianAccountResultDto(
+            parentUserId.Value,
+            email,
+            displayName,
+            Created: true,
+            invitation?.Sent ?? false,
+            invitation?.Error);
+    }
+
+    /// <summary>
+    /// Rozbicie „Katarzyna Kowalska" na imię i nazwisko.
+    ///
+    /// Ostatni człon to nazwisko, reszta to imiona - przy nazwiskach dwuczłonowych
+    /// („Anna Kowalska-Nowak") i tak wychodzi poprawnie, a przy pustym polu wolimy zostawić
+    /// `null` niż zgadywać: konto z imieniem „—" jest gorsze niż konto podpisane adresem.
+    /// </summary>
+    private static (string? FirstName, string? LastName) SplitGuardianName(string? guardianName)
+    {
+        var parts = (guardianName ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        return parts.Length switch
+        {
+            0 => (null, null),
+            1 => (parts[0], null),
+            _ => (string.Join(' ', parts[..^1]), parts[^1])
+        };
+    }
 
     private static Dictionary<Guid, List<ParentChildGroupDto>> BuildGroupMap(IReadOnlyList<Group> groups, IReadOnlySet<Guid> participantIds)
     {

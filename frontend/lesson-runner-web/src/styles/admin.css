@@ -1,0 +1,223 @@
+/* ============================================================================
+   PANEL ADMINISTRACJI
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   WYMAGA UWAGI
+   Lista zadań zamiast tablicy wyników. Stoi nad wskaźnikami, bo administrator
+   otwiera pulpit z pytaniem „czym się dziś zająć”.
+   -------------------------------------------------------------------------- */
+.attention-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+}
+
+.attention-panel-clear {
+  align-items: center;
+  color: var(--color-success);
+  display: flex;
+  gap: var(--space-3);
+}
+
+.attention-panel-clear div {
+  color: var(--text-mid);
+  display: grid;
+}
+
+.attention-panel-clear span {
+  color: var(--text-muted);
+  font-size: var(--text-small);
+}
+
+.attention-head {
+  align-items: baseline;
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+}
+
+.attention-head h2 {
+  font-size: var(--text-h2);
+  margin: 0;
+}
+
+.attention-list {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.attention-item {
+  align-items: center;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--color-muted);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.attention-item > div {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 200px;
+}
+
+.attention-item span {
+  color: var(--text-muted);
+  font-size: var(--text-small);
+}
+
+.attention-danger {
+  background: var(--color-danger-soft);
+  border-left-color: var(--color-danger);
+}
+
+.attention-danger > svg {
+  color: var(--color-danger);
+}
+
+.attention-warning {
+  border-left-color: var(--color-warning);
+}
+
+.attention-warning > svg {
+  color: var(--color-warning);
+}
+
+/* ----------------------------------------------------------------------------
+   SZCZEGÓŁY GRUPY
+   Zakładki zamiast sześciu sekcji na jednej stronie. Formularze wyjęte z wierszy
+   listy do okien dialogowych - wiersz zostaje wierszem.
+   -------------------------------------------------------------------------- */
+.group-tab-panel {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.session-row-compact {
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+
+.session-row-compact.is-selected {
+  background: var(--color-brand-soft);
+  border-color: var(--color-brand-border);
+}
+
+.session-row-compact .session-main {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 180px;
+}
+
+.session-row-compact .session-main small {
+  color: var(--text-muted);
+  font-size: var(--text-small);
+}
+
+.session-seq {
+  align-items: center;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  display: flex;
+  font-size: var(--text-small);
+  font-weight: 800;
+  height: 32px;
+  justify-content: center;
+  width: 32px;
+}
+
+/* Pasek operacji zbiorczych pojawia się dopiero po zaznaczeniu terminów. */
+.bulk-bar {
+  align-items: center;
+  background: var(--color-brand-soft);
+  border: 1px solid var(--color-brand-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--text-small);
+  font-weight: 700;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  position: sticky;
+  top: var(--space-3);
+  z-index: 5;
+}
+
+.bulk-bar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+/* ----------------------------------------------------------------------------
+   REJESTR BEZPIECZEŃSTWA
+   Incydenty i zgłoszenia techniczne. Wiersz jest klikalny w całości, bo sprawa
+   otwiera się do prowadzenia, a nie do samego czytania.
+   -------------------------------------------------------------------------- */
+.safety-list {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.safety-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--color-muted);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  width: 100%;
+}
+
+.safety-row:hover {
+  border-color: var(--color-accent);
+}
+
+.safety-row-main {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Opis skracamy do jednej linii: rejestr sluzy do wybrania sprawy, nie do jej
+   czytania. Pełna treść jest w oknie sprawy. */
+.safety-row-desc {
+  color: var(--text-muted);
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Sprawa pilna z definicji rodzaju albo z wysokiej wagi - patrz
+   `Incident.NeedsImmediateAttention()` w domenie. */
+.safety-row.is-urgent {
+  background: var(--color-danger-soft);
+  border-left-color: var(--color-danger);
+}

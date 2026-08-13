@@ -12,6 +12,7 @@ using LessonRunner.Application.Participants;
 using LessonRunner.Application.Parents;
 using LessonRunner.Application.Progress;
 using LessonRunner.Application.Safety;
+using LessonRunner.Application.Trials;
 using LessonRunner.Application.Scheduling;
 using LessonRunner.Infrastructure.Auth;
 using LessonRunner.Infrastructure.Audit;
@@ -29,6 +30,7 @@ using LessonRunner.Infrastructure.Persistence;
 using LessonRunner.Infrastructure.Progress;
 using LessonRunner.Infrastructure.Safety;
 using LessonRunner.Infrastructure.Scheduling;
+using LessonRunner.Infrastructure.Trials;
 using LessonRunner.Domain.Parents;
 using LessonRunner.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -70,6 +72,7 @@ public static class DependencyInjection
         services.AddScoped<IBillingRepository, EfBillingRepository>();
         services.AddScoped<INotificationRepository, EfNotificationRepository>();
         services.AddScoped<IIncidentRepository, EfIncidentRepository>();
+        services.AddScoped<ITrialRepository, EfTrialRepository>();
         services.AddScoped<ISupportTicketRepository, EfSupportTicketRepository>();
         services.Configure<SmtpOptions>(options =>
         {

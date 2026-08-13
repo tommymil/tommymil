@@ -24,8 +24,13 @@ public sealed record CalendarEventDto(
 /// </summary>
 public static class CalendarExport
 {
-    /// <summary>Domyślny czas trwania zajęć wg dokumentu koncepcyjnego.</summary>
-    public const int DefaultDurationMinutes = 90;
+    /// <summary>
+    /// Domyślny czas trwania zajęć: 45 minut + 5 minut przerwy + 45 minut.
+    ///
+    /// Wpis w kalendarzu obejmuje przerwę, bo rodzic i instruktor blokują sobie czas od
+    /// wejścia do wyjścia — 90 minut kończyło każde zajęcia pięć minut za wcześnie.
+    /// </summary>
+    public const int DefaultDurationMinutes = 95;
 
     public static byte[] ToIcs(IReadOnlyList<CalendarEventDto> events, string calendarName)
     {

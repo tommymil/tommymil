@@ -251,6 +251,85 @@ public sealed class ApiAuthorizationTests
             (await instructor.PutAsJsonAsync($"/api/schedule/{sessionId}/live-status", payload)).StatusCode);
     }
 
+    /// <summary>
+    /// Zakładanie konta opiekunowi tworzy użytkownika i wysyła zaproszenie, więc siedzi
+    /// na trasie administracyjnej. Instruktor dostający tu dostęp mógłby założyć konto
+    /// na dowolny adres i podpiąć do niego cudze dziecko.
+    /// </summary>
+    [Fact]
+    public async Task GuardianAccount_IsAdminOnly()
+    {
+        await using var factory = new ApiFactory();
+        var parent = await factory.CreateClientForAsync(UserRole.Parent, "rodzic8@test.local");
+        var instructor = await factory.CreateClientForAsync(UserRole.Instructor, "trener8@test.local");
+        var admin = await factory.CreateClientForAsync(UserRole.Admin, "admin8@test.local");
+        var route = $"/api/participants/{Guid.NewGuid()}/guardian-account";
+
+        Assert.Equal(
+            HttpStatusCode.Unauthorized,
+            (await factory.CreateClient().PostAsync(route, null)).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await parent.PostAsync(route, null)).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await instructor.PostAsync(route, null)).StatusCode);
+
+        // Admin przechodzi politykę - dziecka o takim Id po prostu nie ma.
+        Assert.Equal(HttpStatusCode.NotFound, (await admin.PostAsync(route, null)).StatusCode);
+    }
+
+    /// <summary>
+    /// Zgłoszenia na lekcję próbną to baza danych kontaktowych rodzin, które jeszcze nie są
+    /// klientami. Instruktor ma widzieć wyłącznie własne kandydatury (`/api/my-trials`),
+    /// a nie całą listę — dlatego prowadzenie sprawy siedzi na trasie administracyjnej.
+    /// </summary>
+    [Fact]
+    public async Task Trials_AreAdminOnly_ButInstructorHasOwnList()
+    {
+        await using var factory = new ApiFactory();
+        var parent = await factory.CreateClientForAsync(UserRole.Parent, "rodzic9@test.local");
+        var instructor = await factory.CreateClientForAsync(UserRole.Instructor, "trener9@test.local");
+        var admin = await factory.CreateClientForAsync(UserRole.Admin, "admin9@test.local");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, (await factory.CreateClient().GetAsync("/api/trials")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await parent.GetAsync("/api/trials")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await instructor.GetAsync("/api/trials")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await admin.GetAsync("/api/trials")).StatusCode);
+
+        // Własna lista instruktora - rodzic nadal poza nią.
+        Assert.Equal(HttpStatusCode.OK, (await instructor.GetAsync("/api/my-trials")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await parent.GetAsync("/api/my-trials")).StatusCode);
+    }
+
+    /// <summary>
+    /// Diagnoza jest podpisana nazwiskiem prowadzącego, więc zapisać ją można wyłącznie
+    /// do własnej lekcji. Cudza kandydatura wygląda tak samo jak nieistniejąca — sama
+    /// informacja „takie dziecko się do nas zgłosiło” jest już informacją o kliencie.
+    /// </summary>
+    [Fact]
+    public async Task TrialDiagnosis_IsLimitedToOwnTrial()
+    {
+        await using var factory = new ApiFactory();
+        var instructor = await factory.CreateClientForAsync(UserRole.Instructor, "trener10@test.local");
+        var admin = await factory.CreateClientForAsync(UserRole.Admin, "admin10@test.local");
+
+        var created = await admin.PostAsJsonAsync("/api/trials", new { childFirstName = "Jan", childLastName = "Kandydat" });
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var trial = await created.Content.ReadFromJsonAsync<TrialResponse>();
+
+        var payload = new
+        {
+            reading = "fluent",
+            computer = "basic",
+            programming = "none",
+            recommendation = "ready",
+        };
+
+        // Lekcja nie ma jeszcze przypisanego instruktora - dla tego prowadzącego jest cudza.
+        Assert.Equal(
+            HttpStatusCode.NotFound,
+            (await instructor.PutAsJsonAsync($"/api/my-trials/{trial!.Id}/diagnosis", payload)).StatusCode);
+    }
+
+    private sealed record TrialResponse(Guid Id);
+
     [Fact]
     public async Task Health_IsAnonymous_AndHidesInternals()
     {

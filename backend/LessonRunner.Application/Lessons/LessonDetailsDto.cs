@@ -13,7 +13,11 @@ public sealed record LessonDetailsDto(
     int DurationMinutes,
     IReadOnlyList<string> Tags,
     LessonProjectFilesDto ProjectFiles,
-    IReadOnlyList<LessonStepDto> Steps);
+    IReadOnlyList<LessonStepDto> Steps,
+    string? Objective = null,
+    IReadOnlyList<string>? SuccessCriteria = null,
+    IReadOnlyList<string>? Preparation = null,
+    IReadOnlyList<string>? Homework = null);
 
 public sealed record LessonProjectFilesDto(
     LessonProjectFileDto? Starter,

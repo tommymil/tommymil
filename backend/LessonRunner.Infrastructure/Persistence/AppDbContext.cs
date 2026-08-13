@@ -8,6 +8,7 @@ using LessonRunner.Infrastructure.Parents;
 using LessonRunner.Infrastructure.Progress;
 using LessonRunner.Infrastructure.Safety;
 using LessonRunner.Infrastructure.Scheduling;
+using LessonRunner.Infrastructure.Trials;
 using Microsoft.EntityFrameworkCore;
 
 namespace LessonRunner.Infrastructure.Persistence;
@@ -42,6 +43,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     internal DbSet<ProjectSubmissionDocument> ProjectSubmissions => Set<ProjectSubmissionDocument>();
     internal DbSet<IncidentDocument> Incidents => Set<IncidentDocument>();
     internal DbSet<SupportTicketDocument> SupportTickets => Set<SupportTicketDocument>();
+    internal DbSet<TrialLessonDocument> TrialLessons => Set<TrialLessonDocument>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -287,6 +289,32 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             // wartościowsza niż pojedyncze zgłoszenie.
             builder.HasIndex(ticket => ticket.ParticipantId);
             builder.HasIndex(ticket => ticket.Status);
+        });
+
+        modelBuilder.Entity<TrialLessonDocument>(builder =>
+        {
+            builder.ToTable("TrialLessons");
+            builder.HasKey(trial => trial.Id);
+            builder.Property(trial => trial.ChildFirstName).HasMaxLength(80).IsRequired();
+            builder.Property(trial => trial.ChildLastName).HasMaxLength(80).IsRequired();
+            builder.Property(trial => trial.GuardianName).HasMaxLength(160);
+            builder.Property(trial => trial.GuardianEmail).HasMaxLength(254);
+            builder.Property(trial => trial.GuardianPhone).HasMaxLength(40);
+            builder.Property(trial => trial.Source).HasMaxLength(120);
+            builder.Property(trial => trial.RequestNote).HasMaxLength(2000);
+            builder.Property(trial => trial.MeetingUrl).HasMaxLength(500);
+            builder.Property(trial => trial.Reading).HasMaxLength(20).IsRequired();
+            builder.Property(trial => trial.Computer).HasMaxLength(20).IsRequired();
+            builder.Property(trial => trial.Programming).HasMaxLength(20).IsRequired();
+            builder.Property(trial => trial.Recommendation).HasMaxLength(20).IsRequired();
+            builder.Property(trial => trial.RecommendedLevel).HasMaxLength(120);
+            builder.Property(trial => trial.DiagnosisNote).HasMaxLength(4000);
+            builder.Property(trial => trial.Status).HasMaxLength(20).IsRequired();
+            builder.Property(trial => trial.DeclineReason).HasMaxLength(1000);
+            // Dwa zapytania, które robimy naprawdę: „co czeka na decyzję" (status)
+            // i „moje lekcje próbne" (instruktor).
+            builder.HasIndex(trial => trial.Status);
+            builder.HasIndex(trial => trial.InstructorId);
         });
 
         modelBuilder.Entity<PricePlanDocument>(builder =>

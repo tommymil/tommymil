@@ -253,24 +253,56 @@ Format pliku importu (Markdown):
 ```text
 # Tytuł lekcji            -> tytuł (wymagany)
 Subject: / Level: / Tags: / Opis:   -> metadane (przed pierwszym krokiem)
+Czas: 95 min             -> deklarowana długość zajęć (45 + 5 przerwy + 45); nie trafia do konspektu (backend
+                            liczy czas z kroków), służy wyłącznie do sprawdzenia przy
+                            imporcie, czy suma kroków wypełnia zajęcia
+                            Linie nierozpoznane jako metadana trafiają do opisu i są
+                            zgłaszane jako uwaga - nic sprzed pierwszego kroku nie ginie.
+Cel: <zdanie>            -> cel dydaktyczny lekcji (`Lesson.Objective`); `Opis:` zostaje
+                            opisem na zewnątrz, `Cel:` mówi prowadzącemu, co jest najważniejsze
+
+### Po zajęciach dziecko potrafi   -> `Lesson.SuccessCriteria` (lista)
+### Przygotuj przed zajęciami      -> `Lesson.Preparation` (lista)
+### Zadanie domowe                 -> `Lesson.Homework` (lista)
+   Sekcje `###` **przed pierwszym `##`** dotyczą całej lekcji, nie kroku. Przy jednym
+   punkcie działają też jednolinijkowce `Zadanie domowe:` i `Przygotuj:`.
 
 ## [typ] Tytuł kroku (8 min)         -> krok; [typ] i (N min) opcjonalne
    typy: intro/review/concept/demo/guided/challenge/break/summary (lub PL: wprowadzenie, powtorka, ..., przerwa)
 
 ### Co robić teraz       -> punkty listy = czynności (skrypt)
 - czynność 1
+- [mów] kwestia do wypowiedzenia wprost (kokpit pokazuje ją jako cytat)
 
-### Wskazówki            -> [błąd]/[podpowiedź]/[tempo] + treść (domyślnie podpowiedź)
+### Wskazówki            -> [błąd]/[podpowiedź]/[tempo]/[dla szybszych]/[gdy nie zdążysz]
 - [błąd] częsty błąd
+- [dla szybszych] co dać tym, którzy skończyli
+- [gdy nie zdążysz] co wolno wyciąć
 
-### Materiały            -> linki, kod i tekstowe wrzutki
+### Materiały            -> linki, kod, obrazy i tekstowe wrzutki
 - [link] Etykieta | https://...
-- [kod] Język:
+- [kod] Etykieta | język:
   ```
   ...wieloliniowy pseudo-kod (wcięcia zachowane)...
   ```
+- ![Podpis](/uploads/screen.png)   -> wrzutka na ekran ucznia; adres musi być pełny
+                                      albo zaczynać się od `/` - import nie wysyła plików
 - Tekst bez tagu = tekstowa wrzutka na ekran
 ```
+
+`[mów]` zostaje prefiksem w treści punktu, a nie osobnym polem: kroki lekcji leżą w bazie
+jako JSON bez wersji, więc zamiana `Script: string[]` na listę obiektów wywróciłaby odczyt
+wszystkich zapisanych konspektów.
+
+Import rozdziela uwagi na dwie listy i każdą podaje z numerem linii:
+
+- **błędy** - fragment nie trafi do konspektu (nieznana sekcja `###`, treść poza sekcją,
+  blok kodu bez `[kod]`, `[link]` bez adresu). Import wymaga wtedy jawnego potwierdzenia.
+- **uwagi** - parser coś przyjął za autora (nieznany `[typ]` -> `concept`, nieznany tag
+  wskazówki -> `hint`, brak `(N min)` -> 5 min) albo ma zastrzeżenie do samego planu zajęć:
+  suma kroków rozjechana z `Czas:` o ponad 10%, blok pracy dłuższy niż 45 minut (zajęcia mają
+  kształt 45 + 5 przerwy + 45), brak kroku `intro`/`summary`, brak `Cel:`, krok dłuższy niż
+  20 minut. Blok = ciąg kroków między krokami `[przerwa]`.
 
 Grupy, grafik i obecność (system frekwencji):
 

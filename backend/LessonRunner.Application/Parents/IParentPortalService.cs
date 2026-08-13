@@ -23,4 +23,16 @@ public interface IParentPortalService
         bool receivesNotifications,
         CancellationToken cancellationToken);
     Task<bool> UnlinkAsync(Guid parentUserId, Guid participantId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Zakłada opiekunowi konto na podstawie danych zapisanych przy dziecku i od razu je wiąże.
+    ///
+    /// Dane opiekuna (imię, e-mail, relacja) leżą już na uczestniku, a mimo to założenie
+    /// dostępu wymagało przepisania adresu do panelu użytkowników i osobnego powiązania na
+    /// trzecim ekranie. Zwraca `null`, gdy dziecka nie ma.
+    /// </summary>
+    Task<GuardianAccountResultDto?> CreateGuardianAccountAsync(
+        Guid participantId,
+        Guid? actingUserId,
+        CancellationToken cancellationToken);
 }

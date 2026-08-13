@@ -150,11 +150,16 @@ Przy zajęciach z programowania to obszar generujący najwięcej realnych strat 
 | Profil dziecka: poziom, tempo, znajomość środowisk, ostatni ukończony etap, rekomendacja | ❌ `Participant` ma tylko wolne `Notes` |
 | Panel na żywo: kto potrzebuje pomocy / skończył / ma problem | ❌ |
 
-### 5. Struktura 90 minut
+### 5. Struktura zajęć: 45 + 5 przerwy + 45 (95 minut)
 
 Timery lekcji i kroku, lista etapów, odhaczanie czynności, osobne okno przerwy — ✅ to działa
-i jest mocną stroną kokpitu. Brakuje ❌ przypomnienia o przerwie wyliczanego z planu oraz
-❌ zapisu „czego nie zdążyliśmy” w formie strukturalnej (dziś tylko wolna notatka).
+i jest mocną stroną kokpitu. Import pilnuje kształtu: ✅ zgłasza blok pracy dłuższy niż
+45 minut i rozjazd sumy kroków z metadaną `Czas:`. Brakuje ❌ przypomnienia o przerwie
+wyliczanego z planu **w trakcie zajęć** oraz ❌ zapisu „czego nie zdążyliśmy” w formie
+strukturalnej (dziś tylko wolna notatka).
+
+Uwaga: dokument koncepcyjny mówi o 90 minutach, a realny kształt zajęć to 95 (45 + 5 + 45).
+Kod trzyma się 95 — `CalendarExport.DefaultDurationMinutes` i lint importu.
 
 ### 6. Komunikacja z rodzicami
 
@@ -322,6 +327,59 @@ i podany wszystkim trzem rolom. Najbardziej cierpiał na tym rodzic, czyli klien
   `Intl.PluralRules` — w interfejsie klienta widniało wcześniej `3 wersje/wersji`.
 - **Karta projektu** z datą, komentarzem instruktora i wyróżnioną najnowszą wersją; starsze
   w historii. Wcześniej był to rząd przycisków „Wersja 1, 2, 3” bez dat.
+- **Konto rodzica w seedzie** (`parent@lessonrunner.local`) wraz z powiązaniem do dwojga
+  dzieci. Portal był kompletny w kodzie, ale nie istniało konto, którym dałoby się na niego
+  wejść — a bez `ParentParticipantLink` sama rola pokazuje pusty ekran. Przy okazji
+  `SeedAsync` dokłada brakujące konta per e-mail, zamiast wychodzić przy pierwszym
+  istniejącym użytkowniku.
+- **Prowadzący podpisany rolą, nie adresem.** `User.DisplayName` przy koncie bez imienia
+  zwraca e-mail, więc służbowy adres pracownika trafiał do klienta szkoły jako „prowadzi…”.
+  Portal używa teraz własnego fallbacku „Instruktor”.
+### Lekcje próbne 1:1 (pozyskanie klienta)
+
+Osobny moduł od zgłoszenia do zapisanego uczestnika. Dziecko zgłasza się samo, my umawiamy
+je jeden na jeden z instruktorem i sprawdzamy, czy odnajdzie się w programowaniu.
+
+- **`TrialLesson` jest osobną encją, a nie grupą jednoosobową.** Grupa niosłaby ze sobą
+  uczestnika, a uczestnika nie ma i nie tworzymy go na zapas: dopóki rodzina nie zdecyduje,
+  dziecko nie ma po co pojawiać się w bazie uczestników, na listach frekwencji ani
+  w rozliczeniach. Dane kandydata żyją przy zgłoszeniu i przenoszą się przy zapisie.
+- **Diagnoza zamiast obecności.** Instruktor odpowiada na trzy pytania (czytanie, obsługa
+  komputera, doświadczenie) i stawia rekomendację. Bez kompletu odpowiedzi zgłoszenie nie
+  przechodzi do stanu „po lekcji”, a administracja nie może zapisać dziecka — decyzja bez
+  diagnozy byłaby zgadywaniem.
+- **Dwie trasy, dwie odpowiedzialności.** `/api/trials` (`AdminOnly`) prowadzi sprawę,
+  `/api/my-trials` (`StaffOnly`) daje instruktorowi wyłącznie własne kandydatury i zapis
+  diagnozy. Wspólna trasa oznaczałaby, że każdy prowadzący czyta dane kontaktowe wszystkich
+  rodzin, które kiedykolwiek się zgłosiły.
+- **Zapis do systemu** tworzy uczestnika z danych zgłoszenia, przenosi obserwacje z lekcji
+  do jego notatek i zakłada opiekunowi konto z zaproszeniem (ten sam przepływ co z karty
+  dziecka). Zgód RODO **nie przenosimy** — nikt ich jeszcze nie udzielił. Do grupy zapisuje
+  się osobno, bo poziom wynika z rekomendacji, a nie z faktu przyjęcia.
+- Konto opiekuna jest dodatkiem, nie warunkiem: gdy adres okaże się zajęty przez pracownika
+  albo poczta padnie, dziecko i tak zostaje uczestnikiem, a ekran mówi, czego zabrakło.
+- Ekrany są rozdzielone: „Lekcje próbne” u administratora (zgłoszenia / umówione / zamknięte)
+  i osobna pozycja u instruktora, poza grafikiem grup.
+
+- **Import konspektu przestał gubić treść po cichu.** Parser zwraca `issues` z numerem linii,
+  rozdzielone na błędy (fragment nie trafi do konspektu) i uwagi (parser coś przyjął za
+  autora). Import z błędami wymaga zaznaczenia zgody, a zgoda kasuje się po każdej edycji
+  pliku. Metadana `Czas:` pozwala sprawdzić, czy kroki wypełniają zajęcia; lint zgłasza brak
+  przerwy powyżej 60 min, brak `intro`/`summary`, krok dłuższy niż 20 min i brak celu lekcji.
+- **Format konspektu o to, czego nie było gdzie zapisać:** `Cel:` (`Lesson.Objective`) oraz
+  sekcje `### Po zajęciach dziecko potrafi` / `### Przygotuj przed zajęciami` /
+  `### Zadanie domowe` przed pierwszym krokiem. W kokpicie cel wisi przez całe zajęcia,
+  przygotowanie pokazuje się na pierwszym kroku, a kryteria i zadanie domowe na ostatnim.
+  Doszły wskazówki `[dla szybszych]` i `[gdy nie zdążysz]` (rozbicie `pace`, który mieszał
+  dwie przeciwne sytuacje), znacznik `[mów]` dla kwestii do wypowiedzenia wprost, rozdzielona
+  etykieta i język bloku kodu (`[kod] Etykieta | scratch:`) oraz obrazy `![podpis](url)`.
+  Lekcje leżą w bazie jako JSON, więc żadne z tych pól nie wymagało migracji.
+- **Konto opiekuna z karty dziecka** (`POST /api/participants/{id}/guardian-account`,
+  `AdminOnly`): zakłada konto z zapisanych danych opiekuna, wiąże je z dzieckiem i wysyła
+  zaproszenie — jednym przyciskiem zamiast przepisywania adresu do panelu użytkowników
+  i osobnego powiązania. Istniejące konto jest wyłącznie dowiązywane (drugie dziecko tej
+  samej rodziny nie dostaje kolejnego maila o ustawianiu hasła), a adres należący do
+  pracownika jest odrzucany.
 
 ### Kokpit instruktora
 
@@ -944,7 +1002,8 @@ dokumentu koncepcyjnego (historia terminów, obecności, log powiadomień, histo
       pobiera plik i importuje go u siebie.
     - Odwołane terminy zostają w pliku ze `STATUS:CANCELLED`, żeby przy ponownym imporcie
       znikały z kalendarza zamiast zostać tam jako duchy.
-    - Czas trwania to stała 90 minut z dokumentu koncepcyjnego — sesje nie niosą własnego czasu.
+    - Czas trwania to stała 95 minut (45 + 5 przerwy + 45) — sesje nie niosą własnego czasu.
+      Wpis w kalendarzu obejmuje przerwę, bo blokuje się czas od wejścia do wyjścia.
     - Zwijanie linii po 75 oktetach wg RFC 5545, bez rozcinania znaków wielobajtowych
       (inaczej polskie znaki w nazwach grup rozsypywały import w części kalendarzy).
 

@@ -80,7 +80,11 @@ public sealed class LessonQueries(ILessonRepository lessonRepository) : ILessonQ
                     step.Notes.Select(note => new LessonNoteDto(
                         note.Kind.ToString().ToLowerInvariant(),
                         note.Text)).ToList()))
-                .ToList());
+                .ToList(),
+            lesson.Objective,
+            lesson.SuccessCriteria,
+            lesson.Preparation,
+            lesson.Homework);
     }
 
     private static LessonProjectFilesDto ToProjectFiles(LessonProjectFiles projectFiles)

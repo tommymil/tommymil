@@ -19,6 +19,7 @@ using LessonRunner.Application.Participants;
 using LessonRunner.Application.Parents;
 using LessonRunner.Application.Progress;
 using LessonRunner.Application.Safety;
+using LessonRunner.Application.Trials;
 using LessonRunner.Application.Scheduling;
 using LessonRunner.Application.Search;
 using LessonRunner.Api.Auditing;
@@ -198,10 +199,41 @@ if (!app.Environment.IsDevelopment())
     // Za reverse proxy (nginx w docker compose) prawdziwy adres klienta i schemat przychodzą
     // w nagłówkach X-Forwarded-*. Bez tego rate limiter widziałby jeden adres IP proxy
     // dla wszystkich użytkowników i blokowałby całą szkołę po kilku próbach logowania.
-    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    //
+    // Włączenie nagłówków nie wystarczy. Domyślnie ASP.NET Core ufa wyłącznie pętli zwrotnej,
+    // a nginx w compose ma adres z sieci bridge (172.x) - jego X-Forwarded-For był więc
+    // po cichu odrzucany i limit „10 prób na IP" działał jak jeden limit na całą instalację.
+    // Zaufane sieci trzeba wskazać wprost, ale *tylko* je: przy pustej liście dowolny klient
+    // podszyłby się pod cudzy adres samym nagłówkiem i obszedłby limit logowania.
+    var forwardedOptions = new ForwardedHeadersOptions
     {
-        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-    });
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+        // Jeden przeskok - między aplikacją a klientem stoi dokładnie jedno nasze proxy.
+        ForwardLimit = 1
+    };
+
+    forwardedOptions.KnownIPNetworks.Clear();
+    forwardedOptions.KnownProxies.Clear();
+
+    // Domyślnie adresy prywatne i pętla zwrotna: reverse proxy zawsze stoi pod takim adresem,
+    // a kontener API nie jest wystawiany na zewnątrz (patrz docker-compose.yml). Gdy proxy
+    // siedzi gdzie indziej, zawęź listę przez Security:TrustedProxyNetworks.
+    var trustedProxyNetworks = app.Configuration
+        .GetSection("Security:TrustedProxyNetworks")
+        .Get<string[]>() ?? ["127.0.0.1/8", "::1/128", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"];
+
+    foreach (var candidate in trustedProxyNetworks)
+    {
+        if (!System.Net.IPNetwork.TryParse(candidate, out var network))
+        {
+            throw new InvalidOperationException(
+                $"Security:TrustedProxyNetworks zawiera nieprawidłowy zakres CIDR: '{candidate}'.");
+        }
+
+        forwardedOptions.KnownIPNetworks.Add(network);
+    }
+
+    app.UseForwardedHeaders(forwardedOptions);
 
     // TLS zwykle kończy się na proxy, a kontener API mówi po HTTP. Wymuszanie HTTPS
     // wewnątrz aplikacji dawałoby wtedy pętlę przekierowań, dlatego jest to opcja włączana
@@ -787,6 +819,40 @@ participants.MapPost("/{id:guid}/archive", async (Guid id, IParticipantService p
 participants.MapPost("/{id:guid}/restore", async (Guid id, IParticipantService participantService, CancellationToken cancellationToken) =>
     await participantService.SetArchivedAsync(id, false, cancellationToken) ? Results.NoContent() : Results.NotFound())
 .WithName("RestoreParticipant");
+
+// Konto opiekuna zakładane z karty dziecka. Dane opiekuna są przy uczestniku, więc
+// przepisywanie adresu do panelu użytkowników i osobne powiązanie na trzecim ekranie
+// było wyłącznie pracą ręczną - i okazją do literówki w adresie.
+participants.MapPost("/{id:guid}/guardian-account", async (
+    Guid id,
+    ClaimsPrincipal principal,
+    IParentPortalService parentPortalService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var result = await parentPortalService.CreateGuardianAccountAsync(id, GetCurrentUserId(principal), cancellationToken);
+
+        if (result is null)
+        {
+            return Results.NotFound();
+        }
+
+        // Konto i powiązanie powstały nawet wtedy, gdy poczta nie wyszła. Zwracamy 200
+        // z informacją o błędzie wysyłki, bo operacja się udała - brakuje tylko maila,
+        // który admin może ponowić z panelu użytkowników.
+        return Results.Ok(result);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Results.Conflict(new { error = ex.Message });
+    }
+})
+.WithName("CreateGuardianAccount");
 
 participants.MapPost("/{id:guid}/anonymize", async (Guid id, IParticipantService participantService, CancellationToken cancellationToken) =>
     await participantService.AnonymizeAsync(id, cancellationToken) ? Results.NoContent() : Results.NotFound())
@@ -1430,6 +1496,142 @@ safety.MapPut("/tickets/{id:guid}", async (
     }
 })
 .WithName("UpdateSupportTicket");
+
+// ---------------------------------------------------------------------------------------
+// Lekcje próbne 1:1 — droga od zgłoszenia do zapisanego uczestnika.
+//
+// Dwie grupy tras, bo to dwie różne odpowiedzialności. Administracja prowadzi sprawę:
+// przyjmuje zgłoszenie, umawia termin i decyduje o przyjęciu dziecka. Instruktor robi
+// jedno — wypełnia diagnozę po swojej lekcji — i widzi wyłącznie własne kandydatury.
+// Wspólna trasa `StaffOnly` oznaczałaby, że każdy prowadzący czyta dane kontaktowe
+// wszystkich rodzin, które kiedykolwiek się do nas zgłosiły.
+// ---------------------------------------------------------------------------------------
+var trials = app.MapGroup("/api/trials").WithTags("Trials").RequireAuthorization("AdminOnly")
+    .AddEndpointFilter<AuditEndpointFilter>();
+
+trials.MapGet("/", async (ITrialService trialService, CancellationToken cancellationToken) =>
+    Results.Ok(await trialService.GetBoardAsync(cancellationToken)))
+.WithName("GetTrials");
+
+trials.MapGet("/{id:guid}", async (Guid id, ITrialService trialService, CancellationToken cancellationToken) =>
+{
+    var trial = await trialService.GetAsync(id, instructorId: null, cancellationToken);
+    return trial is null ? Results.NotFound() : Results.Ok(trial);
+})
+.WithName("GetTrialById");
+
+trials.MapPost("/", async (CreateTrialDto dto, ITrialService trialService, CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var trial = await trialService.CreateAsync(dto, cancellationToken);
+        return Results.Created($"/api/trials/{trial.Id}", trial);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("CreateTrial");
+
+trials.MapPut("/{id:guid}/schedule", async (
+    Guid id,
+    ScheduleTrialDto dto,
+    ITrialService trialService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var trial = await trialService.ScheduleAsync(id, dto, cancellationToken);
+        return trial is null ? Results.NotFound() : Results.Ok(trial);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Results.Conflict(new { error = ex.Message });
+    }
+})
+.WithName("ScheduleTrial");
+
+trials.MapPost("/{id:guid}/enroll", async (
+    Guid id,
+    EnrollTrialDto dto,
+    ClaimsPrincipal principal,
+    ITrialService trialService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var result = await trialService.EnrollAsync(id, dto, GetCurrentUserId(principal), cancellationToken);
+        return result is null ? Results.NotFound() : Results.Ok(result);
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Results.Conflict(new { error = ex.Message });
+    }
+})
+.WithName("EnrollTrial");
+
+trials.MapPost("/{id:guid}/decline", async (
+    Guid id,
+    DeclineTrialDto dto,
+    ITrialService trialService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var trial = await trialService.DeclineAsync(id, dto, cancellationToken);
+        return trial is null ? Results.NotFound() : Results.Ok(trial);
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Results.Conflict(new { error = ex.Message });
+    }
+})
+.WithName("DeclineTrial");
+
+trials.MapDelete("/{id:guid}", async (Guid id, ITrialService trialService, CancellationToken cancellationToken) =>
+    await trialService.DeleteAsync(id, cancellationToken) ? Results.NoContent() : Results.NotFound())
+.WithName("DeleteTrial");
+
+var myTrials = app.MapGroup("/api/my-trials").WithTags("Trials").RequireAuthorization("StaffOnly")
+    .AddEndpointFilter<AuditEndpointFilter>();
+
+myTrials.MapGet("/", async (
+    ClaimsPrincipal principal,
+    ITrialService trialService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+    return userId is null
+        ? Results.Unauthorized()
+        : Results.Ok(await trialService.GetInstructorBoardAsync(userId.Value, cancellationToken));
+})
+.WithName("GetMyTrials");
+
+myTrials.MapPut("/{id:guid}/diagnosis", async (
+    Guid id,
+    SaveTrialDiagnosisDto dto,
+    ClaimsPrincipal principal,
+    ITrialService trialService,
+    CancellationToken cancellationToken) =>
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    // Administrator bywa prowadzącym, ale i tak diagnozę zapisuje wyłącznie do swojej
+    // lekcji - inaczej wpis „stwierdził X" nosiłby nazwisko osoby, której tam nie było.
+    var trial = await trialService.SaveDiagnosisAsync(id, dto, userId.Value, userId.Value, cancellationToken);
+    return trial is null ? Results.NotFound() : Results.Ok(trial);
+})
+.WithName("SaveTrialDiagnosis");
 
 var searchGroup = app.MapGroup("/api/search").WithTags("Search").RequireAuthorization("StaffOnly");
 

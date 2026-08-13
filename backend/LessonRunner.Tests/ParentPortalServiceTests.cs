@@ -1,3 +1,5 @@
+using LessonRunner.Application.Auth;
+using LessonRunner.Infrastructure.Auth;
 using LessonRunner.Application.Billing;
 using LessonRunner.Application.Groups;
 using LessonRunner.Application.Parents;
@@ -87,6 +89,9 @@ public sealed class ParentPortalServiceTests
         Assert.DoesNotContain(portal.Children, child => child.ParticipantId == ola.Id);
         Assert.Single(portal.Schedule);
         Assert.Equal("https://meet.google.com/abc-defg-hij", portal.Schedule[0].MeetingUrl);
+        // Konto instruktora nie ma wpisanego imienia. Rodzic ma zobaczyć rolę, a nie
+        // służbowy adres e-mail pracownika - `DisplayName` zwróciłby tu „i@example.com".
+        Assert.Equal("Instruktor", portal.Schedule[0].InstructorName);
         Assert.Single(portal.Attendance);
         Assert.Equal(100, portal.Attendance[0].RatePercent);
     }
@@ -314,5 +319,147 @@ public sealed class ParentPortalServiceTests
             new InMemoryBillingRepository());
 
         await Assert.ThrowsAsync<ArgumentException>(() => service.LinkAsync(admin.Id, child.Id, null, true, true, CancellationToken.None));
+    }
+
+    /// <summary>
+    /// Konto opiekuna z karty dziecka: powstaje użytkownik z roli `Parent`, powiązanie
+    /// i zaproszenie - wszystko z danych, które są już przy uczestniku.
+    /// </summary>
+    [Fact]
+    public async Task CreateGuardianAccountAsync_CreatesLinksAndInvites()
+    {
+        var fixture = new GuardianAccountFixture();
+        var child = new Participant
+        {
+            FirstName = "Zofia",
+            LastName = "Kowalska",
+            GuardianName = "Katarzyna Kowalska",
+            GuardianEmail = "Katarzyna.Kowalska@Example.com",
+            GuardianPhone = "600500600",
+            GuardianRelation = "mama"
+        };
+        await fixture.Participants.AddAsync(child, CancellationToken.None);
+
+        var result = await fixture.Service.CreateGuardianAccountAsync(child.Id, actingUserId: null, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.True(result!.Created);
+        Assert.True(result.InvitationSent);
+        // Adres normalizujemy - inaczej ten sam opiekun wpisany raz z wielkiej litery
+        // dostałby drugie konto przy drugim dziecku.
+        Assert.Equal("katarzyna.kowalska@example.com", result.Email);
+
+        var created = await fixture.Users.GetByIdAsync(result.ParentUserId, CancellationToken.None);
+        Assert.Equal(UserRole.Parent, created!.Role);
+        Assert.Equal("Katarzyna", created.FirstName);
+        Assert.Equal("Kowalska", created.LastName);
+
+        var links = await fixture.Links.ListByParentAsync(result.ParentUserId, CancellationToken.None);
+        Assert.Single(links);
+        Assert.Equal(child.Id, links[0].ParticipantId);
+        Assert.Equal("mama", links[0].Relation);
+        Assert.Single(fixture.Emails.Messages);
+    }
+
+    /// <summary>
+    /// Drugie dziecko tej samej rodziny: konto już jest, więc dopinamy wyłącznie powiązanie.
+    /// Ponowny mail z linkiem do ustawiania hasła wyglądałby jak próba przejęcia konta.
+    /// </summary>
+    [Fact]
+    public async Task CreateGuardianAccountAsync_ReusesExistingAccount_WithoutSecondInvitation()
+    {
+        var fixture = new GuardianAccountFixture();
+        var first = new Participant
+        {
+            FirstName = "Zofia",
+            LastName = "Kowalska",
+            GuardianName = "Katarzyna Kowalska",
+            GuardianEmail = "katarzyna@example.com"
+        };
+        var second = new Participant
+        {
+            FirstName = "Jan",
+            LastName = "Kowalski",
+            GuardianName = "Katarzyna Kowalska",
+            GuardianEmail = "katarzyna@example.com"
+        };
+        await fixture.Participants.AddAsync(first, CancellationToken.None);
+        await fixture.Participants.AddAsync(second, CancellationToken.None);
+
+        var created = await fixture.Service.CreateGuardianAccountAsync(first.Id, null, CancellationToken.None);
+        var reused = await fixture.Service.CreateGuardianAccountAsync(second.Id, null, CancellationToken.None);
+
+        Assert.False(reused!.Created);
+        Assert.False(reused.InvitationSent);
+        Assert.Equal(created!.ParentUserId, reused.ParentUserId);
+        Assert.Equal(2, (await fixture.Links.ListByParentAsync(reused.ParentUserId, CancellationToken.None)).Count);
+        Assert.Single(fixture.Emails.Messages);
+    }
+
+    [Fact]
+    public async Task CreateGuardianAccountAsync_RejectsChildWithoutGuardianEmail()
+    {
+        var fixture = new GuardianAccountFixture();
+        var child = new Participant { FirstName = "Maja", LastName = "Wiśniewska", GuardianName = "Ewa Wiśniewska" };
+        await fixture.Participants.AddAsync(child, CancellationToken.None);
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => fixture.Service.CreateGuardianAccountAsync(child.Id, null, CancellationToken.None));
+    }
+
+    /// <summary>
+    /// Adres należący do instruktora albo administratora. Podniesienie takiego konta do
+    /// roli rodzica albo dopięcie mu dziecka po cichu zmieniłoby zakres uprawnień pracownika.
+    /// </summary>
+    [Fact]
+    public async Task CreateGuardianAccountAsync_RejectsEmailOfStaffAccount()
+    {
+        var fixture = new GuardianAccountFixture();
+        await fixture.Users.AddAsync(
+            new User { Email = "trener@example.com", PasswordHash = "h", Role = UserRole.Instructor },
+            CancellationToken.None);
+        var child = new Participant
+        {
+            FirstName = "Antoni",
+            LastName = "Nowak",
+            GuardianName = "Tomasz Trener",
+            GuardianEmail = "trener@example.com"
+        };
+        await fixture.Participants.AddAsync(child, CancellationToken.None);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => fixture.Service.CreateGuardianAccountAsync(child.Id, null, CancellationToken.None));
+    }
+
+    private sealed class GuardianAccountFixture
+    {
+        public InMemoryUserRepository Users { get; } = new();
+        public InMemoryParticipantRepository Participants { get; } = new();
+        public InMemoryParentPortalRepository Links { get; } = new();
+        public FakeEmailSender Emails { get; } = new();
+
+        public ParentPortalService Service { get; }
+
+        public GuardianAccountFixture()
+        {
+            var hasher = new Pbkdf2PasswordHasher();
+
+            Service = new ParentPortalService(
+                Links,
+                Users,
+                Participants,
+                new InMemoryGroupRepository(),
+                new InMemoryLessonRepository(),
+                new InMemoryBillingRepository(),
+                progressRepository: null,
+                new UserAdminService(Users, hasher),
+                new AccountTokenService(
+                    Users,
+                    new InMemoryAccountTokenRepository(),
+                    hasher,
+                    Emails,
+                    new InMemoryNotificationRepository(),
+                    new AppOptions { PublicOrigin = "https://zajecia.test" }));
+        }
     }
 }

@@ -12,6 +12,7 @@ using LessonRunner.Application.Parents;
 using LessonRunner.Application.Operations;
 using LessonRunner.Application.Progress;
 using LessonRunner.Application.Safety;
+using LessonRunner.Application.Trials;
 using LessonRunner.Application.Scheduling;
 using LessonRunner.Application.Search;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,6 +44,7 @@ public static class DependencyInjection
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<ISearchService, SearchService>();
         services.AddScoped<ISafetyService, SafetyService>();
+        services.AddScoped<ITrialService, TrialService>();
 
         return services;
     }

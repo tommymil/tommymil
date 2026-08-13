@@ -1,0 +1,305 @@
+/* ============================================================================
+   TOKENY PROJEKTOWE
+   ----------------------------------------------------------------------------
+   Dwie warstwy, celowo rozdzielone:
+
+   1. Warstwa bazowa (--slate-*, --brand-*, --amber-* ...) to sama paleta.
+      Nazwy mówią o kolorze, nie o zastosowaniu. Nie używamy jej bezpośrednio
+      w komponentach.
+   2. Warstwa semantyczna (--surface, --color-danger, --text-muted ...) mowi
+      o roli. Komponenty sięgają wyłącznie tutaj.
+
+   Dzięki temu tryb ciemny i skóra portalu rodzica przedefiniowują WYŁĄCZNIE
+   warstwę semantyczną. Wcześniej kolory były wpisane wprost w regułach widoków,
+   więc każdy nowy komponent wymagał osobnej łatki `:root[data-theme="dark"] .x`.
+   ========================================================================== */
+
+:root {
+  /* --- warstwa bazowa: neutralne ------------------------------------------ */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #556070;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+
+  /* --- warstwa bazowa: marka (panel roboczy) ------------------------------ */
+  --brand-50: #eef2ff;
+  --brand-100: #e0e7ff;
+  --brand-200: #c7d2fe;
+  --brand-300: #a5b4fc;
+  --brand-400: #818cf8;
+  --brand-500: #6366f1;
+  --brand-600: #4f46e5;
+  --brand-700: #4338ca;
+  --brand-900: #312e81;
+
+  /* --- warstwa bazowa: akcent ciepły (portal rodzica) --------------------- */
+  --accent-50: #fff7ed;
+  --accent-100: #ffedd5;
+  --accent-200: #fed7aa;
+  --accent-300: #fdba74;
+  --accent-500: #f97316;
+  --accent-600: #ea580c;
+  --accent-700: #c2410c;
+
+  /* --- warstwa bazowa: semafory ------------------------------------------ */
+  --green-50: #dcfce7;
+  --green-500: #16a34a;
+  --green-700: #15803d;
+  --amber-50: #fef3c7;
+  --amber-100: #fffbeb;
+  --amber-500: #d97706;
+  --amber-700: #b45309;
+  --rose-50: #fff1f2;
+  --rose-200: #fecdd3;
+  --rose-500: #e11d48;
+  --rose-700: #be123c;
+  --sky-50: #f0f9ff;
+  --sky-500: #0284c7;
+  --sky-700: #0369a1;
+  --violet-50: #f5f3ff;
+  --violet-500: #7c3aed;
+  --violet-700: #6d28d9;
+
+  /* --- skala odstepow: 7 wartosci zamiast 16 ------------------------------ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* --- promienie i cienie ------------------------------------------------- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+  --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-2: 0 8px 24px rgba(15, 23, 42, 0.06);
+  --shadow-3: 0 18px 48px rgba(15, 23, 42, 0.16);
+
+  /* --- typografia --------------------------------------------------------- */
+  --font-ui: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --text-display: 32px;
+  --text-h1: 26px;
+  --text-h2: 19px;
+  --text-body: 15px;
+  --text-small: 13px;
+  --text-label: 12px;
+
+  /* --- warstwa semantyczna: powierzchnie ---------------------------------- */
+  --bg: var(--slate-100);
+  --surface: #ffffff;
+  --surface-2: var(--slate-50);
+  --surface-raised: #ffffff;
+  --surface-sunken: var(--slate-100);
+  --border: var(--slate-200);
+  --border-strong: var(--slate-300);
+  --overlay-scrim: rgba(15, 23, 42, 0.45);
+
+  /* --- warstwa semantyczna: tekst ----------------------------------------- */
+  /* --text-muted celowo #556070, a nie #64748b: metadane są wyświetlane
+     w 12-13 px, a #64748b na --surface-2 dawał około 4,3:1 (poniżej progu). */
+  --text: var(--slate-900);
+  --text-strong: var(--slate-800);
+  --text-mid: var(--slate-700);
+  --text-subtle: #475569;
+  --text-muted: var(--slate-600);
+  --text-on-brand: #ffffff;
+
+  /* --- warstwa semantyczna: marka i akcent -------------------------------- */
+  --color-brand: var(--brand-600);
+  --color-brand-strong: var(--brand-700);
+  --color-brand-soft: var(--brand-50);
+  --color-brand-border: var(--brand-200);
+  --color-accent: var(--accent-500);
+  --color-accent-strong: var(--accent-700);
+  --color-accent-soft: var(--accent-50);
+
+  /* --- warstwa semantyczna: semafory -------------------------------------- */
+  --color-success: var(--green-700);
+  --color-success-soft: var(--green-50);
+  --color-warning: var(--amber-700);
+  --color-warning-soft: var(--amber-50);
+  --color-danger: var(--rose-700);
+  --color-danger-soft: var(--rose-50);
+  --color-danger-border: var(--rose-200);
+  --color-info: var(--sky-700);
+  --color-info-soft: var(--sky-50);
+  --color-credit: var(--violet-700);
+  --color-credit-soft: var(--violet-50);
+  --color-muted: var(--slate-500);
+  --color-muted-soft: var(--slate-100);
+
+  /* --- fokus --------------------------------------------------------------
+     Jeden pierścień dla całej aplikacji. Wcześniej :focus-visible miał regułę
+     dla dwóch elementów, reszta polegała na domyślnym obramowaniu przeglądarki
+     — na kolorowych tłach często niewidocznym. */
+  --focus-ring: var(--brand-600);
+  --focus-ring-offset: 2px;
+
+  /* --- statusy terminu ----------------------------------------------------
+     Dziesięć statusów z domeny. Własne tokeny, żeby ten sam status wyglądał
+     identycznie w kalendarzu, w grupie, w kokpicie i w portalu rodzica. */
+  --status-planned: var(--brand-700);
+  --status-planned-soft: var(--brand-50);
+  --status-confirmed: var(--sky-700);
+  --status-confirmed-soft: var(--sky-50);
+  --status-inprogress: var(--amber-700);
+  --status-inprogress-soft: var(--amber-50);
+  --status-completed: var(--green-700);
+  --status-completed-soft: var(--green-50);
+  --status-cancelled: var(--rose-700);
+  --status-cancelled-soft: var(--rose-50);
+  --status-technical: var(--amber-700);
+  --status-technical-soft: var(--amber-100);
+  --status-pending: var(--slate-600);
+  --status-pending-soft: var(--slate-100);
+
+  /* --- statusy obecności -------------------------------------------------- */
+  --attend-present: var(--green-700);
+  --attend-present-soft: var(--green-50);
+  --attend-late: var(--amber-700);
+  --attend-late-soft: var(--amber-50);
+  --attend-absent: var(--rose-700);
+  --attend-absent-soft: var(--rose-50);
+  --attend-neutral: var(--slate-600);
+  --attend-neutral-soft: var(--slate-100);
+
+  /* --- znaczniki pracy na żywo (kokpit) ----------------------------------- */
+  --live-working: var(--slate-600);
+  --live-working-soft: var(--slate-100);
+  --live-help: var(--amber-700);
+  --live-help-soft: var(--amber-50);
+  --live-done: var(--green-700);
+  --live-done-soft: var(--green-50);
+  --live-blocked: var(--rose-700);
+  --live-blocked-soft: var(--rose-50);
+
+  color-scheme: light;
+}
+
+/* ============================================================================
+   TRYB CIEMNY
+   Przedefiniowuje wyłącznie warstwę semantyczną. Żadnych łatek per komponent.
+   ========================================================================== */
+:root[data-theme="dark"] {
+  --bg: #0b1220;
+  --surface: #151c2c;
+  --surface-2: #1b2333;
+  --surface-raised: #1b2333;
+  --surface-sunken: #0f1626;
+  --border: #2a3346;
+  --border-strong: #3a4560;
+  --overlay-scrim: rgba(3, 7, 18, 0.7);
+
+  --text: #e6e8ee;
+  --text-strong: #f3f5f9;
+  --text-mid: #cbd5e1;
+  --text-subtle: #9aa7bd;
+  --text-muted: #9aa7bd;
+
+  --color-brand: var(--brand-400);
+  --color-brand-strong: var(--brand-300);
+  --color-brand-soft: rgba(99, 102, 241, 0.18);
+  --color-brand-border: rgba(129, 140, 248, 0.4);
+  --color-accent: var(--accent-300);
+  --color-accent-strong: var(--accent-200);
+  --color-accent-soft: rgba(249, 115, 22, 0.16);
+
+  --color-success: #86efac;
+  --color-success-soft: rgba(22, 163, 74, 0.18);
+  --color-warning: #fcd34d;
+  --color-warning-soft: rgba(245, 158, 11, 0.16);
+  --color-danger: #fca5a5;
+  --color-danger-soft: rgba(244, 63, 94, 0.16);
+  --color-danger-border: rgba(244, 63, 94, 0.34);
+  --color-info: #7dd3fc;
+  --color-info-soft: rgba(56, 189, 248, 0.16);
+  --color-credit: #c4b5fd;
+  --color-credit-soft: rgba(124, 58, 237, 0.2);
+  --color-muted: #9aa7bd;
+  --color-muted-soft: rgba(148, 163, 184, 0.14);
+
+  --focus-ring: var(--brand-300);
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-3: 0 18px 48px rgba(0, 0, 0, 0.55);
+
+  --status-planned: var(--brand-300);
+  --status-planned-soft: rgba(99, 102, 241, 0.2);
+  --status-confirmed: #7dd3fc;
+  --status-confirmed-soft: rgba(56, 189, 248, 0.16);
+  --status-inprogress: #fcd34d;
+  --status-inprogress-soft: rgba(245, 158, 11, 0.16);
+  --status-completed: #86efac;
+  --status-completed-soft: rgba(22, 163, 74, 0.18);
+  --status-cancelled: #fca5a5;
+  --status-cancelled-soft: rgba(244, 63, 94, 0.16);
+  --status-technical: #fcd34d;
+  --status-technical-soft: rgba(245, 158, 11, 0.2);
+  --status-pending: #9aa7bd;
+  --status-pending-soft: rgba(148, 163, 184, 0.14);
+
+  --attend-present: #86efac;
+  --attend-present-soft: rgba(22, 163, 74, 0.18);
+  --attend-late: #fcd34d;
+  --attend-late-soft: rgba(245, 158, 11, 0.16);
+  --attend-absent: #fca5a5;
+  --attend-absent-soft: rgba(244, 63, 94, 0.16);
+  --attend-neutral: #9aa7bd;
+  --attend-neutral-soft: rgba(148, 163, 184, 0.14);
+
+  --live-working: #9aa7bd;
+  --live-working-soft: rgba(148, 163, 184, 0.14);
+  --live-help: #fcd34d;
+  --live-help-soft: rgba(245, 158, 11, 0.16);
+  --live-done: #86efac;
+  --live-done-soft: rgba(22, 163, 74, 0.18);
+  --live-blocked: #fca5a5;
+  --live-blocked-soft: rgba(244, 63, 94, 0.16);
+
+  color-scheme: dark;
+}
+
+/* ============================================================================
+   SKÓRA PORTALU RODZICA
+   Ten sam system tokenów, inna warstwa semantyczna. Rodzic jest klientem,
+   wchodzi rzadko i najczęściej z telefonu — stąd cieplejsza paleta, większe
+   promienie i większy tekst bazowy. Panel roboczy zostaje chłodny i gęsty.
+   ========================================================================== */
+[data-skin="parent"] {
+  --bg: #fffbf7;
+  --surface-2: var(--accent-50);
+  --color-brand: var(--accent-600);
+  --color-brand-strong: var(--accent-700);
+  --color-brand-soft: var(--accent-50);
+  --color-brand-border: var(--accent-200);
+  --focus-ring: var(--accent-600);
+  --text-body: 16px;
+  --text-small: 14px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
+}
+
+:root[data-theme="dark"] [data-skin="parent"] {
+  --bg: #14100c;
+  --surface: #1e1813;
+  --surface-2: #261e18;
+  --surface-raised: #261e18;
+  --border: #3a2f26;
+  --color-brand: var(--accent-300);
+  --color-brand-strong: var(--accent-200);
+  --color-brand-soft: rgba(249, 115, 22, 0.16);
+  --color-brand-border: rgba(253, 186, 116, 0.36);
+  --focus-ring: var(--accent-300);
+}

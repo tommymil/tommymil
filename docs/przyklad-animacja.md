@@ -1,15 +1,30 @@
 # Animacja i sterowanie postacią
 Subject: Scratch
 Level: Poziom 1 - 8-10 lat
+Czas: 95 min
 Tags: Kostiumy, Sterowanie, Dźwięk, Efekty
 Opis: Dzieci wybierają taneczną postać, sterują nią strzałkami i robią mini-układ choreograficzny.
+Cel: Dziecko steruje postacią z klawiatury i rozumie, że animacja to zmiana kostiumów w czasie.
 
-## [intro] Powitanie, obecność i demo (10 min)
+### Po zajęciach dziecko potrafi
+- ustawić styl obrotu tak, żeby postać nie kładła się na plecach
+- zbudować sterowanie czterema strzałkami
+- złożyć sekwencję kostiumów w prosty układ taneczny
+
+### Przygotuj przed zajęciami
+- otwarty Scratch z pustym projektem na Twoim ekranie do demo
+- sprawdzony dźwięk — na tej lekcji gra muzyka
+- gotowa tańcząca postać do pokazania na starcie
+
+### Zadanie domowe
+- pokaż rodzicom swój układ taneczny i naucz ich sterowania strzałkami
+
+## [intro] Powitanie, obecność i demo (15 min)
 
 ### Co robić teraz
-- **Powitanie:** przywitaj się z grupą i zbuduj energię na start („Cześć! Gotowi dziś programować?").
+- [mów] Cześć! Gotowi dziś programować?
 - **Sprawdzenie obecności:** odczytaj listę uczestników i zaznacz obecnych.
-- **Co dziś robimy:** krótko zapowiedz temat zajęć — hasło: „Twoja postać zacznie chodzić, mówić i tańczyć — bo TY jej każesz!".
+- [mów] Twoja postać zacznie chodzić, mówić i tańczyć — bo TY jej każesz!
 - **DEMO:** pokaż gotową, tańczącą postać sterowaną klawiaturą — „za chwilę zrobicie to samo".
 - Wybierz duszka z kilkoma kostiumami — świetnie sprawdzają się postacie z kategorii „Taniec" (Cassy Dancing, Champ99, Anina Dance, Ballerina). Domyślny kot też ma 2 kostiumy i wystarczy na start.
 - Dodaj tło: zakładka Scena (prawy dolny róg) → ikona wyboru tła.
@@ -33,13 +48,13 @@ Opis: Dzieci wybierają taneczną postać, sterują nią strzałkami i robią mi
 
 ### Materiały
 - [link] Otwórz Scratch - nowy projekt | https://scratch.mit.edu/projects/editor
-- [kod] Scratch:
+- [kod] Start i styl obrotu | scratch:
   ```
   kiedy kliknięto zieloną flagę
     ustaw styl obrotu na [lewo-prawo]
     idź do x: (0) y: (0)
   ```
-- [kod] Scratch:
+- [kod] Sterowanie strzałkami — wersja A | scratch:
   ```
   kiedy klawisz [strzałka w prawo] naciśnięty
     ustaw kierunek na (90)
@@ -67,9 +82,11 @@ Opis: Dzieci wybierają taneczną postać, sterują nią strzałkami i robią mi
 ### Wskazówki
 - [tempo] To jest efekt WOW — przejdź na wersję B dopiero gdy wersja A jest zrozumiała.
 - [błąd] Strzałki nie działają — sprawdź, czy fokus jest na scenie i czy skrypt jest na właściwym duszku, a nie na Scenie.
+- [dla szybszych] Niech dobiorą różne prędkości dla różnych kierunków albo dodadzą „jeżeli na brzegu, odbij się".
+- [gdy nie zdążysz] Zostań na wersji A — płynny ruch jest bonusem, nie materiałem obowiązkowym.
 
 ### Materiały
-- [kod] Scratch:
+- [kod] Płynny ruch — wersja B | scratch:
   ```
   kiedy kliknięto zieloną flagę
     ustaw styl obrotu na [lewo-prawo]
@@ -108,17 +125,17 @@ Opis: Dzieci wybierają taneczną postać, sterują nią strzałkami i robią mi
 - [podpowiedź] W polskim Scratchu „fisheye" = rybie oko.
 
 ### Materiały
-- [kod] Powitanie (Wygląd):
+- [kod] Powitanie (Wygląd) | scratch:
   ```
   kiedy kliknięto zieloną flagę
     powiedz [Cześć! Jestem superbohaterem!] przez (2) sek
   ```
-- [kod] Gadanie po kliknięciu:
+- [kod] Gadanie po kliknięciu | scratch:
   ```
   kiedy ten duszek kliknięty
     powiedz [Hej, połaskotałeś mnie!] przez (2) sek
   ```
-- [kod] Muzyka w tle (na Scenie):
+- [kod] Muzyka w tle (na Scenie) | scratch:
   ```
   kiedy kliknięto zieloną flagę
     zawsze
@@ -135,7 +152,7 @@ Opis: Dzieci wybierają taneczną postać, sterują nią strzałkami i robią mi
 - [tempo] Z duszkiem z kategorii „Taniec" wygląda to od razu jak prawdziwy układ choreograficzny.
 
 ### Materiały
-- [kod] Scratch:
+- [kod] Taniec po spacji | scratch:
   ```
   kiedy klawisz [spacja] naciśnięty
     zagraj dźwięk [Dance Around]

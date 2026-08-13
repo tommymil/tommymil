@@ -1,4 +1,5 @@
 using LessonRunner.Application.Groups;
+using LessonRunner.Application.Parents;
 using LessonRunner.Domain.Groups;
 using LessonRunner.Domain.Participants;
 
@@ -6,7 +7,10 @@ namespace LessonRunner.Application.Participants;
 
 public sealed class ParticipantService(
     IParticipantRepository participantRepository,
-    IGroupRepository groupRepository) : IParticipantService
+    IGroupRepository groupRepository,
+    // Opcjonalne, żeby testy budujące serwis ręcznie nadal się kompilowały. Brak repozytorium
+    // oznacza „nie wiemy o żadnym koncie opiekuna", a nie wywróconą listę uczestników.
+    IParentPortalRepository? parentRepository = null) : IParticipantService
 {
     public async Task<IReadOnlyList<ParticipantSummaryDto>> GetSummariesAsync(
         string? query,
@@ -17,10 +21,21 @@ public sealed class ParticipantService(
         var groupsByParticipant = BuildGroupMap(await groupRepository.ListAsync(cancellationToken));
         var normalizedQuery = (query ?? string.Empty).Trim();
 
-        return participants
+        var visible = participants
             .Where(participant => includeArchived || !participant.IsArchived)
             .Where(participant => normalizedQuery.Length == 0 || Matches(participant, normalizedQuery))
-            .Select(participant => ToSummary(participant, groupsByParticipant))
+            .ToList();
+
+        var withAccount = parentRepository is null
+            ? []
+            : (await parentRepository.ListByParticipantsAsync(
+                    visible.Select(participant => participant.Id).ToList(),
+                    cancellationToken))
+                .Select(link => link.ParticipantId)
+                .ToHashSet();
+
+        return visible
+            .Select(participant => ToSummary(participant, groupsByParticipant, withAccount.Contains(participant.Id)))
             .ToList();
     }
 
@@ -300,7 +315,10 @@ public sealed class ParticipantService(
         return map;
     }
 
-    private static ParticipantSummaryDto ToSummary(Participant participant, Dictionary<Guid, List<ParticipantGroupDto>> groupsByParticipant) =>
+    private static ParticipantSummaryDto ToSummary(
+        Participant participant,
+        Dictionary<Guid, List<ParticipantGroupDto>> groupsByParticipant,
+        bool hasGuardianAccount) =>
         new(
             participant.Id,
             participant.FirstName,
@@ -313,7 +331,9 @@ public sealed class ParticipantService(
             participant.IsArchived,
             participant.DataProcessingConsentAt is not null,
             participant.ImageConsentAt is not null,
-            groupsByParticipant.TryGetValue(participant.Id, out var groups) ? groups : []);
+            groupsByParticipant.TryGetValue(participant.Id, out var groups) ? groups : [],
+            participant.GuardianEmail,
+            hasGuardianAccount);
 
     private static ParticipantDetailsDto ToDetails(Participant participant, Dictionary<Guid, List<ParticipantGroupDto>> groupsByParticipant) =>
         new(

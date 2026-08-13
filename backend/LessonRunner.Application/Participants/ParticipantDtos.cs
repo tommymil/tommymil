@@ -14,7 +14,12 @@ public sealed record ParticipantSummaryDto(
     bool IsArchived,
     bool HasDataConsent,
     bool HasImageConsent,
-    IReadOnlyList<ParticipantGroupDto> Groups);
+    IReadOnlyList<ParticipantGroupDto> Groups,
+    string? GuardianEmail = null,
+    /// <summary>Czy opiekun ma już konto powiązane z tym dzieckiem. Bez tego panel
+    /// administratora nie odróżnia rodziny, która ma dostęp do portalu, od tej, która
+    /// dostaje wyłącznie maile.</summary>
+    bool HasGuardianAccount = false);
 
 public sealed record ParticipantDetailsDto(
     Guid Id,
