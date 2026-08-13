@@ -117,7 +117,7 @@ export function CancelSessionDialog({
               })
             }
           >
-            {busy ? "Odwoływanie..." : "Odwołaj zajęcia"}
+            {busy ? "Odwoływanie…" : "Odwołaj zajęcia"}
           </Button>
         </>
       }

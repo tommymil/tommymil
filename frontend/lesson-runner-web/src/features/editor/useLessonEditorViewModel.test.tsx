@@ -62,7 +62,7 @@ const richLesson: LessonDetails = {
       id: "step-2",
       order: 2,
       type: "concept",
-      title: "Petła zawsze",
+      title: "Pętla zawsze",
       durationMinutes: 6,
       script: ["Wyjaśnij pętle."],
       studentItems: [],

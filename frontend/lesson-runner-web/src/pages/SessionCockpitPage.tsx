@@ -122,7 +122,7 @@ export function SessionCockpitPage() {
           ) : null}
           <Button onClick={vm.start} disabled={vm.busy}>
             <Play className="button-icon" aria-hidden="true" />
-            {vm.busy ? "Rozpoczynanie..." : "Start zajęć"}
+            {vm.busy ? "Rozpoczynanie…" : "Start zajęć"}
           </Button>
         </div>
       </section>
@@ -346,7 +346,7 @@ function FinishDialog({
               })
             }
           >
-            {busy ? "Zapisywanie..." : "Zapisz i zakończ"}
+            {busy ? "Zapisywanie…" : "Zapisz i zakończ"}
           </Button>
         </>
       }
@@ -365,7 +365,7 @@ function FinishDialog({
           rows={3}
           value={note}
           maxLength={4000}
-          placeholder="Co się udało, kto był aktywny, uwagi organizacyjne..."
+          placeholder="Co się udało, kto był aktywny, uwagi organizacyjne…"
           onChange={(event) => setNote(event.target.value)}
         />
       </label>

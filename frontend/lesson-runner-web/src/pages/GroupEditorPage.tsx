@@ -1,7 +1,7 @@
 import { ArrowDown, ArrowUp, Trash2, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
-import { formatDateTime } from "../features/groups/datetime";
+import { formatDateTime, plural } from "../features/groups/datetime";
 import { useGroupEditorViewModel } from "../features/groups/useGroupEditorViewModel";
 import { ParticipantPicker } from "../features/participants/ParticipantPicker";
 
@@ -11,7 +11,7 @@ export function GroupEditorPage() {
   if (vm.loading) {
     return (
       <section className="page-section">
-        <div className="list-state">Ładowanie danych...</div>
+        <div className="list-state">Ładowanie danych…</div>
       </section>
     );
   }
@@ -89,7 +89,7 @@ export function GroupEditorPage() {
                 <option value="">Bez kursu - ręczny wybór lekcji</option>
                 {vm.courses.map((course) => (
                   <option key={course.id} value={course.id}>
-                    {course.name} ({course.lessonCount} lekcji)
+                    {course.name} ({course.lessonCount} {plural(course.lessonCount, "lekcja", "lekcje", "lekcji")})
                   </option>
                 ))}
               </select>
@@ -97,7 +97,7 @@ export function GroupEditorPage() {
 
             {vm.selectedCourse ? (
               <p className="cue-empty">
-                Kurs: {vm.selectedCourse.subject} - {vm.selectedCourse.level}. Sekwencja lekcji jest pobierana z kursu.
+                Kurs: {vm.selectedCourse.subject} · {vm.selectedCourse.level}. Sekwencja lekcji jest pobierana z kursu.
               </p>
             ) : null}
 
@@ -109,7 +109,7 @@ export function GroupEditorPage() {
                   onChange={(event) => vm.addLesson(event.target.value)}
                   disabled={vm.availableLessons.length === 0}
                 >
-                  <option value="">{vm.availableLessons.length === 0 ? "Brak dostępnych lekcji Ready" : "Wybierz lekcję..."}</option>
+                  <option value="">{vm.availableLessons.length === 0 ? "Brak dostępnych lekcji Ready" : "Wybierz lekcję…"}</option>
                   {vm.availableLessons.map((lesson) => (
                     <option key={lesson.id} value={lesson.id}>
                       {lesson.title} ({lesson.subject})
@@ -194,7 +194,7 @@ export function GroupEditorPage() {
               </ol>
             )}
             <Button onClick={vm.save} disabled={!vm.canSave}>
-              {vm.saving ? "Zapisywanie..." : "Utwórz grupę"}
+              {vm.saving ? "Zapisywanie…" : "Utwórz grupę"}
             </Button>
           </div>
         </aside>

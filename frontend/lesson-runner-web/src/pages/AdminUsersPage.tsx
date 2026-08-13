@@ -202,7 +202,7 @@ export function AdminUsersPage() {
         </div>
       </div>
 
-      {vm.loading ? <div className="list-state">Ładowanie kont...</div> : null}
+      {vm.loading ? <div className="list-state">Ładowanie kont…</div> : null}
 
       {!vm.loading && vm.users.length > 0 ? (
         <table className="attendance-table">

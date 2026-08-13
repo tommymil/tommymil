@@ -95,7 +95,7 @@ export function SetPasswordPage() {
         <span className="eyebrow">Szkoła Programowania</span>
 
         {checking ? (
-          <p>Sprawdzanie linku...</p>
+          <p>Sprawdzanie linku…</p>
         ) : done ? (
           <>
             <h1>Hasło ustawione</h1>
@@ -149,7 +149,7 @@ export function SetPasswordPage() {
               ) : null}
 
               <Button type="submit" disabled={submitting}>
-                {submitting ? "Zapisywanie..." : "Ustaw hasło"}
+                {submitting ? "Zapisywanie…" : "Ustaw hasło"}
               </Button>
             </form>
           </>

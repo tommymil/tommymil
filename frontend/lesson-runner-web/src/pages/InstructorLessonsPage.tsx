@@ -26,7 +26,7 @@ export function InstructorLessonsPage() {
           subjectFilter={viewModel.subjectFilter}
         />
       ) : null}
-      {viewModel.loading ? <LessonsState message="Ładowanie lekcji..." /> : null}
+      {viewModel.loading ? <LessonsState message="Ładowanie lekcji…" /> : null}
       {viewModel.error ? <LessonsState message={viewModel.error} tone="error" /> : null}
       {!viewModel.loading && !viewModel.error && viewModel.rawLessonCount === 0 ? (
         <LessonsState message="Brak lekcji w bibliotece." />

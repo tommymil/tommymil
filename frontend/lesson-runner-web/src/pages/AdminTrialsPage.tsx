@@ -56,7 +56,7 @@ export function AdminTrialsPage() {
         ]}
       />
 
-      {vm.loading ? <div className="list-state">Ładowanie zgłoszeń...</div> : null}
+      {vm.loading ? <div className="list-state">Ładowanie zgłoszeń…</div> : null}
 
       {!vm.loading && visible.length === 0 ? (
         <EmptyState
@@ -126,7 +126,7 @@ function NewTrialForm({ vm }: { vm: ViewModel }) {
           <input
             value={vm.draft.source}
             disabled={vm.busy}
-            placeholder="polecenie, Facebook, szkoła..."
+            placeholder="polecenie, Facebook, szkoła…"
             onChange={(e) => vm.setField("source", e.target.value)}
           />
         </label>

@@ -337,7 +337,7 @@ function ParticipantRow({
               disabled={busy || availableGroups.length === 0}
               aria-label="Przypisz do grupy"
             >
-              <option value="">{availableGroups.length === 0 ? "Brak grup do przypisania" : "Przypisz do grupy..."}</option>
+              <option value="">{availableGroups.length === 0 ? "Brak grup do przypisania" : "Przypisz do grupy…"}</option>
               {availableGroups.map((group) => (
                 <option key={group.id} value={group.id}>{group.name}</option>
               ))}
@@ -441,7 +441,7 @@ export function AdminParticipantsPage() {
           <input
             value={vm.query}
             onChange={(event) => vm.setQuery(event.target.value)}
-            placeholder="Dziecko, opiekun, telefon lub e-mail..."
+            placeholder="Dziecko, opiekun, telefon lub e-mail…"
           />
         </label>
         <label className="checkbox-field">
@@ -454,7 +454,7 @@ export function AdminParticipantsPage() {
         </label>
       </div>
 
-      {vm.loading ? <div className="list-state">Ładowanie uczestników...</div> : null}
+      {vm.loading ? <div className="list-state">Ładowanie uczestników…</div> : null}
 
       {!vm.loading && vm.participants.length === 0 ? (
         <p className="cue-empty">Brak uczestników spełniających kryteria wyszukiwania.</p>

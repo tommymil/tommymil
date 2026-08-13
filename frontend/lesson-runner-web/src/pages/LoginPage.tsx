@@ -40,7 +40,7 @@ export function LoginPage() {
       navigate(homeForRole(signedIn), { replace: true });
     } catch (caught) {
       if (caught instanceof ApiError && caught.status === 401) {
-        setError("Nieprawidłowy email lub hasło.");
+        setError("Nieprawidłowy e-mail lub hasło.");
       } else {
         setError("Logowanie nie powiodło się. Spróbuj ponownie.");
       }
@@ -60,7 +60,7 @@ export function LoginPage() {
         </p>
 
         <form className="login-form" onSubmit={handleSubmit}>
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">E-mail</label>
           <input
             id="email"
             type="email"
@@ -87,7 +87,7 @@ export function LoginPage() {
           ) : null}
 
           <Button type="submit" disabled={submitting}>
-            {submitting ? "Logowanie..." : "Zaloguj"}
+            {submitting ? "Logowanie…" : "Zaloguj"}
           </Button>
         </form>
 

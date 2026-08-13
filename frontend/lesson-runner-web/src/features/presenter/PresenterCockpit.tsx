@@ -155,7 +155,7 @@ export function PresenterCockpit({ lessonId, scheduledSessionId, extraViewContro
   }, [selectedImage]);
 
   if (presenter.loading) {
-    return <div className="list-state">Ładowanie lekcji...</div>;
+    return <div className="list-state">Ładowanie lekcji…</div>;
   }
 
   if (presenter.error || !presenter.lesson || !presenter.currentStep) {
@@ -176,7 +176,7 @@ export function PresenterCockpit({ lessonId, scheduledSessionId, extraViewContro
   ];
 
   const textInserts = step.studentItems.filter((item) => item.kind !== "image");
-  const hasMateriałs = textInserts.length > 0 || step.resources.some((resource) => resource.kind !== "image");
+  const hasMaterials = textInserts.length > 0 || step.resources.some((resource) => resource.kind !== "image");
 
   const projectDownloads = [
     { slot: "starter", title: "Lekcja startowa", file: presenter.lesson.projectFiles?.starter },
@@ -190,7 +190,7 @@ export function PresenterCockpit({ lessonId, scheduledSessionId, extraViewContro
           <span className="eyebrow">Zaplecze prowadzenia</span>
           <h1>{presenter.lesson.title}</h1>
           <p>
-            {presenter.lesson.subject} - krok {presenter.stepLabel} - {presenter.progressPercent}%
+            {presenter.lesson.subject} · krok {presenter.stepLabel} · {presenter.progressPercent}%
           </p>
         </div>
         <div className="presenter-clock">
@@ -346,7 +346,7 @@ export function PresenterCockpit({ lessonId, scheduledSessionId, extraViewContro
             </div>
           ) : null}
 
-          {presenter.showStudent && hasMateriałs ? (
+          {presenter.showStudent && hasMaterials ? (
             <div className="cue-block">
               <h3>Materiały pomocnicze</h3>
               {textInserts.map((item, index) => (

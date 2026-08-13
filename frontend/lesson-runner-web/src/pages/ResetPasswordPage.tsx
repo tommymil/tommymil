@@ -76,7 +76,7 @@ export function ResetPasswordPage() {
               ) : null}
 
               <Button type="submit" disabled={submitting}>
-                {submitting ? "Wysyłanie..." : "Wyślij link"}
+                {submitting ? "Wysyłanie…" : "Wyślij link"}
               </Button>
             </form>
 

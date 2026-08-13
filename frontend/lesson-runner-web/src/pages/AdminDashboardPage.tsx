@@ -38,7 +38,7 @@ export function AdminDashboardPage() {
         }
       } catch (caught) {
         if (!ignore) {
-          setError(caught instanceof ApiError ? caught.message : "Nie udało się pobrać dashboardu.");
+          setError(caught instanceof ApiError ? caught.message : "Nie udało się pobrać pulpitu.");
         }
       } finally {
         if (!ignore) {

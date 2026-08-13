@@ -33,7 +33,7 @@ export function SessionProgressPanel({ sessionId, participants, onClose }: Props
             Zamknij
           </Button>
           <Button onClick={vm.persist} disabled={vm.busy || vm.drafts.length === 0}>
-            {vm.busy ? "Zapisywanie..." : "Zapisz postępy"}
+            {vm.busy ? "Zapisywanie…" : "Zapisz postępy"}
           </Button>
         </>
       }

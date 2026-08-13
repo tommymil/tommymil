@@ -65,7 +65,7 @@ export function LessonImportPage() {
         </div>
         <div className="editor-header-actions">
           <Button onClick={importer.importLesson} disabled={!importer.canImport}>
-            {importer.importing ? "Importowanie..." : "Utwórz konspekt"}
+            {importer.importing ? "Importowanie…" : "Utwórz konspekt"}
           </Button>
         </div>
       </div>
@@ -139,9 +139,9 @@ export function LessonImportPage() {
                     <li key={index}>
                       <strong>{step.title}</strong>
                       <span>
-                        {stepTypeLabel(step.type)} - {step.durationMinutes} min - {step.script.length} pkt -
-                        {" "}{step.studentItems.length} {plural(step.studentItems.length, "wrzutka", "wrzutki", "wrzutek")} -
-                        {" "}{step.notes.length} {plural(step.notes.length, "wskazówka", "wskazówki", "wskazówek")} -
+                        {stepTypeLabel(step.type)} · {step.durationMinutes} min · {step.script.length} pkt ·
+                        {" "}{step.studentItems.length} {plural(step.studentItems.length, "wrzutka", "wrzutki", "wrzutek")} ·
+                        {" "}{step.notes.length} {plural(step.notes.length, "wskazówka", "wskazówki", "wskazówek")} ·
                         {" "}{step.resources.length} {plural(step.resources.length, "materiał", "materiały", "materiałów")}
                       </span>
                     </li>

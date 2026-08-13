@@ -305,7 +305,7 @@ function IncidentDialog({
               })
             }
           >
-            {busy ? "Zapisywanie..." : "Zapisz"}
+            {busy ? "Zapisywanie…" : "Zapisz"}
           </Button>
         </>
       }
@@ -411,7 +411,7 @@ function TicketDialog({
             disabled={busy || blocked}
             onClick={() => void onSave({ status, resolution: resolution.trim() || null, costLessonTime })}
           >
-            {busy ? "Zapisywanie..." : "Zapisz"}
+            {busy ? "Zapisywanie…" : "Zapisz"}
           </Button>
         </>
       }

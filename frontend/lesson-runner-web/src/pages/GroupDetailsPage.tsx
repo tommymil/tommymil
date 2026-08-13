@@ -396,7 +396,7 @@ export function GroupDetailsPage() {
             <label className="form-field">
               <span>Lekcja</span>
               <select value={addLessonId} onChange={(event) => setAddLessonId(event.target.value)}>
-                <option value="">Wybierz lekcję...</option>
+                <option value="">Wybierz lekcję…</option>
                 {vm.readyLessons.map((lesson) => (
                   <option key={lesson.id} value={lesson.id}>
                     {lesson.title}

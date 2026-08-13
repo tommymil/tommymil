@@ -692,7 +692,7 @@ function AbsenceDialog({
             Anuluj
           </Button>
           <Button disabled={busy} onClick={() => void onSubmit(reason.trim() || null)}>
-            {busy ? "Zgłaszanie..." : "Zgłoś nieobecność"}
+            {busy ? "Zgłaszanie…" : "Zgłoś nieobecność"}
           </Button>
         </>
       }

@@ -60,14 +60,14 @@ export function ReportTicketDialog({
             disabled={busy || description.trim().length === 0}
             onClick={() => void onSubmit(category, description.trim(), costLessonTime)}
           >
-            {busy ? "Zapisywanie..." : "Zgłoś"}
+            {busy ? "Zapisywanie…" : "Zgłoś"}
           </Button>
         </>
       }
     >
       {/* Historia idzie **nad** formularzem, nie pod nim. Jeżeli ten sam problem był już
           rozwiązany miesiąc temu, instruktor ma to zobaczyć zanim zacznie opisywać go od nowa. */}
-      {loadingHistory ? <p className="cue-empty">Sprawdzam wcześniejsze zgłoszenia...</p> : null}
+      {loadingHistory ? <p className="cue-empty">Sprawdzam wcześniejsze zgłoszenia…</p> : null}
 
       {earlier.length > 0 ? (
         <div className="support-history">

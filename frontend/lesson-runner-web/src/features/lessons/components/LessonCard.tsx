@@ -52,7 +52,7 @@ export function LessonCard({ canManage = false, deleting = false, lesson, onDele
               disabled={deleting}
               onClick={() => onDelete?.(lesson)}
             >
-              {deleting ? "Usuwanie..." : "Usuń"}
+              {deleting ? "Usuwanie…" : "Usuń"}
             </Button>
           </div>
         ) : null}

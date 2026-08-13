@@ -5,6 +5,7 @@ import { getLessons } from "../api/lessonsApi";
 import { ApiError } from "../api/client";
 import { Button } from "../components/ui/Button";
 import { useDialogs } from "../features/dialog/DialogContext";
+import { plural } from "../features/groups/datetime";
 import { useToast } from "../features/toast/ToastContext";
 import type { CourseDetails, CourseSummary, UpsertCourseRequest } from "../types/course";
 import type { LessonSummary } from "../types/lesson";
@@ -194,7 +195,7 @@ export function AdminCoursesPage() {
       </div>
 
       {error ? <div className="list-state list-state-error">{error}</div> : null}
-      {loading ? <div className="list-state">Ładowanie kursów...</div> : null}
+      {loading ? <div className="list-state">Ładowanie kursów…</div> : null}
 
       {!loading ? (
         <div className="courses-layout">
@@ -214,7 +215,8 @@ export function AdminCoursesPage() {
                           <div>
                             <h2>{course.name}</h2>
                             <p className="group-meta">
-                              {course.subject} - {course.level} - {course.lessonCount} lekcji
+                              {course.subject} · {course.level} ·{" "}
+                              {course.lessonCount} {plural(course.lessonCount, "lekcja", "lekcje", "lekcji")}
                             </p>
                           </div>
                         </div>
@@ -260,7 +262,7 @@ export function AdminCoursesPage() {
             <div className="form-field">
               <span>Dodaj lekcje Ready</span>
               <select value="" onChange={(event) => addLesson(event.target.value)} disabled={availableLessons.length === 0}>
-                <option value="">{availableLessons.length === 0 ? "Brak dostępnych lekcji" : "Wybierz lekcję..."}</option>
+                <option value="">{availableLessons.length === 0 ? "Brak dostępnych lekcji" : "Wybierz lekcję…"}</option>
                 {availableLessons.map((lesson) => (
                   <option key={lesson.id} value={lesson.id}>
                     {lesson.title} ({lesson.subject})
@@ -300,7 +302,7 @@ export function AdminCoursesPage() {
             )}
 
             <Button onClick={() => void saveCourse()} disabled={saving}>
-              {saving ? "Zapisywanie..." : "Zapisz kurs"}
+              {saving ? "Zapisywanie…" : "Zapisz kurs"}
             </Button>
           </section>
         </div>

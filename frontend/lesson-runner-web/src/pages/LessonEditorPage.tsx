@@ -29,12 +29,17 @@ import { useLessonEditorViewModel } from "../features/editor/useLessonEditorView
 type SubItemControlsProps = {
   index: number;
   count: number;
+  /** Mianownik — trafia do „{nazwa} 1 w górę”. */
   label: string;
+  /** Biernik — trafia do „Usuń {nazwę} 1”. Jednym stringiem się tego nie da:
+   *  „Usuń Wrzutka 1” i „Wskazówkę 1 w górę” to ta sama pomyłka co „w sobota o 17:00”.
+   *  Rzeczowniki męskie nieżywotne („Materiał”) mają obie formy równe. */
+  labelAccusative: string;
   onMove: (index: number, direction: -1 | 1) => void;
   onRemove: (index: number) => void;
 };
 
-function SubItemControls({ index, count, label, onMove, onRemove }: SubItemControlsProps) {
+function SubItemControls({ index, count, label, labelAccusative, onMove, onRemove }: SubItemControlsProps) {
   return (
     <div className="sub-item-controls">
       <Button
@@ -53,7 +58,7 @@ function SubItemControls({ index, count, label, onMove, onRemove }: SubItemContr
       >
         <ArrowDown className="button-icon" aria-hidden="true" />
       </Button>
-      <Button variant="secondary" aria-label={`Usuń ${label} ${index + 1}`} onClick={() => onRemove(index)}>
+      <Button variant="secondary" aria-label={`Usuń ${labelAccusative} ${index + 1}`} onClick={() => onRemove(index)}>
         <X className="button-icon" aria-hidden="true" />
       </Button>
     </div>
@@ -71,7 +76,7 @@ export function LessonEditorPage() {
   if (editor.loading) {
     return (
       <section className="page-section">
-        <div className="list-state">Ładowanie lekcji...</div>
+        <div className="list-state">Ładowanie lekcji…</div>
       </section>
     );
   }
@@ -103,7 +108,7 @@ export function LessonEditorPage() {
           ) : null}
           <Button onClick={editor.saveLesson} disabled={editor.saving}>
             <Save className="button-icon" aria-hidden="true" />
-            {editor.saving ? "Zapisywanie..." : "Zapisz"}
+            {editor.saving ? "Zapisywanie…" : "Zapisz"}
           </Button>
         </div>
       </div>
@@ -326,6 +331,7 @@ export function LessonEditorPage() {
                         index={index}
                         count={editor.stepForm.studentItems.length}
                         label="Wrzutka"
+                        labelAccusative="Wrzutkę"
                         onMove={editor.moveStudentItem}
                         onRemove={editor.removeStudentItem}
                       />
@@ -348,7 +354,7 @@ export function LessonEditorPage() {
                 </Button>
                 <label className="upload-button">
                   <UploadCloud className="button-icon" aria-hidden="true" />
-                  {editor.uploading ? "Przesyłanie..." : "Dodaj obraz / screen"}
+                  {editor.uploading ? "Przesyłanie…" : "Dodaj obraz / screen"}
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/gif,image/webp"
@@ -392,7 +398,8 @@ export function LessonEditorPage() {
                       <SubItemControls
                         index={index}
                         count={editor.stepForm.notes.length}
-                        label="Wskazówkę"
+                        label="Wskazówka"
+                        labelAccusative="Wskazówkę"
                         onMove={editor.moveNoteItem}
                         onRemove={editor.removeNote}
                       />
@@ -469,6 +476,7 @@ export function LessonEditorPage() {
                         index={index}
                         count={editor.stepForm.resources.length}
                         label="Materiał"
+                        labelAccusative="Materiał"
                         onMove={editor.moveResourceItem}
                         onRemove={editor.removeResource}
                       />
@@ -536,7 +544,7 @@ export function LessonEditorPage() {
                 </Button>
                 <label className="upload-button">
                   <UploadCloud className="button-icon" aria-hidden="true" />
-                  {editor.uploading ? "Przesyłanie..." : "Dodaj obraz lub PDF"}
+                  {editor.uploading ? "Przesyłanie…" : "Dodaj obraz lub PDF"}
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
@@ -740,7 +748,7 @@ function ProjectFileSlot({
 
       <label className="upload-button project-file-upload">
         <UploadCloud className="button-icon" aria-hidden="true" />
-        {uploading ? "Przesyłanie..." : file ? "Zmień plik" : "Dodaj plik"}
+        {uploading ? "Przesyłanie…" : file ? "Zmień plik" : "Dodaj plik"}
         <input
           type="file"
           accept=".sb3,.sb2,.zip,.mcworld,.mctemplate"

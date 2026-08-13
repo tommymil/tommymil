@@ -32,7 +32,7 @@ export function InstructorTrialsPage() {
       </div>
 
       {vm.error ? <div className="list-state list-state-error">{vm.error}</div> : null}
-      {vm.loading ? <div className="list-state">Ładowanie lekcji próbnych...</div> : null}
+      {vm.loading ? <div className="list-state">Ładowanie lekcji próbnych…</div> : null}
 
       {!vm.loading && vm.trials.length === 0 ? (
         <EmptyState

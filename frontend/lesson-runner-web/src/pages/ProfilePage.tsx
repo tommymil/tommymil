@@ -143,7 +143,7 @@ export function ProfilePage() {
             ) : null}
 
             <Button type="submit" disabled={submitting}>
-              {submitting ? "Zapisywanie..." : "Zmień hasło"}
+              {submitting ? "Zapisywanie…" : "Zmień hasło"}
             </Button>
           </form>
         </section>

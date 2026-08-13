@@ -111,7 +111,7 @@ export function CalendarPage() {
       </div>
 
       {error ? <div className="list-state list-state-error">{error}</div> : null}
-      {loading ? <div className="list-state">Ładowanie kalendarza...</div> : null}
+      {loading ? <div className="list-state">Ładowanie kalendarza…</div> : null}
 
       {!loading && data ? (
         <div className="calendar-layout">

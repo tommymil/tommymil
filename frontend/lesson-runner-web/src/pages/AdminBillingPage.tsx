@@ -260,7 +260,7 @@ export function AdminBillingPage() {
   if (loading) {
     return (
       <section className="page-section">
-        <div className="list-state">Ładowanie płatności...</div>
+        <div className="list-state">Ładowanie płatności…</div>
       </section>
     );
   }
@@ -357,7 +357,7 @@ export function AdminBillingPage() {
             <span>Cennik</span>
             <select value={pricePlanId} onChange={(event) => setPricePlanId(event.target.value)}>
               <option value="">Automatycznie</option>
-              {overview.pricePlans.map((plan) => <option key={plan.id} value={plan.id}>{plan.name} - {money(plan.amountCents, plan.currency)}</option>)}
+              {overview.pricePlans.map((plan) => <option key={plan.id} value={plan.id}>{plan.name} · {money(plan.amountCents, plan.currency)}</option>)}
             </select>
           </label>
           <label className="toggle-row">
@@ -381,7 +381,7 @@ export function AdminBillingPage() {
             <select value={invoiceEnrollmentId} onChange={(event) => setInvoiceEnrollmentId(event.target.value)}>
               <option value="">Wybierz</option>
               {overview.enrollments.map((enrollment) => (
-                <option key={enrollment.id} value={enrollment.id}>{enrollment.participantName} - {enrollment.groupName}</option>
+                <option key={enrollment.id} value={enrollment.id}>{enrollment.participantName} · {enrollment.groupName}</option>
               ))}
             </select>
           </label>

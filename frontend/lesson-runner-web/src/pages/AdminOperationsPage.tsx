@@ -60,7 +60,7 @@ export function AdminOperationsPage() {
   if (loading) {
     return (
       <section className="page-section">
-        <div className="list-state">Ładowanie danych operacyjnych...</div>
+        <div className="list-state">Ładowanie danych operacyjnych…</div>
       </section>
     );
   }

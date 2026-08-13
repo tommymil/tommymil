@@ -26,7 +26,7 @@ const lesson: LessonDetails = {
       id: "step-1",
       order: 1,
       type: "concept",
-      title: "Petła zawsze",
+      title: "Pętla zawsze",
       durationMinutes: 8,
       script: ["Weź blok 'zawsze'", "Dodaj 'zmień x o 10'"],
       studentItems: [{ kind: "image", caption: "screen bloczków", url: "/uploads/blocks.png" }],

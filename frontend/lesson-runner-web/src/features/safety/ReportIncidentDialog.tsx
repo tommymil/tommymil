@@ -79,7 +79,7 @@ export function ReportIncidentDialog({
               void onSubmit({ kind, severity, description: description.trim(), participantIds: selected })
             }
           >
-            {busy ? "Zgłaszanie..." : "Zgłoś incydent"}
+            {busy ? "Zgłaszanie…" : "Zgłoś incydent"}
           </Button>
         </>
       }

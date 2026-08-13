@@ -71,7 +71,7 @@ export function ParticipantPicker({ excludeIds, onPickExisting, onCreateNew, dis
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Imię, nazwisko, telefon lub e-mail..."
+          placeholder="Imię, nazwisko, telefon lub e-mail…"
           disabled={disabled}
         />
       </label>
@@ -118,7 +118,7 @@ export function ParticipantPicker({ excludeIds, onPickExisting, onCreateNew, dis
           </div>
           <div className="participant-row-actions">
             <Button onClick={submitCreate} disabled={disabled || creating}>
-              {creating ? "Dodawanie..." : "Dodaj i przypisz"}
+              {creating ? "Dodawanie…" : "Dodaj i przypisz"}
             </Button>
             <Button variant="ghost" onClick={() => setShowCreateForm(false)} disabled={creating}>
               Anuluj

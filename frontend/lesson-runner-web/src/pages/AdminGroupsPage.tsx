@@ -160,7 +160,7 @@ export function AdminGroupsPage() {
                     disabled={viewModel.deletingId === group.id}
                   >
                     <Trash2 className="button-icon" aria-hidden="true" />
-                    {viewModel.deletingId === group.id ? "Usuwanie..." : "Usuń"}
+                    {viewModel.deletingId === group.id ? "Usuwanie…" : "Usuń"}
                   </Button>
                 </div>
               </article>
