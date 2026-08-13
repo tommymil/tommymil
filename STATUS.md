@@ -1,6 +1,6 @@
 # Lesson Runner — aktualny stan projektu
 
-Ostatnia aktualizacja: 03.08.2026
+Ostatnia aktualizacja: 13.08.2026
 
 Ten plik opisuje **stan bieżący** i plan prac. Powiązane dokumenty:
 
@@ -771,6 +771,79 @@ Etap D zaczynamy po pierwszym zielonym przebiegu CI.
       ekranie, czy portal rodzica wygląda sensownie na telefonie i czy autozapis daje
       instruktorowi poczucie, że obecność jest zapisana.
 
+## Zmiany z 13.08.2026 — przegląd pod kątem wdrożenia testowego
+
+Przegląd przed wystawieniem aplikacji kilku osobom. Stan wyjściowy był zdrowszy, niż
+sugerowała liczba niezacommitowanych plików: backend **223/223**, frontend **173/173**,
+oba buildy zielone. Wyszły natomiast dwie rzeczy, które w takim teście dały o sobie znać
+pierwszego dnia — obie na styku „kod działa u mnie” a „kod działa u kogoś innego”.
+
+### Frontend nie istniał w świeżym klonie
+
+W repozytorium był zapisany jako **gitlink** (tryb `160000`, commit `0e7091e`)
+**bez pliku `.gitmodules`**. Taki wpis nie jest submodułem, tylko jego połową: `git clone`
+tworzył pusty katalog `frontend/`, a `docker compose build` wywracał się na pierwszym
+`COPY frontend/lesson-runner-web/package*.json`. Działało wyłącznie z jednej kopii roboczej
+na jednym dysku.
+
+Frontend jest teraz zwykłą częścią repozytorium (163 pliki). Historia zostaje na
+`github.com/tommymil/szk-prg-front`, a kopia zapasowa `.git` wraz z łatką niezacommitowanej
+pracy leży poza repozytorium, w `D:\moje\szk-prg-front-git-backup`.
+
+Decyzje warte zapamiętania:
+
+- **Monorepo zamiast dopisania `.gitmodules`.** Submoduł działa, ale przenosi problem gdzie
+  indziej: wymaga `--recurse-submodules` przy klonowaniu i osobnego `push` do drugiego repo,
+  więc ta sama pomyłka („zapomniałem wypchnąć frontend”) wraca przy każdym wdrożeniu.
+- **W katalogu `lesson-runner-web` siedziało drugie, zapomniane repozytorium** — bez commitów
+  i bez indeksu, ale z 885 KB luźnych obiektów po `git add`. Nazwanie go „pustym” na podstawie
+  `git show-ref` było błędem; skasowanie w tej wierze byłoby nieodwracalne. Przeniesione do
+  kopii, nie usunięte.
+
+### Limit logowania działał na całą szkołę naraz
+
+`UseForwardedHeaders` był włączony bez listy zaufanych sieci. Domyślnie ASP.NET Core ufa
+**wyłącznie pętli zwrotnej**, a nginx w compose ma adres z sieci bridge — jego
+`X-Forwarded-For` był więc po cichu odrzucany i `Connection.RemoteIpAddress` zostawał adresem
+proxy dla **każdego** żądania. Polityka `auth` partycjonuje po tym adresie, więc limit
+„10 nieudanych prób na 5 minut na IP” był w praktyce jednym limitem na całą instalację:
+dziesięć pomyłek jednej osoby blokowało logowanie wszystkim pozostałym. Przy teście, w którym
+kilka osób pierwszy raz ustawia hasła z zaproszeń, to kwestia pierwszej godziny.
+
+Zaufane sieci są teraz podane wprost (`Security:TrustedProxyNetworks`, domyślnie pętla zwrotna
+i zakresy prywatne), a budowanie opcji wyjechało z `Program.cs` do `ForwardedHeadersSetup`.
+
+Decyzje warte zapamiętania:
+
+- **Pusta lista nie jest rozwiązaniem.** Zaufanie wszystkim pozwala obejść limit logowania
+  samym nagłówkiem — wystarczy podstawiać losowy adres przy każdej próbie. Błąd trzeba było
+  naprawić w obie strony naraz.
+- **Domyślnie całe zakresy prywatne, nie samo `172.16.0.0/12`.** Węższa lista wracałaby do tego
+  samego cichego błędu przy niestandardowej sieci Dockera, a kontener API i tak nie jest
+  wystawiany na zewnątrz. Zawężenie jest opisane w README, dla wdrożeń z proxy pod adresem
+  publicznym.
+- **Testy idą wprost przez `ForwardedHeadersMiddleware`, nie przez `ApiFactory`.** `TestServer`
+  nie ustawia `Connection.RemoteIpAddress`, a middleware celowo przepuszcza pierwszy wpis, gdy
+  adres połączenia jest `null` — test przez `WebApplicationFactory` przechodziłby **zawsze**,
+  niezależnie od konfiguracji, czyli nie pilnowałby niczego.
+- **Zestaw sprawdzony mutacją.** Po cofnięciu poprawki czerwienieją cztery z siedmiu testów.
+  Trzy pozostałe przechodzą też w wersji błędnej i tak ma być — „niezaufane proxy jest
+  ignorowane” oraz walidacja CIDR działają w obu wariantach.
+- Przy okazji `KnownNetworks` → `KnownIPNetworks` (`ASPDEPR005`, .NET 10).
+
+### Weryfikacja
+
+- Backend **230/230** (7 nowych), frontend **173/173**, oba buildy bez błędów.
+- Test świeżego klonu: `git clone` do osobnego katalogu, komplet ścieżek `COPY` z obu
+  Dockerfile'ów obecny, `dotnet build` + `dotnet test` + `npm ci` + `npm run build` + `npm test`
+  przechodzą **z klonu**. Build frontendu dał identyczne hasze artefaktów co z kopii roboczej.
+- **Nie zweryfikowane:** `docker compose build`. Na maszynie, na której powstawał ten przegląd,
+  Docker nie jest zainstalowany. Warstwa obrazów (nginx, aspnet, `npm ci` pod `node:24-alpine`)
+  pozostaje niesprawdzona — to pierwsza rzecz do zrobienia na maszynie docelowej.
+
+Jedno ostrzeżenie kompilatora zostaje: `CS8602` w `ProgressServiceTests.cs:161`, starsze niż
+ta zmiana.
+
 ## Plan prac
 
 Kolejność wynika z tego, ile realnego bólu operacyjnego usuwa dana rzecz, a nie z wielkości
@@ -1067,6 +1140,10 @@ etapy A–C działają na realnych zajęciach.
 
 ## Przed uruchomieniem produkcyjnym
 
+- [ ] `docker compose build` na maszynie docelowej — jedyna warstwa, której nie pokrywa
+      ani CI, ani test świeżego klonu z 13.08.
+- [ ] `Security:TrustedProxyNetworks` zawężone, jeśli reverse proxy stoi pod adresem
+      publicznym. Przy proxy spoza listy wszyscy użytkownicy dzielą jeden limit logowania.
 - [ ] `JWT_SIGNING_KEY` z generatora (`openssl rand -base64 48`), nie z przykładu.
 - [ ] Zmiana hasła konta bootstrap zaraz po pierwszym zalogowaniu.
 - [ ] `SMTP_MODE=Smtp` dopiero po sprawdzeniu szablonów w trybie `Log`.
