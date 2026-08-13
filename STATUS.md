@@ -1138,6 +1138,53 @@ raporty rentowności, ankiety satysfakcji, aplikacja mobilna, automatyczne wykry
 wymagających zmiany poziomu (rozdział 15 dokumentu). Wszystko to ma sens dopiero, gdy
 etapy A–C działają na realnych zajęciach.
 
+## Otwarty dług techniczny
+
+Stan na 13.08.2026. Lista rzeczy **znanych i świadomie odłożonych** — nie są to niespodzianki,
+tylko punkty, które trzeba zamknąć, zanim system zacznie obsługiwać realne pieniądze i realne
+rodziny. Kolejność wg tego, co najszybciej zaboli.
+
+### Niezweryfikowane, nie „niezrobione”
+
+1. **`docker compose build` nigdy nie został uruchomiony.** Na maszynie, na której powstawał
+   przegląd z 13.08, Docker nie jest zainstalowany. Niesprawdzone zostają: obraz nginx, obraz
+   `aspnet:10.0` i `npm ci` pod `node:24-alpine`. To ostatnie ma konkretny znak zapytania —
+   nowszy npm domyślnie blokuje skrypty instalacyjne i ostrzega o `esbuild` (`postinstall`).
+   Natywnie build mimo to przechodzi, ale wersja npm w obrazie może być inna.
+   **Jedyny sposób weryfikacji: uruchomić to na maszynie docelowej.**
+2. **Dwie migracje pisane ręcznie, bez `dotnet ef`** — `AddSessionDebriefAndLiveStatus` (03.08)
+   i `AddTrialLessons`. Pliki `.Designer.cs` to pełny snapshot modelu. Testy chodzą na świeżej
+   bazie, więc sprawdzają, że migracja **tworzy** schemat — nie sprawdzają, że **poprawnie
+   migruje bazę z danymi**. Do przejścia na kopii realnej bazy.
+3. **Kopia zapasowa nigdy nie została odtworzona.** Kopia bez próby odtworzenia to nie jest
+   kopia zapasowa.
+
+### Znane luki funkcjonalne
+
+4. **Brak ekranu projektów dla instruktora.** API i portal rodzica są gotowe, projekty i wersje
+   zakłada się dziś przez API. Świadoma luka z 28.07.
+5. **Historia komunikacji jako wątek** (encja `Message`) — jedyny niedomknięty punkt MVP.
+   Log wysyłek pokrywa kierunek szkoła → rodzic; brakuje kierunku odwrotnego.
+6. **„Koniec pakietu”** czeka na pakiety zajęć (etap B p.7).
+
+### Wydajność i jakość
+
+7. **`ParentPortalService.GetPortalAsync` czyta wszystkie grupy i filtruje w pamięci.**
+   Wymaga nowej metody repozytorium (`ListByParticipantsAsync`). Niewidoczne przy kilkunastu
+   grupach, odczuwalne przy pięćdziesięciu — a to jest ekran klienta szkoły.
+8. **Trzy z czterech miejsc z `DateTimeOffset` w zapytaniach nadal bez testu.** Wykryło je
+   przeszukanie kodu, nie zestaw testowy — czyli ta sama klasa błędu może wrócić niezauważona.
+9. **Frontend to jeden chunk 617 kB** (171 kB gzip), bez podziału kodu. Rodzic na telefonie
+   pobiera całą aplikację administracyjną, żeby zobaczyć godzinę zajęć.
+10. **`CS8602` w `ProgressServiceTests.cs:161`** — jedyne ostrzeżenie kompilatora.
+
+### Decyzje odłożone, nie długi
+
+11. **PostgreSQL** — komplet migracji jest pod SQLite. Przy kilku–kilkunastu grupach SQLite
+    wystarcza; przejście to osobny zestaw migracji per provider.
+12. **Pliki w `/uploads` dostępne pod adresem URL bez autoryzacji** (nazwy to losowe GUID-y).
+    Świadomie przyjęte ryzyko — musi trafić do polityki prywatności.
+
 ## Przed uruchomieniem produkcyjnym
 
 - [ ] `docker compose build` na maszynie docelowej — jedyna warstwa, której nie pokrywa
