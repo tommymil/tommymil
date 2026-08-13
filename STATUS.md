@@ -1138,6 +1138,30 @@ raporty rentowności, ankiety satysfakcji, aplikacja mobilna, automatyczne wykry
 wymagających zmiany poziomu (rozdział 15 dokumentu). Wszystko to ma sens dopiero, gdy
 etapy A–C działają na realnych zajęciach.
 
+## Do wykonania — przepływy użytkownika (13.08.2026)
+
+Z przeglądu funkcjonalnego opartego na trasach, akcjach view modeli i politykach autoryzacji.
+Uszeregowane wg stosunku „ile realnego bólu usuwa” do „ile kodu”.
+
+**Obserwacja przewodnia:** rodzic — czyli klient, który płaci — ma w całym portalu **dwie**
+akcje zapisu: zgłoszenie nieobecności i zgoda na wizerunek. Reszta to odczyt.
+
+1. **Wykorzystanie kredytu przez rodzica.** Kafel mówi „3 kredyty do wykorzystania”, a w portalu
+   nie ma czym ich wykorzystać — odrabianie ustawia administrator. System informuje klienta
+   o należności i nie daje jej odebrać, więc **generuje telefon do administracji**: dokładnie
+   ten ruch, który miał wyeliminować. Kredyty i lista terminów odrabiania już istnieją.
+2. **Ekran projektów dla instruktora.** Zakładka „Materiały” w portalu rodzica będzie u większości
+   dzieci pusta, bo projekty zakłada się dziś przez API. Pusta zakładka jest gorsza niż jej brak.
+   API i portal gotowe — brakuje wyłącznie UI.
+3. **Publiczny formularz lekcji próbnej.** W całym API jest jeden endpoint anonimowy;
+   `/api/trials` to `AdminOnly`. Dokument koncepcyjny mówi „dziecko zgłasza się samo”, a w praktyce
+   ktoś przepisuje dane z telefonu albo maila. Moduł próbny jest gotowy, brakuje mu wejścia.
+4. **Kanał zwrotny rodzic → szkoła** (encja `Message`). Ostatni punkt MVP. Log wysyłek dowodzi
+   tylko tego, co **wysłaliśmy**; przy sporze „przecież ustaliliśmy inaczej” nie ma czym się bronić.
+
+Przy okazji: frontend to jeden chunk 617 kB, więc rodzic na telefonie pobiera całą aplikację
+administracyjną, żeby sprawdzić godzinę zajęć (p. 9 długu technicznego).
+
 ## Otwarty dług techniczny
 
 Stan na 13.08.2026. Lista rzeczy **znanych i świadomie odłożonych** — nie są to niespodzianki,
