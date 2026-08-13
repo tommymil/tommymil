@@ -24,6 +24,7 @@ Uwaga: domyślny katalog roboczy to często `backend`. Frontendu szukaj zawsze w
 - Pozostają w ASCII (bez ogonków) wyłącznie elementy techniczne: identyfikatory kodu, wartości enumów (`error`, `hint`, `pace`, `intro`, ...), klucze obiektów, nazwy plików, tras i klas CSS, adresy URL.
 - Parser importu (`features/import/lessonMarkdown.ts`) normalizuje polskie znaki przy dopasowaniu, więc treść konspektów piszemy poprawnie po polsku, a tagi typu `[błąd]`/`[podpowiedź]` działają tak samo jak ich formy ASCII.
 - **Cudzysłowy polskie zawsze parą `„…”`.** Wpisanie otwierającego `„` i zamknięcie go zwykłym `"` psuje literał w C# (`"Status „w toku" ..."` kończy string w środku zdania i wywala build). W literałach kodu bezpieczniej użyć apostrofów `'…'` albo w ogóle zrezygnować z cudzysłowu.
+- Obie zasady pilnują testy: `polishDiacritics.test.ts` skanuje źródła frontendu (`ts`, `tsx`, `css`), a `DocumentationQuotesTests` — pliki `.md` w całym repozytorium. Kontrola dokumentacji pomija bloki ``` i wstawki `…`, bo tam zwykły cudzysłów jest poprawny. **Pliki `.cs` nie są objęte** żadnym z nich.
 
 ## Architektura
 
@@ -41,7 +42,7 @@ Przy dodawaniu nowego endpointu **zawsze** wskaż politykę autoryzacji jawnie:
 - `RequireAuthorization("StaffOnly")` — konspekty, grafik, kalendarz (Admin + Instructor),
 - `RequireAuthorization("ParentOnly")` — portal rodzica.
 
-Samo `RequireAuthorization()` oznacza „dowolny zalogowany", czyli **także rodzic** — to był realny
+Samo `RequireAuthorization()` oznacza „dowolny zalogowany”, czyli **także rodzic** — to był realny
 wyciek treści konspektów. Nowe ścieżki uprawnień pokrywaj testem w `ApiAuthorizationTests`.
 
 ## Audyt
@@ -59,7 +60,7 @@ Nie nazwa encji (`User`) — inaczej filtrowanie po obszarze gubi część dzien
 ## Baza danych
 
 Migracje w repozytorium są wygenerowane dla SQLite. Nie zakładaj, że zadziałają na PostgreSQL —
-szczegóły w `README.md`, sekcja „Baza danych".
+szczegóły w `README.md`, sekcja „Baza danych”.
 
 ## Weryfikacja zmian
 

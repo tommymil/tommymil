@@ -666,7 +666,7 @@ nie pochodził z samej przebudowy interfejsu.
 Incydenty (rozdział 8) i zgłoszenia techniczne (rozdział 3). Backend kompletny, interfejs
 w kolejnym kroku.
 
-### Dlaczego dwie osobne encje, a nie jedna „zdarzenia"
+### Dlaczego dwie osobne encje, a nie jedna „zdarzenia”
 
 Zepsuty mikrofon i nękanie dziecka nie mają ze sobą nic wspólnego poza tym, że oba są
 zdarzeniem. Wspólna tabela wymuszałaby wspólne uprawnienia, a te **muszą** się różnić —
@@ -677,26 +677,26 @@ i to jest właściwy powód rozdzielenia, nie estetyka modelu.
 - **Nie trafiają do portalu rodzica.** Nigdy, w żadnej formie. O incydencie informuje
   człowiek w rozmowie, a nie powiadomienie wygenerowane z rekordu.
 - **Instruktor widzi wyłącznie własne zgłoszenia.** Wśród rodzajów jest „zachowanie osoby
-  prowadzącej"; rejestr, w którym każdy instruktor czyta zgłoszenia o wszystkich, jest
+  prowadzącej”; rejestr, w którym każdy instruktor czyta zgłoszenia o wszystkich, jest
   rejestrem, do którego nikt nie zgłosi niczego niewygodnego.
 - **Prowadzenie sprawy tylko dla administracji** (`AdminOnly` na trasie aktualizacji).
   Zgłaszać może każdy pracownik.
-- **Zamknięcie wymaga opisu rozwiązania.** Sprawa ze statusem „rozwiązana" i pustym polem
+- **Zamknięcie wymaga opisu rozwiązania.** Sprawa ze statusem „rozwiązana” i pustym polem
   nie jest dowodem na nic.
 - **Sprawy dotyczące dobra dziecka i zachowania personelu są z definicji pilne**, niezależnie
   od wagi wybranej przez zgłaszającego — żeby zgłoszenie „dziecko powiedziało coś
-  niepokojącego o domu" nie wylądowało na dole listy przez domyślną wagę zostawioną w pośpiechu.
+  niepokojącego o domu” nie wylądowało na dole listy przez domyślną wagę zostawioną w pośpiechu.
 - **Bez kluczy obcych** do grup, terminów i dzieci: sprawa ma przetrwać usunięcie grupy
   i anonimizację dziecka, bo to ona jest dowodem w razie sporu.
 - Identyfikatory dzieci jako lista rozdzielona przecinkami, nie tabela łącząca. Incydent
   dotyczy najczęściej jednego–dwojga dzieci, a jedyne potrzebne zapytanie to „incydenty
-  tego dziecka".
+  tego dziecka”.
 
 ### Zgłoszenia techniczne — decyzje
 
 - **Kluczowe jest powiązanie z dzieckiem, nie z terminem.** Wartość tego rejestru bierze się
-  z historii („trzeci raz to samo"), a nie z pojedynczego zgłoszenia. Bez tego każde zajęcia
-  zaczynają się od pytania „co ci znowu nie działa", bo nikt nie pamięta, że u tego dziecka
+  z historii („trzeci raz to samo”), a nie z pojedynczego zgłoszenia. Bez tego każde zajęcia
+  zaczynają się od pytania „co ci znowu nie działa”, bo nikt nie pamięta, że u tego dziecka
   Roblox nie instaluje się przez kontrolę rodzicielską.
 - **Opis rozwiązania wymagany przy zamknięciu** — to jest cała wartość rejestru.
 - **`CostLessonTime` jako osobne pole**, bo to ono decyduje o rozliczeniu: rozdział 7 traktuje
@@ -719,8 +719,8 @@ i to jest właściwy powód rozdzielenia, nie estetyka modelu.
 
 | Rola | Wejście | Co może |
 | --- | --- | --- |
-| Administrator | `/admin/safety`, menu „Bezpieczeństwo" | Oba rejestry, prowadzenie i zamykanie spraw |
-| Instruktor | kokpit zajęć: „Zgłoś incydent" oraz „Zapisz problem" przy dziecku | Wyłącznie zgłaszanie |
+| Administrator | `/admin/safety`, menu „Bezpieczeństwo” | Oba rejestry, prowadzenie i zamykanie spraw |
+| Instruktor | kokpit zajęć: „Zgłoś incydent” oraz „Zapisz problem” przy dziecku | Wyłącznie zgłaszanie |
 | Rodzic | — | Nic. Rejestr incydentów nie istnieje z perspektywy portalu rodzica |
 
 Instruktor **nie ma pozycji w menu**. To wynika wprost z decyzji backendu: prowadzenie sprawy
@@ -730,12 +730,12 @@ oba wejścia w kokpicie.
 
 ### Trzy decyzje warte zapamiętania
 
-- **Zapis problemu wisi przy znaczniku „problem techniczny", nie w osobnym miejscu.**
+- **Zapis problemu wisi przy znaczniku „problem techniczny”, nie w osobnym miejscu.**
   Znacznik żyje tylko do końca zajęć i nie zostawia śladu; zgłoszenie zostaje. Przycisk stoi
   tuż obok znacznika, żeby ta różnica nie wymagała szukania — w trakcie zajęć nikt nie szuka.
 - **Historia problemów dziecka pokazuje się w oknie zgłoszenia, nad formularzem** — a nie
   w rozwiniętym wierszu obecności, jak zakładał pierwszy plan. Powód: to jedyny moment,
-  w którym instruktor jej realnie potrzebuje („to samo było w marcu, pomogło X"), a przy
+  w którym instruktor jej realnie potrzebuje („to samo było w marcu, pomogło X”), a przy
   okazji to samo żądanie przynosi listę kategorii, więc nie ma osobnego zapytania o słownik.
   Ubocznie: szyna kokpitu zostaje komponentem prezentacyjnym, bez wywołań API.
 - **Listy awaryjne kategorii i rodzajów** (`SUPPORT_CATEGORY_FALLBACK`, `INCIDENT_KIND_FALLBACK`
@@ -1087,7 +1087,7 @@ dokumentu koncepcyjnego (historia terminów, obecności, log powiadomień, histo
     zgłaszanie dla całego personelu (także z kokpitu w trakcie zajęć).
 16. ~~**Zgłoszenia techniczne** (`SupportTicket`) i historia problemów przy dziecku~~ —
     ✅ **zrobione 04.08.2026**. Zgłoszenie jednym kliknięciem przy znaczniku „problem
-    techniczny", historia dziecka nad formularzem zgłoszenia.
+    techniczny”, historia dziecka nad formularzem zgłoszenia.
 17. **Test techniczny przed pierwszymi zajęciami** — checklista: mikrofon, kamera, przeglądarka,
     wymagany program, pobranie pliku testowego.
 18. **Zapasowy link, instrukcja dołączenia, lista wymaganych programów, zadanie awaryjne**

@@ -69,7 +69,7 @@ z zaufanej sieci**. Domyślnie są to pętla zwrotna i zakresy prywatne
 (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) — nginx w compose mieści się w drugim z nich.
 
 Ta lista nie jest ozdobnikiem. Gdy proxy do niej nie należy, nagłówek jest odrzucany i **wszyscy
-użytkownicy dzielą jeden adres IP**, więc limit „10 nieudanych logowań na 5 minut" staje się
+użytkownicy dzielą jeden adres IP**, więc limit „10 nieudanych logowań na 5 minut” staje się
 limitem na całą szkołę: dziesięć pomyłek jednej osoby blokuje pozostałym logowanie. W drugą
 stronę pusta lista (zaufanie wszystkim) pozwoliłaby obejść ten limit samym nagłówkiem.
 
@@ -119,7 +119,7 @@ dotnet ef database update --project LessonRunner.Infrastructure --startup-projec
 Konta zakłada administrator, ale hasła nie musi już wymyślać za nikogo.
 
 - `POST /api/auth/password-reset` — żądanie linku (bez logowania). Odpowiada `202` **zawsze**,
-  także dla adresu, którego nie ma w bazie: inaczej formularz „nie pamiętam hasła" byłby
+  także dla adresu, którego nie ma w bazie: inaczej formularz „nie pamiętam hasła” byłby
   sprawdzaczem, kto ma konto w systemie.
 - `GET /api/auth/password-reset/{token}` — czy link jeszcze żyje i czyje to konto.
 - `POST /api/auth/password-reset/confirm` — ustawienie hasła z linku.
