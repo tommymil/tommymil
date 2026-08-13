@@ -23,6 +23,7 @@ using LessonRunner.Application.Trials;
 using LessonRunner.Application.Scheduling;
 using LessonRunner.Application.Search;
 using LessonRunner.Api.Auditing;
+using LessonRunner.Api.Configuration;
 using LessonRunner.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -205,35 +206,9 @@ if (!app.Environment.IsDevelopment())
     // po cichu odrzucany i limit „10 prób na IP" działał jak jeden limit na całą instalację.
     // Zaufane sieci trzeba wskazać wprost, ale *tylko* je: przy pustej liście dowolny klient
     // podszyłby się pod cudzy adres samym nagłówkiem i obszedłby limit logowania.
-    var forwardedOptions = new ForwardedHeadersOptions
-    {
-        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-        // Jeden przeskok - między aplikacją a klientem stoi dokładnie jedno nasze proxy.
-        ForwardLimit = 1
-    };
-
-    forwardedOptions.KnownIPNetworks.Clear();
-    forwardedOptions.KnownProxies.Clear();
-
-    // Domyślnie adresy prywatne i pętla zwrotna: reverse proxy zawsze stoi pod takim adresem,
-    // a kontener API nie jest wystawiany na zewnątrz (patrz docker-compose.yml). Gdy proxy
-    // siedzi gdzie indziej, zawęź listę przez Security:TrustedProxyNetworks.
-    var trustedProxyNetworks = app.Configuration
-        .GetSection("Security:TrustedProxyNetworks")
-        .Get<string[]>() ?? ["127.0.0.1/8", "::1/128", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"];
-
-    foreach (var candidate in trustedProxyNetworks)
-    {
-        if (!System.Net.IPNetwork.TryParse(candidate, out var network))
-        {
-            throw new InvalidOperationException(
-                $"Security:TrustedProxyNetworks zawiera nieprawidłowy zakres CIDR: '{candidate}'.");
-        }
-
-        forwardedOptions.KnownIPNetworks.Add(network);
-    }
-
-    app.UseForwardedHeaders(forwardedOptions);
+    // Zaufane sieci i szczegóły decyzji: ForwardedHeadersSetup. Gdy proxy stoi pod adresem
+    // publicznym, zawęź listę przez Security:TrustedProxyNetworks.
+    app.UseForwardedHeaders(ForwardedHeadersSetup.Create(app.Configuration));
 
     // TLS zwykle kończy się na proxy, a kontener API mówi po HTTP. Wymuszanie HTTPS
     // wewnątrz aplikacji dawałoby wtedy pętlę przekierowań, dlatego jest to opcja włączana
