@@ -90,7 +90,7 @@ public sealed class ApiAuthorizationTests
         var known = await client.PostAsJsonAsync("/api/auth/password-reset", new { email = "istnieje@test.local" });
         var unknown = await client.PostAsJsonAsync("/api/auth/password-reset", new { email = "nie-ma@test.local" });
 
-        // Ta sama odpowiedź w obu przypadkach - inaczej formularz „nie pamiętam hasła" byłby
+        // Ta sama odpowiedź w obu przypadkach - inaczej formularz „nie pamiętam hasła” byłby
         // wygodnym sprawdzaczem, kto korzysta ze szkoły.
         Assert.Equal(HttpStatusCode.Accepted, known.StatusCode);
         Assert.Equal(HttpStatusCode.Accepted, unknown.StatusCode);

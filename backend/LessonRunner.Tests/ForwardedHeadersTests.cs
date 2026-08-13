@@ -11,7 +11,7 @@ namespace LessonRunner.Tests;
 
 /// <summary>
 /// Zaufanie do nagłówka X-Forwarded-For. Adres klienta decyduje o tym, kogo limituje
-/// polityka „auth" (10 nieudanych logowań na 5 minut), więc pomyłka w obie strony jest
+/// polityka „auth” (10 nieudanych logowań na 5 minut), więc pomyłka w obie strony jest
 /// kosztowna: przy zbyt wąskiej liście nagłówek jest odrzucany i cała szkoła dzieli jeden
 /// limit, przy zbyt szerokiej limit obchodzi się samym nagłówkiem.
 ///
@@ -29,7 +29,7 @@ public sealed class ForwardedHeadersTests
     public void DefaultNetworks_AreAllParsable()
     {
         // Regresja na literówkę w samych stałych: System.Net.IPNetwork odrzuca zapis
-        // z ustawionymi bitami hosta (np. „127.0.0.1/8"), a Create rzuca wtedy wyjątkiem
+        // z ustawionymi bitami hosta (np. „127.0.0.1/8”), a Create rzuca wtedy wyjątkiem
         // przy starcie aplikacji - czyli aplikacja w ogóle nie wstaje na produkcji.
         foreach (var network in ForwardedHeadersSetup.DefaultTrustedProxyNetworks)
         {

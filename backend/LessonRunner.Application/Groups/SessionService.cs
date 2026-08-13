@@ -304,7 +304,7 @@ public sealed class SessionService(
             }
 
             // Podsumowanie idzie tylko wtedy, gdy instruktor je napisał. Pusty mail
-            // „zajęcia się odbyły" jest gorszy niż brak maila.
+            // „zajęcia się odbyły” jest gorszy niż brak maila.
             if (!string.IsNullOrWhiteSpace(session.ParentSummary))
             {
                 await notificationService.NotifySessionSummaryAsync(sessionId, cancellationToken);
@@ -316,8 +316,8 @@ public sealed class SessionService(
         return GroupMapping.ToSessionDto(session, group, lessonTitles, null, instructorNames);
     }
 
-    /// <summary>Nierozpoznany albo pusty znacznik traktujemy jako „bez zmiany", a nie jako
-    /// „Working" - inaczej literówka we froncie kasowałaby stan całej listy.</summary>
+    /// <summary>Nierozpoznany albo pusty znacznik traktujemy jako „bez zmiany”, a nie jako
+    /// „Working” - inaczej literówka we froncie kasowałaby stan całej listy.</summary>
     private static LiveWorkStatus? ParseLiveStatus(string? value) =>
         string.IsNullOrWhiteSpace(value)
             ? null

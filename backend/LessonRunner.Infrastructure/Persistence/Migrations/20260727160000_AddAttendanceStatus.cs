@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LessonRunner.Infrastructure.Persistence.Migrations
 {
     /// <summary>
-    /// Rozszerzony status obecności zamiast samego „był / nie był".
+    /// Rozszerzony status obecności zamiast samego „był / nie był”.
     ///
     /// Na zajęciach online dziecko potrafi dołączyć 20 minut później, wypaść przez zerwane łącze
     /// albo siedzieć na spotkaniu bez pracy. Kolumna `Present` zostaje jako zdenormalizowany skrót

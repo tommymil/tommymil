@@ -23,8 +23,8 @@ public interface ISearchService
 /// - **Instruktor przeszukuje wyłącznie swoje grupy** i dzieci do nich zapisane, łącznie
 ///   z zastępstwami. Bez tego pole wyszukiwania byłoby najprostszą drogą do listy
 ///   wszystkich dzieci w szkole — a to dane, do których instruktor spoza grupy nie ma prawa.
-/// - **Porównujemy bez polskich znaków i bez wielkości liter.** Wpisanie „zosia" ma znaleźć
-///   „Zosię"; ta sama normalizacja działa już w parserze konspektów.
+/// - **Porównujemy bez polskich znaków i bez wielkości liter.** Wpisanie „zosia” ma znaleźć
+///   „Zosię”; ta sama normalizacja działa już w parserze konspektów.
 /// - **Nie przeszukujemy notatek o dzieciach.** Trafiają tam uwagi o potrzebach specjalnych
 ///   i sytuacji rodzinnej; wyszukiwarka po nich zamieniłaby te notatki w wyszukiwalny rejestr.
 /// - Wyniki są przycięte do 20 pozycji — lista, której nie da się przejrzeć jednym
@@ -131,7 +131,7 @@ public sealed class SearchService(
         return new SearchResponseDto(results.Take(MaxResults).ToList());
     }
 
-    /// <summary>Małe litery bez znaków diakrytycznych - „Zosia" i „zosia" mają się znaleźć tak samo.</summary>
+    /// <summary>Małe litery bez znaków diakrytycznych - „Zosia” i „zosia” mają się znaleźć tak samo.</summary>
     private static string Normalize(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -150,7 +150,7 @@ public sealed class SearchService(
             }
         }
 
-        // Polskie „ł" nie rozkłada się na literę bazową i znak diakrytyczny.
+        // Polskie „ł” nie rozkłada się na literę bazową i znak diakrytyczny.
         return builder.ToString().Normalize(NormalizationForm.FormC).Replace('ł', 'l');
     }
 }

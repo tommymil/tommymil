@@ -105,7 +105,7 @@ public sealed class GroupServiceTests
     }
 
     /// <summary>
-    /// Regresja pod „nie dostaliśmy informacji o zmianie": przesunięcie terminu musi zostawić
+    /// Regresja pod „nie dostaliśmy informacji o zmianie”: przesunięcie terminu musi zostawić
     /// ślad z poprzednią i nową datą, powodem, autorem i informacją o powiadomieniu opiekunów.
     /// </summary>
     [Fact]
@@ -187,7 +187,7 @@ public sealed class GroupServiceTests
             CancellationToken.None);
         var sessionId = group.Sessions[0].Id;
 
-        // „W toku" ustawia się wyłącznie przez rozpoczęcie zajęć - inaczej rozjechałyby się timery.
+        // „W toku” ustawia się wyłącznie przez rozpoczęcie zajęć - inaczej rozjechałyby się timery.
         await Assert.ThrowsAsync<ArgumentException>(() => service.SetSessionStatusAsync(
             group.Id, sessionId, new SetSessionStatusDto("inprogress"), null, CancellationToken.None));
 
@@ -940,7 +940,7 @@ public sealed class GroupServiceTests
 
         Assert.NotNull(export);
         var csv = Encoding.UTF8.GetString(export!.Content.Skip(3).ToArray());
-        // Eksport niesie teraz również pełny status i notatkę instruktora, nie tylko „tak/nie".
+        // Eksport niesie teraz również pełny status i notatkę instruktora, nie tylko „tak/nie”.
         Assert.Contains("Lp.;Uczestnik;Obecny;Status;Notatka;Podpis", csv);
         Assert.Contains("1;Jan Kowalski;tak;Obecny;;", csv);
         Assert.Contains("2;Ola Nowak;nie;Nieobecność niezgłoszona;;", csv);

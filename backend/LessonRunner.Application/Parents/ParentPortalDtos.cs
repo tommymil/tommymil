@@ -80,7 +80,7 @@ public sealed record ParentInvoiceDto(
     DateTimeOffset? PaidAt,
     Guid ParticipantId = default,
     /// <summary>Czy dokument jest po terminie płatności. Liczone przy odczycie, bo status
-    /// „Overdue" w bazie zmienia się dopiero przy jakiejś operacji na fakturze.</summary>
+    /// „Overdue” w bazie zmienia się dopiero przy jakiejś operacji na fakturze.</summary>
     bool IsOverdue = false);
 
 /// <summary>
@@ -136,7 +136,7 @@ public sealed record UpdateParentConsentDto(Guid ParticipantId, bool ImageConsen
 /// <summary>
 /// Liczby, które rodzic sprawdza naprawdę.
 ///
-/// Wcześniej portal pokazywał „Dzieci: 1", „Najbliższe terminy: 5" i „Rozliczenia: 3" —
+/// Wcześniej portal pokazywał „Dzieci: 1”, „Najbliższe terminy: 5” i „Rozliczenia: 3” —
 /// czyli liczbę faktur zamiast kwoty do zapłaty. Rodzic wie, ile ma dzieci; nie wie,
 /// ile jest winien i ile zajęć zostało w pakiecie.
 /// </summary>
@@ -195,7 +195,7 @@ public sealed record ParentPortalDto(
 public sealed record ParentParticipantLinkDto(
     Guid ParentUserId,
     Guid ParticipantId,
-    /// <summary>Kim opiekun jest dla dziecka: „mama", „tata", „opiekun prawny".</summary>
+    /// <summary>Kim opiekun jest dla dziecka: „mama”, „tata”, „opiekun prawny”.</summary>
     string? Relation = null,
     bool IsPrimaryContact = false,
     bool ReceivesNotifications = true);

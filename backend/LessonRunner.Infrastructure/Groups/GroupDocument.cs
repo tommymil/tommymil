@@ -87,7 +87,7 @@ internal sealed class AttendanceRecordDocument
     public DateTimeOffset? LeftAt { get; set; }
 
     /// <summary>Znacznik pracy na żywo. Puste = rekord sprzed migracji
-    /// `AddSessionDebriefAndLiveStatus`; przy odczycie podstawiamy „Working".</summary>
+    /// `AddSessionDebriefAndLiveStatus`; przy odczycie podstawiamy „Working”.</summary>
     public string LiveStatus { get; set; } = string.Empty;
 
     public bool MakeupRequired { get; set; }

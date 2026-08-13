@@ -17,7 +17,7 @@ public sealed class ParentParticipantLink : Entity
     public Guid ParentUserId { get; set; }
     public Guid ParticipantId { get; set; }
 
-    /// <summary>Kim jest dla dziecka: „mama", „tata", „opiekun prawny", „babcia".</summary>
+    /// <summary>Kim jest dla dziecka: „mama”, „tata”, „opiekun prawny”, „babcia”.</summary>
     public string? Relation { get; set; }
 
     /// <summary>Kontakt pierwszego wyboru — do niego dzwonimy, gdy trzeba zadzwonić do jednej osoby.</summary>

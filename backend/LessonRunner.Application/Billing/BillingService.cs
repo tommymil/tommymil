@@ -372,7 +372,7 @@ public sealed class BillingService(
     }
 
     /// <summary>Kredyty po terminie ważności przestawiamy przy odczycie - nie ma workera,
-    /// a przeterminowany kredyt pokazywany jako „do wykorzystania" wprowadza w błąd.</summary>
+    /// a przeterminowany kredyt pokazywany jako „do wykorzystania” wprowadza w błąd.</summary>
     private async Task<IReadOnlyList<LessonCredit>> ExpireOutdatedCreditsAsync(CancellationToken cancellationToken)
     {
         var credits = await billingRepository.ListCreditsAsync(cancellationToken);

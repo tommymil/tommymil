@@ -4,7 +4,7 @@ public sealed record AttendanceEntryDto(
     Guid ParticipantId,
     string FirstName,
     string LastName,
-    /// <summary>Skrót „liczy się jako obecność" - do frekwencji i szybkiego podglądu.</summary>
+    /// <summary>Skrót „liczy się jako obecność” - do frekwencji i szybkiego podglądu.</summary>
     bool Present,
     bool MakeupRequired,
     Guid? MakeupSessionId,

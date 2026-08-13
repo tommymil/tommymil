@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LessonRunner.Infrastructure.Persistence.Migrations
 {
     /// <summary>
-    /// Kredyty zajęciowe: „należą się jedne zajęcia".
+    /// Kredyty zajęciowe: „należą się jedne zajęcia”.
     ///
     /// Bez nich odrabianie było jedyną formą rekompensaty za odwołane zajęcia i nie zostawiało
     /// żadnego śladu w rozliczeniach. Kredyt zapisuje decyzję: komu, za co, dlaczego, kto ją

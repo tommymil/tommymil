@@ -13,7 +13,7 @@ namespace LessonRunner.Infrastructure.Persistence.Migrations
     /// dla rodzica; `Projects` z `ProjectSubmissions` trzymają kolejne wersje projektu.
     ///
     /// `ProjectSubmissions` są dopisywane, nigdy nadpisywane — reklamacja „projekt dziecka
-    /// zniknął" prawie zawsze znaczy „został zastąpiony gorszą wersją".
+    /// zniknął” prawie zawsze znaczy „został zastąpiony gorszą wersją”.
     ///
     /// Klucz obcy jest jeden: submission → project (kaskada), bo wersja bez projektu nie ma
     /// sensu. Do `Participants`, `Groups` i `ScheduledSessions` kluczy nie ma — dorobek dziecka

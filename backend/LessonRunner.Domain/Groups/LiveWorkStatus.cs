@@ -9,7 +9,7 @@ namespace LessonRunner.Domain.Groups;
 /// platformę do prowadzenia zajęć od kalendarza z listą obecności.
 ///
 /// Świadomie **nie jest to ocena ani ślad w dorobku dziecka**. Znacznik żyje tylko na czas
-/// jednych zajęć i nie trafia do portalu rodzica: „potrzebuje pomocy" jest informacją
+/// jednych zajęć i nie trafia do portalu rodzica: „potrzebuje pomocy” jest informacją
 /// organizacyjną dla prowadzącego, a pokazane rodzicowi zamieniłoby się w etykietę.
 /// </summary>
 public enum LiveWorkStatus

@@ -35,12 +35,12 @@ public enum LessonCreditUsage
 }
 
 /// <summary>
-/// Kredyt zajęciowy: „należą się jedne zajęcia".
+/// Kredyt zajęciowy: „należą się jedne zajęcia”.
 ///
 /// Kluczowa zasada z dokumentu koncepcyjnego: zmiany terminu NIE łączymy z rozliczeniem.
 /// Odwołanie zajęć jest osobnym zdarzeniem od decyzji, czy rodzicowi należy się zwrot,
 /// kredyt, odrobienie czy nic. Kredyt jest zapisem tej decyzji — i jedyną rzeczą, która
-/// pozwala później odpowiedzieć na pytanie „co nam się należy za te odwołane zajęcia".
+/// pozwala później odpowiedzieć na pytanie „co nam się należy za te odwołane zajęcia”.
 ///
 /// Jeden kredyt = jedne zajęcia. `AmountCents` wypełniamy tylko wtedy, gdy kredyt ma
 /// pomniejszyć płatność i znamy jego wartość pieniężną.

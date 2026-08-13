@@ -36,10 +36,10 @@ public sealed record DashboardGroupFillDto(
     int FillPercent);
 
 /// <summary>
-/// Pozycja listy „Wymaga uwagi".
+/// Pozycja listy „Wymaga uwagi”.
 ///
-/// Administrator otwiera panel z pytaniem „czym się dziś zająć", a dostawał tablicę
-/// sześciu liczb bez progów i bez trendu — „Frekwencja 87%" nie mówi, czy to dobrze.
+/// Administrator otwiera panel z pytaniem „czym się dziś zająć”, a dostawał tablicę
+/// sześciu liczb bez progów i bez trendu — „Frekwencja 87%” nie mówi, czy to dobrze.
 /// Każda pozycja tej listy jest konkretną sprawą z odnośnikiem do miejsca, w którym
 /// da się ją załatwić.
 /// </summary>

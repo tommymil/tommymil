@@ -24,7 +24,7 @@ Uwaga: domyślny katalog roboczy to często `backend`. Frontendu szukaj zawsze w
 - Pozostają w ASCII (bez ogonków) wyłącznie elementy techniczne: identyfikatory kodu, wartości enumów (`error`, `hint`, `pace`, `intro`, ...), klucze obiektów, nazwy plików, tras i klas CSS, adresy URL.
 - Parser importu (`features/import/lessonMarkdown.ts`) normalizuje polskie znaki przy dopasowaniu, więc treść konspektów piszemy poprawnie po polsku, a tagi typu `[błąd]`/`[podpowiedź]` działają tak samo jak ich formy ASCII.
 - **Cudzysłowy polskie zawsze parą `„…”`.** Wpisanie otwierającego `„` i zamknięcie go zwykłym `"` psuje literał w C# (`"Status „w toku" ..."` kończy string w środku zdania i wywala build). W literałach kodu bezpieczniej użyć apostrofów `'…'` albo w ogóle zrezygnować z cudzysłowu.
-- Obie zasady pilnują testy: `polishDiacritics.test.ts` skanuje źródła frontendu (`ts`, `tsx`, `css`), a `DocumentationQuotesTests` — pliki `.md` w całym repozytorium. Kontrola dokumentacji pomija bloki ``` i wstawki `…`, bo tam zwykły cudzysłów jest poprawny. **Pliki `.cs` nie są objęte** żadnym z nich.
+- Obie zasady pilnują testy: `polishDiacritics.test.ts` skanuje źródła frontendu (`ts`, `tsx`, `css`), a `PolishQuotesTests` — pliki `.md` i komentarze w `.cs` w całym repozytorium. W dokumentacji pomijane są bloki ``` i wstawki `…`, a w kodzie wszystko poza komentarzem: w literale ten błąd wyłapuje już kompilator, a wartości w rodzaju `"Overdue"` mają zostać w ASCII.
 
 ## Architektura
 

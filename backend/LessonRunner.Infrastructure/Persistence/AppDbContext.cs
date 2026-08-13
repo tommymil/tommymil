@@ -285,7 +285,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             builder.Property(ticket => ticket.Status).HasMaxLength(20).IsRequired();
             builder.Property(ticket => ticket.Description).HasMaxLength(4000).IsRequired();
             builder.Property(ticket => ticket.Resolution).HasMaxLength(4000);
-            // Najczęstsze zapytanie to „pokaż problemy tego dziecka" - historia jest tu
+            // Najczęstsze zapytanie to „pokaż problemy tego dziecka” - historia jest tu
             // wartościowsza niż pojedyncze zgłoszenie.
             builder.HasIndex(ticket => ticket.ParticipantId);
             builder.HasIndex(ticket => ticket.Status);
@@ -311,8 +311,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             builder.Property(trial => trial.DiagnosisNote).HasMaxLength(4000);
             builder.Property(trial => trial.Status).HasMaxLength(20).IsRequired();
             builder.Property(trial => trial.DeclineReason).HasMaxLength(1000);
-            // Dwa zapytania, które robimy naprawdę: „co czeka na decyzję" (status)
-            // i „moje lekcje próbne" (instruktor).
+            // Dwa zapytania, które robimy naprawdę: „co czeka na decyzję” (status)
+            // i „moje lekcje próbne” (instruktor).
             builder.HasIndex(trial => trial.Status);
             builder.HasIndex(trial => trial.InstructorId);
         });

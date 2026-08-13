@@ -130,7 +130,7 @@ internal sealed class EfUserRepository(AppDbContext dbContext) : IUserRepository
     /// <summary>
     /// Dokłada brakujące konta startowe.
     ///
-    /// Warunek jest per e-mail, a nie „czy w bazie jest jakikolwiek użytkownik". Przy tym
+    /// Warunek jest per e-mail, a nie „czy w bazie jest jakikolwiek użytkownik”. Przy tym
     /// drugim dopisanie nowego konta do seeda nie docierało do żadnego istniejącego
     /// środowiska deweloperskiego - baza miała już admina, więc seed kończył się na pierwszej
     /// linijce. Istniejących kont nie ruszamy: zmienione hasło ma zostać zmienione.

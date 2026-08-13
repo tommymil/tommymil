@@ -3,7 +3,7 @@ namespace LessonRunner.Domain.Groups;
 /// <summary>
 /// Status obecności dziecka na konkretnych zajęciach.
 ///
-/// Samo „był / nie był" jest za ubogie na zajęcia online: dziecko potrafi dołączyć 20 minut
+/// Samo „był / nie był” jest za ubogie na zajęcia online: dziecko potrafi dołączyć 20 minut
 /// później, wypaść przez zerwane łącze albo siedzieć na spotkaniu bez wykonywania zadań.
 /// Rodzic i instruktor opisują te sytuacje inaczej, a przy reklamacji różnica ma znaczenie.
 /// </summary>

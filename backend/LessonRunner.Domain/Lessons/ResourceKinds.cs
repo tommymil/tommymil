@@ -18,7 +18,7 @@ public enum LessonResourceKind
 /// Rodzaje wskazówek dla prowadzącego.
 ///
 /// `Faster` i `Shorter` powstały z rozbicia `Pace`, które mieszało dwie przeciwne sytuacje:
-/// „trójka skończyła, daj im coś więcej" i „zostało dziesięć minut, co wolno wyciąć".
+/// „trójka skończyła, daj im coś więcej” i „zostało dziesięć minut, co wolno wyciąć”.
 /// W trakcie zajęć to są dwa różne pytania i prowadzący zadaje je w różnych momentach.
 /// `Pace` zostaje dla wskazówek o samym rytmie lekcji.
 /// </summary>

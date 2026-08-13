@@ -3,11 +3,11 @@ using LessonRunner.Domain.Common;
 namespace LessonRunner.Domain.Progress;
 
 /// <summary>
-/// Projekt dziecka. Odpowiedź na reklamację „projekt dziecka zniknął" z rozdziału 12.
+/// Projekt dziecka. Odpowiedź na reklamację „projekt dziecka zniknął” z rozdziału 12.
 ///
 /// Projekt jest trwały, a jego kolejne wersje dopisujemy jako <see cref="ProjectSubmission"/> —
 /// nigdy nie nadpisujemy poprzedniej. Nadpisywanie byłoby wygodniejsze i dokładnie w tym miejscu
-/// zawodziłoby: „zniknął" prawie zawsze znaczy „został zastąpiony gorszą wersją".
+/// zawodziłoby: „zniknął” prawie zawsze znaczy „został zastąpiony gorszą wersją”.
 /// </summary>
 public sealed class Project : Entity
 {

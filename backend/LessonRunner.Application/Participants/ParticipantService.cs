@@ -9,7 +9,7 @@ public sealed class ParticipantService(
     IParticipantRepository participantRepository,
     IGroupRepository groupRepository,
     // Opcjonalne, żeby testy budujące serwis ręcznie nadal się kompilowały. Brak repozytorium
-    // oznacza „nie wiemy o żadnym koncie opiekuna", a nie wywróconą listę uczestników.
+    // oznacza „nie wiemy o żadnym koncie opiekuna”, a nie wywróconą listę uczestników.
     IParentPortalRepository? parentRepository = null) : IParticipantService
 {
     public async Task<IReadOnlyList<ParticipantSummaryDto>> GetSummariesAsync(

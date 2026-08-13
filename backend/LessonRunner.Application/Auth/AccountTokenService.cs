@@ -10,7 +10,7 @@ namespace LessonRunner.Application.Auth;
 ///
 /// Decyzje warte zapamiętania:
 /// - **Żądanie resetu nigdy nie zdradza, czy konto istnieje.** Odpowiedź jest identyczna dla
-///   adresu znanego i nieznanego. Inaczej formularz „nie pamiętam hasła" byłby wygodnym
+///   adresu znanego i nieznanego. Inaczej formularz „nie pamiętam hasła” byłby wygodnym
 ///   sprawdzaczem, którzy rodzice korzystają ze szkoły.
 /// - **W bazie leży wyłącznie skrót tokenu.** Postać jawna istnieje tylko w wysłanym e-mailu.
 /// - **Wydanie nowego tokenu unieważnia poprzednie.** W skrzynce może leżeć kilka wiadomości;

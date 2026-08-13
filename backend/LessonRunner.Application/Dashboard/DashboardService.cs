@@ -205,7 +205,7 @@ public sealed class DashboardService(
         if (billingRepository is not null)
         {
             // 5. Faktury po terminie. Liczymy z daty, a nie ze statusu w bazie - status
-            //    „Overdue" zmienia się dopiero przy jakiejś operacji na fakturze.
+            //    „Overdue” zmienia się dopiero przy jakiejś operacji na fakturze.
             var overdue = (await billingRepository.ListInvoicesAsync(cancellationToken))
                 .Where(invoice => invoice.Status is Domain.Billing.InvoiceStatus.Open
                     or Domain.Billing.InvoiceStatus.Overdue)
@@ -225,7 +225,7 @@ public sealed class DashboardService(
             }
 
             // 6. Kredyty tracące ważność w ciągu miesiąca - przeterminowany kredyt to
-            //    najczęstsza przyczyna rozmowy „przecież nam się należało".
+            //    najczęstsza przyczyna rozmowy „przecież nam się należało”.
             var expiring = (await billingRepository.ListCreditsAsync(cancellationToken))
                 .Where(credit => credit.IsUsable(today))
                 .Where(credit => credit.ExpiresAt is DateOnly expires && expires <= today.AddDays(30))

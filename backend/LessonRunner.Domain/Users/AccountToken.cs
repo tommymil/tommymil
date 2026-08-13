@@ -26,7 +26,7 @@ public sealed class AccountToken : Entity
     /// <summary>Kiedy token został zużyty. Niepusty = token jest już martwy.</summary>
     public DateTimeOffset? UsedAt { get; set; }
 
-    /// <summary>Kto wydał token. Puste przy samodzielnym resecie — wtedy nie ma „kto",
+    /// <summary>Kto wydał token. Puste przy samodzielnym resecie — wtedy nie ma „kto”,
     /// bo żądanie przychodzi bez zalogowania.</summary>
     public Guid? IssuedByUserId { get; init; }
 

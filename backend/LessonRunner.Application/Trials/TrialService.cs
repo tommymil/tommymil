@@ -28,7 +28,7 @@ public sealed class TrialService(
         var trial = await trialRepository.GetByIdAsync(id, cancellationToken);
 
         // Instruktor pyta o cudzą lekcję próbną - odpowiadamy tak samo jak przy nieistniejącej.
-        // Informacja „taka lekcja istnieje, ale nie twoja" też jest informacją o kandydacie.
+        // Informacja „taka lekcja istnieje, ale nie twoja” też jest informacją o kandydacie.
         if (trial is null || (instructorId is not null && trial.InstructorId != instructorId))
         {
             return null;
@@ -123,7 +123,7 @@ public sealed class TrialService(
         trial.DiagnosedAt = DateTimeOffset.UtcNow;
         trial.DiagnosedByUserId = userId;
 
-        // Do stanu „po lekcji" przechodzimy dopiero przy komplecie odpowiedzi. Instruktor
+        // Do stanu „po lekcji” przechodzimy dopiero przy komplecie odpowiedzi. Instruktor
         // może zapisać diagnozę w kawałkach, ale administracja ma zobaczyć na liście
         // wyłącznie te sprawy, w których faktycznie jest już co decydować.
         if (trial.HasDiagnosis && !trial.Status.IsClosed())

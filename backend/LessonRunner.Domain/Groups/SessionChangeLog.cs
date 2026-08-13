@@ -26,7 +26,7 @@ public enum SessionChangeType
 /// <summary>
 /// Pojedynczy wpis w historii zmian terminu.
 ///
-/// Powód istnienia jest prozaiczny: przy zdaniu „nie dostaliśmy informacji o zmianie" trzeba
+/// Powód istnienia jest prozaiczny: przy zdaniu „nie dostaliśmy informacji o zmianie” trzeba
 /// mieć czym odpowiedzieć. Nadpisanie `ScheduledAt` nie zostawia śladu, kto, kiedy i dlaczego
 /// przesunął zajęcia — a to najczęstsze źródło sporów z rodzicami.
 ///
@@ -45,7 +45,7 @@ public sealed class SessionChangeLog : Entity
     /// <summary>Powód podany przez osobę wykonującą zmianę.</summary>
     public string? Reason { get; set; }
 
-    /// <summary>Dodatkowy opis maszynowy, np. „zastępstwo: Anna Nowak".</summary>
+    /// <summary>Dodatkowy opis maszynowy, np. „zastępstwo: Anna Nowak”.</summary>
     public string? Details { get; set; }
 
     /// <summary>Kto dokonał zmiany. Null oznacza operację systemową (np. generator terminów).</summary>

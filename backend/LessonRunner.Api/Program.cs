@@ -203,7 +203,7 @@ if (!app.Environment.IsDevelopment())
     //
     // Włączenie nagłówków nie wystarczy. Domyślnie ASP.NET Core ufa wyłącznie pętli zwrotnej,
     // a nginx w compose ma adres z sieci bridge (172.x) - jego X-Forwarded-For był więc
-    // po cichu odrzucany i limit „10 prób na IP" działał jak jeden limit na całą instalację.
+    // po cichu odrzucany i limit „10 prób na IP” działał jak jeden limit na całą instalację.
     // Zaufane sieci trzeba wskazać wprost, ale *tylko* je: przy pustej liście dowolny klient
     // podszyłby się pod cudzy adres samym nagłówkiem i obszedłby limit logowania.
     // Zaufane sieci i szczegóły decyzji: ForwardedHeadersSetup. Gdy proxy stoi pod adresem
@@ -1348,7 +1348,7 @@ parentPortal.MapPut("/consents", async (
 
 // Wyszukiwanie globalne. Grupa jest tylko do odczytu, więc bez filtra audytu
 // (odczytów świadomie nie logujemy - zaśmiecałyby dziennik, nie zmieniając stanu).
-// Rola „Parent" nie ma tu wstępu: wyszukiwarka po dzieciach i grupach byłaby
+// Rola „Parent” nie ma tu wstępu: wyszukiwarka po dzieciach i grupach byłaby
 // najprostszą drogą do listy cudzych dzieci.
 // --- Incydenty i zgłoszenia techniczne (rozdziały 3 i 8 dokumentu koncepcyjnego) ---
 //
@@ -1602,7 +1602,7 @@ myTrials.MapPut("/{id:guid}/diagnosis", async (
     }
 
     // Administrator bywa prowadzącym, ale i tak diagnozę zapisuje wyłącznie do swojej
-    // lekcji - inaczej wpis „stwierdził X" nosiłby nazwisko osoby, której tam nie było.
+    // lekcji - inaczej wpis „stwierdził X” nosiłby nazwisko osoby, której tam nie było.
     var trial = await trialService.SaveDiagnosisAsync(id, dto, userId.Value, userId.Value, cancellationToken);
     return trial is null ? Results.NotFound() : Results.Ok(trial);
 })

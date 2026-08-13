@@ -90,7 +90,7 @@ public sealed class ParentPortalServiceTests
         Assert.Single(portal.Schedule);
         Assert.Equal("https://meet.google.com/abc-defg-hij", portal.Schedule[0].MeetingUrl);
         // Konto instruktora nie ma wpisanego imienia. Rodzic ma zobaczyć rolę, a nie
-        // służbowy adres e-mail pracownika - `DisplayName` zwróciłby tu „i@example.com".
+        // służbowy adres e-mail pracownika - `DisplayName` zwróciłby tu „i@example.com”.
         Assert.Equal("Instruktor", portal.Schedule[0].InstructorName);
         Assert.Single(portal.Attendance);
         Assert.Equal(100, portal.Attendance[0].RatePercent);
@@ -192,7 +192,7 @@ public sealed class ParentPortalServiceTests
     }
 
     /// <summary>
-    /// Domyka pętlę z etapu A1: status „nieobecność zgłoszona" istniał, ale nic nie mogło go
+    /// Domyka pętlę z etapu A1: status „nieobecność zgłoszona” istniał, ale nic nie mogło go
     /// ustawić od strony rodzica. Teraz rodzic zgłasza sam, a instruktor widzi to na liście.
     /// </summary>
     [Fact]

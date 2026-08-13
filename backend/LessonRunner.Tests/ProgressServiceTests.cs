@@ -130,7 +130,7 @@ public sealed class ProgressServiceTests
             isAdmin: false,
             CancellationToken.None);
 
-        // „Projekt dziecka zniknął" prawie zawsze znaczy „został zastąpiony gorszą wersją" -
+        // „Projekt dziecka zniknął” prawie zawsze znaczy „został zastąpiony gorszą wersją” -
         // dlatego poprzednia wersja zostaje.
         Assert.Equal(2, afterSecond!.Submissions.Count);
         Assert.Equal([2, 1], afterSecond.Submissions.Select(item => item.Version).ToArray());

@@ -20,7 +20,7 @@ public sealed class AuditService(IAuditRepository auditRepository) : IAuditServi
             ActorUserId = actorUserId,
             Action = Normalize(action, "unknown"),
             // Obszar trzymamy w jednej konwencji: małe litery, tak jak segment ścieżki
-            // („users", „groups", „billing"). Jawne wpisy używały kiedyś „User", przez co
+            // („users”, „groups”, „billing”). Jawne wpisy używały kiedyś „User”, przez co
             // filtrowanie po obszarze gubiło połowę dziennika.
             EntityType = Normalize(entityType, "unknown").ToLowerInvariant(),
             EntityId = string.IsNullOrWhiteSpace(entityId) ? null : entityId.Trim(),

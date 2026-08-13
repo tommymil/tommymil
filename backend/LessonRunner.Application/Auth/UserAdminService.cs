@@ -38,8 +38,8 @@ public sealed class UserAdminService(IUserRepository userRepository, IPasswordHa
         {
             Email = normalizedEmail,
             // Konto bez hasła dostaje skrót z losowego ciągu, którego nikt nie zna. Nie ma tu
-            // osobnego stanu „brak hasła", bo taki stan prędzej czy później ktoś potraktowałby
-            // jako „hasło się zgadza". Zalogować się da dopiero po ustawieniu hasła z zaproszenia.
+            // osobnego stanu „brak hasła”, bo taki stan prędzej czy później ktoś potraktowałby
+            // jako „hasło się zgadza”. Zalogować się da dopiero po ustawieniu hasła z zaproszenia.
             PasswordHash = passwordHasher.Hash(withoutPassword ? UnusablePassword() : dto.Password!),
             Role = role,
             FirstName = NullIfEmpty(dto.FirstName),

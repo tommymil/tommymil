@@ -5,12 +5,12 @@ namespace LessonRunner.Domain.Progress;
 /// <summary>
 /// Wpis o postępie dziecka — jeden na dziecko na termin.
 ///
-/// To jest odpowiedź na najczęstsze pytanie rodzica („czego dziecko się nauczyło?") i na
-/// najtrudniejszą reklamację („moje dziecko niczego się nie nauczyło"). Bez takich wpisów
+/// To jest odpowiedź na najczęstsze pytanie rodzica („czego dziecko się nauczyło?”) i na
+/// najtrudniejszą reklamację („moje dziecko niczego się nie nauczyło”). Bez takich wpisów
 /// jedyne, co mamy po pół roku zajęć, to lista obecności.
 ///
 /// **Notatka jest jedna i z definicji widoczna dla rodzica.** Świadomie nie ma tu drugiego,
-/// „wewnętrznego" pola: notatka, o której trzeba pamiętać, że jej nie widać, prędzej czy później
+/// „wewnętrznego” pola: notatka, o której trzeba pamiętać, że jej nie widać, prędzej czy później
 /// zostanie pokazana. Uwagi wyłącznie dla zespołu wpisuje się w notatkę terminu, która do portalu
 /// rodzica nie trafia w ogóle.
 /// </summary>

@@ -22,7 +22,7 @@ public interface IGuardianDirectory
 }
 
 /// <summary>
-/// Jedno miejsce, które odpowiada na pytanie „do kogo napisać w sprawie tego dziecka".
+/// Jedno miejsce, które odpowiada na pytanie „do kogo napisać w sprawie tego dziecka”.
 ///
 /// Zasada rozstrzygania jest prosta i celowo bezwarunkowa:
 /// **są powiązane konta opiekunów → piszemy do nich i tylko do nich; nie ma żadnego →

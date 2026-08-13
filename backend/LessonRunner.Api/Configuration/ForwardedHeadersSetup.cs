@@ -22,7 +22,7 @@ public static class ForwardedHeadersSetup
     /// <summary>
     /// Lista zaufanych sieci musi być podana wprost i nie może być pusta. Domyślnie ASP.NET Core
     /// ufa wyłącznie pętli zwrotnej, więc nagłówek od nginxa z sieci bridge byłby po cichu
-    /// odrzucany: limiter partycjonowałby po adresie proxy i „10 prób na IP" działałoby jak jeden
+    /// odrzucany: limiter partycjonowałby po adresie proxy i „10 prób na IP” działałoby jak jeden
     /// limit na całą instalację. Zaufanie wszystkim jest drugą skrajnością - wtedy dowolny klient
     /// obchodzi ten limit, podstawiając cudzy adres w nagłówku.
     /// </summary>

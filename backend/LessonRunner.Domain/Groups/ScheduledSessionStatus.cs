@@ -4,11 +4,11 @@ namespace LessonRunner.Domain.Groups;
 /// Status pojedynczych zajęć.
 ///
 /// Cztery stany (zaplanowane / w toku / zakończone / odwołane) nie wystarczają, gdy trzeba
-/// rozliczyć się z rodzicem. „Odwołane" znaczy co innego, gdy odwołał instruktor, a co innego,
+/// rozliczyć się z rodzicem. „Odwołane” znaczy co innego, gdy odwołał instruktor, a co innego,
 /// gdy zgłosił się rodzic; zajęcia przerwane awarią to nie to samo, co zajęcia, które
 /// po prostu się nie odbyły.
 ///
-/// Świadomie NIE ma tu statusu „przełożone": w tym modelu przełożenie przesuwa ten sam rekord,
+/// Świadomie NIE ma tu statusu „przełożone”: w tym modelu przełożenie przesuwa ten sam rekord,
 /// więc po zmianie termin nadal jest zaplanowany, tylko na inną datę. Fakt przełożenia
 /// (z poprzednią datą, powodem i autorem) trzyma <see cref="SessionChangeLog"/>.
 /// </summary>

@@ -26,7 +26,7 @@ public sealed class NotificationSettings
 ///   (`{{previousAt}}`, `{{reason}}`, `{{summary}}`, `{{amount}}`, `{{dueDate}}`). Wpuszczenie
 ///   ich do wspólnego edytora oznaczałoby, że administrator może wstawić `{{amount}}`
 ///   do przypomnienia o zajęciach i dostać w mailu surowy `{{amount}}`.
-/// - Wiadomość o zmianie terminu jest dowodem przy reklamacji „nie dostaliśmy informacji";
+/// - Wiadomość o zmianie terminu jest dowodem przy reklamacji „nie dostaliśmy informacji”;
 ///   szablon zepsuty literówką psuje ten dowód po cichu.
 ///
 /// Wyniesienie ich do ustawień to osobna zmiana: dziewięć kolumn, migracja i walidacja

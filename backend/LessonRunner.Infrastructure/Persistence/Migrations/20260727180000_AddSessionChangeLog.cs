@@ -10,7 +10,7 @@ namespace LessonRunner.Infrastructure.Persistence.Migrations
     /// informacja do opiekunów.
     ///
     /// Bez tego przesunięcie zajęć nadpisuje `ScheduledAt` bez śladu, a przy zdaniu
-    /// „nie dostaliśmy informacji o zmianie" nie ma czym odpowiedzieć.
+    /// „nie dostaliśmy informacji o zmianie” nie ma czym odpowiedzieć.
     ///
     /// Tabela celowo nie ma klucza obcego do `ScheduledSessions` ani `Groups` — historia ma
     /// przetrwać usunięcie terminu albo grupy, bo to właśnie wtedy bywa najbardziej potrzebna.

@@ -115,9 +115,9 @@ public sealed class ParentPortalService(
                 invoice.DueDate,
                 invoice.PaidAt,
                 invoice.ParticipantId,
-                // Zaległość liczymy przy odczycie. Status „Overdue" w bazie zmienia się
+                // Zaległość liczymy przy odczycie. Status „Overdue” w bazie zmienia się
                 // dopiero przy jakiejś operacji na fakturze, więc dokument po terminie
-                // potrafiłby tygodniami pokazywać się rodzicowi jako „Do zapłaty".
+                // potrafiłby tygodniami pokazywać się rodzicowi jako „Do zapłaty”.
                 IsUnpaid(invoice.Status) && invoice.DueDate < today))
             .ToList();
 
@@ -216,7 +216,7 @@ public sealed class ParentPortalService(
     /// <summary>
     /// Cztery liczby, po które rodzic wchodzi do portalu.
     ///
-    /// „Do zapłaty" liczymy z faktur nieopłaconych i nieanulowanych; „zaległe" to ich
+    /// „Do zapłaty” liczymy z faktur nieopłaconych i nieanulowanych; „zaległe” to ich
     /// podzbiór po terminie. Walutę bierzemy z pierwszej niezapłaconej faktury —
     /// szkoła rozlicza się w jednej walucie, a sumowanie różnych dałoby liczbę,
     /// która nic nie znaczy.
@@ -302,7 +302,7 @@ public sealed class ParentPortalService(
     ///
     /// Świadomie nie sięgamy po <c>User.DisplayName</c>: przy koncie bez wpisanego imienia
     /// zwraca ono adres e-mail, więc służbowy adres pracownika lądował u klienta szkoły
-    /// jako „prowadzi jan.kowalski@...". Rodzicowi wystarczy wtedy sama rola.
+    /// jako „prowadzi jan.kowalski@...”. Rodzicowi wystarczy wtedy sama rola.
     /// </summary>
     private static string InstructorName(User user)
     {
@@ -704,11 +704,11 @@ public sealed class ParentPortalService(
     }
 
     /// <summary>
-    /// Rozbicie „Katarzyna Kowalska" na imię i nazwisko.
+    /// Rozbicie „Katarzyna Kowalska” na imię i nazwisko.
     ///
     /// Ostatni człon to nazwisko, reszta to imiona - przy nazwiskach dwuczłonowych
-    /// („Anna Kowalska-Nowak") i tak wychodzi poprawnie, a przy pustym polu wolimy zostawić
-    /// `null` niż zgadywać: konto z imieniem „—" jest gorsze niż konto podpisane adresem.
+    /// („Anna Kowalska-Nowak”) i tak wychodzi poprawnie, a przy pustym polu wolimy zostawić
+    /// `null` niż zgadywać: konto z imieniem „—” jest gorsze niż konto podpisane adresem.
     /// </summary>
     private static (string? FirstName, string? LastName) SplitGuardianName(string? guardianName)
     {
