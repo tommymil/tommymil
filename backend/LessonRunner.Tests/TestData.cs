@@ -25,7 +25,7 @@ internal static class TestData
                     Order = 1,
                     Type = LessonStepType.Intro,
                     Title = "Wprowadzenie",
-                    DurationMinutes = 5,
+                    DurationMinutes = 45,
                     Script = ["Przywitaj się", "Pokaż cel lekcji"],
                     StudentItems =
                     [
@@ -46,7 +46,7 @@ internal static class TestData
                     Order = 2,
                     Type = LessonStepType.Challenge,
                     Title = "Wyzwanie",
-                    DurationMinutes = 10,
+                    DurationMinutes = 50,
                     Script = ["Daj zadanie"]
                 }
             ]
@@ -69,7 +69,7 @@ internal static class TestData
                 new CreateLessonStepDto(
                     Type: "intro",
                     Title: "Wprowadzenie",
-                    DurationMinutes: 5,
+                    DurationMinutes: 45,
                     Script: ["Przywitaj się", "Pokaż cel lekcji"],
                     StudentItems:
                     [
@@ -87,7 +87,7 @@ internal static class TestData
                 new CreateLessonStepDto(
                     Type: "challenge",
                     Title: "Wyzwanie",
-                    DurationMinutes: 10,
+                    DurationMinutes: 50,
                     Script: ["Daj zadanie"],
                     StudentItems: [],
                     Resources: [],

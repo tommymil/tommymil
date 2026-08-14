@@ -39,7 +39,11 @@ public sealed class LessonQueries(ILessonRepository lessonRepository) : ILessonQ
             lesson.Status.ToString().ToLowerInvariant(),
             ToStatusLabel(lesson.Status),
             lesson.Steps.Count,
-            duration);
+            duration,
+            lesson.Kind.Name(),
+            lesson.Kind.Label(),
+            lesson.Kind.ScheduledDurationMinutes(),
+            lesson.Kind.EarlyLeaveAfterMinutes());
     }
 
     private static LessonDetailsDto ToDetails(Lesson lesson)
@@ -84,7 +88,11 @@ public sealed class LessonQueries(ILessonRepository lessonRepository) : ILessonQ
             lesson.Objective,
             lesson.SuccessCriteria,
             lesson.Preparation,
-            lesson.Homework);
+            lesson.Homework,
+            lesson.Kind.Name(),
+            lesson.Kind.Label(),
+            lesson.Kind.ScheduledDurationMinutes(),
+            lesson.Kind.EarlyLeaveAfterMinutes());
     }
 
     private static LessonProjectFilesDto ToProjectFiles(LessonProjectFiles projectFiles)

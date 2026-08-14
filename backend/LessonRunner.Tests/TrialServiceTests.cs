@@ -1,6 +1,7 @@
 using LessonRunner.Application.Auth;
 using LessonRunner.Application.Parents;
 using LessonRunner.Application.Trials;
+using LessonRunner.Domain.Lessons;
 using LessonRunner.Domain.Users;
 using LessonRunner.Infrastructure.Auth;
 using Xunit;
@@ -50,6 +51,49 @@ public sealed class TrialServiceTests
             CancellationToken.None);
 
         Assert.Equal("requested", cleared!.Status);
+    }
+
+    [Fact]
+    public async Task ScheduleAsync_AcceptsOnlyShowcaseLessonPlans()
+    {
+        var fixture = new Fixture();
+        var trial = await fixture.CreateAsync();
+        var standard = new Lesson
+        {
+            Title = "Zwykła lekcja",
+            Subject = "Scratch",
+            Level = "Poziom 1",
+            Description = "Opis",
+            Kind = LessonKind.Standard
+        };
+        var showcase = new Lesson
+        {
+            Title = "Pokaz Scratcha",
+            Subject = "Scratch",
+            Level = "Poziom 1",
+            Description = "Opis",
+            Kind = LessonKind.Showcase,
+            Status = LessonStatus.Ready
+        };
+        await fixture.Lessons.AddAsync(standard, CancellationToken.None);
+        await fixture.Lessons.AddAsync(showcase, CancellationToken.None);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => fixture.Service.ScheduleAsync(
+            trial.Id,
+            new ScheduleTrialDto(fixture.Instructor.Id, DateTimeOffset.UtcNow.AddDays(1), LessonId: standard.Id),
+            CancellationToken.None));
+
+        var scheduled = await fixture.Service.ScheduleAsync(
+            trial.Id,
+            new ScheduleTrialDto(fixture.Instructor.Id, DateTimeOffset.UtcNow.AddDays(1), LessonId: showcase.Id),
+            CancellationToken.None);
+        var board = await fixture.Service.GetBoardAsync(CancellationToken.None);
+
+        Assert.Equal(showcase.Id, scheduled!.LessonId);
+        Assert.Equal(60, scheduled.DurationMinutes);
+        Assert.Equal(55, scheduled.EarlyLeaveAfterMinutes);
+        Assert.Single(board.LessonOptions!);
+        Assert.Equal(showcase.Id, board.LessonOptions![0].Id);
     }
 
     [Fact]
@@ -184,6 +228,7 @@ public sealed class TrialServiceTests
         public InMemoryParticipantRepository Participants { get; } = new();
         public InMemoryParentPortalRepository Links { get; } = new();
         public InMemoryTrialRepository Trials { get; } = new();
+        public InMemoryLessonRepository Lessons { get; } = new();
         public FakeEmailSender Emails { get; } = new();
         public User Instructor { get; }
         public ITrialService Service { get; }
@@ -211,7 +256,7 @@ public sealed class TrialServiceTests
                     new InMemoryNotificationRepository(),
                     new AppOptions { PublicOrigin = "https://zajecia.test" }));
 
-            Service = new TrialService(Trials, Users, new InMemoryLessonRepository(), Participants, parentPortal);
+            Service = new TrialService(Trials, Users, Lessons, Participants, parentPortal);
         }
 
         public Task<TrialLessonDto> CreateAsync() =>

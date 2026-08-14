@@ -1,3 +1,5 @@
+using LessonRunner.Domain.Lessons;
+
 namespace LessonRunner.Application.Parents;
 
 public sealed record ParentChildDto(
@@ -23,7 +25,11 @@ public sealed record ParentScheduleItemDto(
     /// Rodzic pyta o postęp kursu częściej niż o pojedynczy termin.</summary>
     int SequenceNumber = 0,
     int CourseLength = 0,
-    string? InstructorName = null);
+    string? InstructorName = null,
+    int DurationMinutes = LessonKindExtensions.StandardDurationMinutes,
+    int? EarlyLeaveAfterMinutes = null,
+    string LessonKind = "standard",
+    string LessonKindLabel = "Standardowa grupowa (45 + 5 + 45 min)");
 
 /// <summary>Dziecko na konkretnym terminie wraz z informacją, czy zgłoszono już nieobecność.</summary>
 public sealed record ParentSessionChildDto(

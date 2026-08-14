@@ -70,24 +70,34 @@ public sealed class ParentPortalService(
             .Where(item => item.session.Status.IsActive())
             .OrderBy(item => item.session.ScheduledAt)
             .Take(30)
-            .Select(item => new ParentScheduleItemDto(
-                item.session.Id,
-                item.group.Id,
-                item.group.Name,
-                item.session.LessonId is Guid lessonId && lessonTitles.TryGetValue(lessonId, out var title) ? title : null,
-                item.session.ScheduledAt,
-                StatusName(item.session.Status),
-                StatusLabel(item.session.Status),
-                // Link terminu wygrywa z linkiem grupy - zastępstwo bywa prowadzone
-                // w innym pokoju niż zwykłe zajęcia.
-                string.IsNullOrWhiteSpace(item.session.MeetingUrl) ? item.group.MeetingUrl : item.session.MeetingUrl,
-                SessionChildren(item.group, item.session, participantIds, participants),
-                item.session.SequenceNumber,
-                item.group.Sessions.Count,
-                // Zastępstwo wygrywa z instruktorem grupy - rodzic ma wiedzieć, kto
-                // faktycznie poprowadzi te zajęcia.
-                instructorNames.GetValueOrDefault(
-                    item.session.SubstituteInstructorId ?? item.group.InstructorId)))
+            .Select(item =>
+            {
+                var lesson = item.session.LessonId is Guid lessonId
+                    ? lessonsById.GetValueOrDefault(lessonId)
+                    : null;
+
+                return new ParentScheduleItemDto(
+                    item.session.Id,
+                    item.group.Id,
+                    item.group.Name,
+                    lesson?.Title,
+                    item.session.ScheduledAt,
+                    StatusName(item.session.Status),
+                    StatusLabel(item.session.Status),
+                    // Link terminu wygrywa z linkiem grupy - zastępstwo bywa prowadzone
+                    // w innym pokoju niż zwykłe zajęcia.
+                    string.IsNullOrWhiteSpace(item.session.MeetingUrl) ? item.group.MeetingUrl : item.session.MeetingUrl,
+                    SessionChildren(item.group, item.session, participantIds, participants),
+                    item.session.SequenceNumber,
+                    item.group.Sessions.Count,
+                    // Zastępstwo wygrywa z instruktorem grupy - rodzic ma wiedzieć, kto
+                    // faktycznie poprowadzi te zajęcia.
+                    instructorNames.GetValueOrDefault(item.session.SubstituteInstructorId ?? item.group.InstructorId),
+                    lesson?.Kind.ScheduledDurationMinutes() ?? LessonKindExtensions.StandardDurationMinutes,
+                    lesson?.Kind.EarlyLeaveAfterMinutes(),
+                    (lesson?.Kind ?? LessonKind.Standard).Name(),
+                    (lesson?.Kind ?? LessonKind.Standard).Label());
+            })
             .ToList();
 
         var attendance = groups
@@ -432,7 +442,7 @@ public sealed class ParentPortalService(
                 item.SessionId,
                 $"{item.GroupName}: {item.LessonTitle ?? "zajęcia"}",
                 item.ScheduledAt,
-                CalendarExport.DefaultDurationMinutes,
+                item.DurationMinutes,
                 item.Children is { Count: > 0 }
                     ? string.Join(", ", item.Children.Select(child => $"{child.FirstName} {child.LastName}"))
                     : null,

@@ -38,6 +38,46 @@ public sealed class GroupServiceTests
         return (service, lessons, participants, instructor);
     }
 
+    /// <summary>
+    /// Rodzaj lekcji szedł do DTO osobnym, opcjonalnym słownikiem, którego zarządzanie grupami
+    /// nie podawało. Ta sama sesja pokazowa raportowała więc 60 minut na grafiku instruktora
+    /// i 95 tutaj. Termin bierze dziś konspekt w całości, więc obie ścieżki mówią to samo.
+    /// </summary>
+    [Fact]
+    public async Task CreateAsync_ReportsShowcaseTiming_OnSessionsOfShowcaseLesson()
+    {
+        var (service, lessons, _, instructor) = await BuildAsync();
+        var lesson = ReadyLesson("Pokazowa");
+        lesson.Kind = LessonKind.Showcase;
+        await lessons.AddAsync(lesson, CancellationToken.None);
+
+        var group = await service.CreateAsync(
+            new CreateGroupDto("Grupa", instructor.Id, [lesson.Id], DateTimeOffset.UtcNow, []),
+            CancellationToken.None);
+
+        var session = group.Sessions[0];
+        Assert.Equal("showcase", session.LessonKind);
+        Assert.Equal(60, session.DurationMinutes);
+        Assert.Equal(55, session.EarlyLeaveAfterMinutes);
+    }
+
+    [Fact]
+    public async Task CreateAsync_ReportsStandardTiming_OnSessionsOfStandardLesson()
+    {
+        var (service, lessons, _, instructor) = await BuildAsync();
+        var lesson = ReadyLesson("Standardowa");
+        await lessons.AddAsync(lesson, CancellationToken.None);
+
+        var group = await service.CreateAsync(
+            new CreateGroupDto("Grupa", instructor.Id, [lesson.Id], DateTimeOffset.UtcNow, []),
+            CancellationToken.None);
+
+        var session = group.Sessions[0];
+        Assert.Equal("standard", session.LessonKind);
+        Assert.Equal(95, session.DurationMinutes);
+        Assert.Null(session.EarlyLeaveAfterMinutes);
+    }
+
     [Fact]
     public async Task SetSessionLinksAsync_OverridesGroupLink_AndFallsBackWhenCleared()
     {

@@ -198,8 +198,11 @@ function CourseLesson({ session, isCurrent }: { session: ScheduledSession; isCur
       <div className="course-lesson-main">
         <strong>{session.lessonTitle ?? "(brak lekcji)"}</strong>
         <span>
-          {formatDateTime(session.scheduledAt)} · {session.statusLabel}
+          {formatDateTime(session.scheduledAt)} · {session.durationMinutes ?? 95} min · {session.statusLabel}
         </span>
+        {session.earlyLeaveAfterMinutes ? (
+          <span>Pokazowa — wyjście możliwe od {session.earlyLeaveAfterMinutes}. minuty</span>
+        ) : null}
         {/* „Czego nie zdążyliśmy” z zakończonych zajęć. Wcześniej ta informacja tkwiła
             w środku notatki instruktora i trzeba było po nią wejść w zamknięty termin. */}
         {session.unfinishedNote ? <span className="course-unfinished">Zostało: {session.unfinishedNote}</span> : null}

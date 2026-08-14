@@ -387,6 +387,12 @@ lessons.MapPut("/{id:guid}", async (Guid id, CreateLessonDto dto, ILessonCommand
     {
         return Results.BadRequest(new { error = ex.Message });
     }
+    // Reguły planu i blokada zmiany rodzaju lecą jako InvalidOperationException. Bez tego
+    // wpadały w 500 i autor konspektu widział pustą awarię zamiast powodu odmowy.
+    catch (InvalidOperationException ex)
+    {
+        return Results.Conflict(new { error = ex.Message });
+    }
 })
 .RequireAuthorization("AdminOnly")
 .WithName("UpdateLesson");
@@ -401,8 +407,15 @@ lessons.MapPost("/{id:guid}/send-to-review", async (Guid id, ILessonCommands les
 
 lessons.MapPost("/{id:guid}/publish", async (Guid id, ILessonCommands lessonCommands, CancellationToken cancellationToken) =>
 {
-    var lesson = await lessonCommands.PublishAsync(id, cancellationToken);
-    return lesson is null ? Results.NotFound() : Results.Ok(lesson);
+    try
+    {
+        var lesson = await lessonCommands.PublishAsync(id, cancellationToken);
+        return lesson is null ? Results.NotFound() : Results.Ok(lesson);
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Results.Conflict(new { error = ex.Message });
+    }
 })
 .RequireAuthorization("AdminOnly")
 .WithName("PublishLesson");

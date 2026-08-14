@@ -8,6 +8,7 @@ import {
   updateLesson,
 } from "../../api/lessonsApi";
 import { ApiError, uploadFile } from "../../api/client";
+import { scheduledMinutesFor } from "../import/lessonMarkdown";
 import { useToast } from "../toast/ToastContext";
 import type {
   CreateLessonRequest,
@@ -19,9 +20,11 @@ import type {
   LessonResource,
   StoredFile,
   StudentItem,
+  LessonKind,
 } from "../../types/lesson";
 
 type LessonMetaForm = {
+  kind: LessonKind;
   title: string;
   subject: string;
   level: string;
@@ -59,6 +62,7 @@ type StepForm = {
 };
 
 const emptyMeta: LessonMetaForm = {
+  kind: "standard",
   title: "",
   subject: "Scratch",
   level: "Poziom 1 - 8-10 lat",
@@ -144,6 +148,7 @@ export function useLessonEditorViewModel(lessonId: string | undefined) {
     setEditingIndex(null);
     setStepForm(emptyStep);
     setMeta({
+      kind: details.kind,
       title: details.title,
       subject: details.subject,
       level: details.level,
@@ -168,7 +173,9 @@ export function useLessonEditorViewModel(lessonId: string | undefined) {
   }
 
   function updateMeta(field: keyof LessonMetaForm, value: string) {
-    setMeta((current) => ({ ...current, [field]: value }));
+    setMeta((current) => field === "kind"
+      ? { ...current, kind: value === "showcase" ? "showcase" : "standard" }
+      : { ...current, [field]: value });
   }
 
   function updateStep(field: keyof StepForm, value: string | number) {
@@ -557,8 +564,11 @@ export function useLessonEditorViewModel(lessonId: string | undefined) {
       if (!lessonId) {
         navigate(`/admin/lessons/${saved.id}/edit`);
       }
-    } catch {
-      reportError("Nie udało się zapisać lekcji.");
+    } catch (caught) {
+      // Backend odmawia zapisu z konkretnego powodu: plan pokazówki poza oknem 55-60 minut
+      // albo zmiana rodzaju lekcji wpiętej w terminy. Ogólne „nie udało się” kazałoby autorowi
+      // zgadywać, co poprawić.
+      reportError(caught instanceof ApiError ? caught.message : "Nie udało się zapisać lekcji.");
     } finally {
       setSaving(false);
     }
@@ -619,8 +629,8 @@ export function useLessonEditorViewModel(lessonId: string | undefined) {
       const response = await action(id);
       applyLesson(response);
       toast.success(successMessage);
-    } catch {
-      reportError("Nie udało się zmienić statusu lekcji.");
+    } catch (caught) {
+      reportError(caught instanceof ApiError ? caught.message : "Nie udało się zmienić statusu lekcji.");
     } finally {
       setStatusSaving(false);
     }
@@ -640,6 +650,7 @@ export function useLessonEditorViewModel(lessonId: string | undefined) {
     const trimmedOrder = meta.order.trim();
 
     return {
+      kind: meta.kind,
       title: meta.title.trim(),
       subject: meta.subject.trim(),
       level: meta.level.trim(),
@@ -654,6 +665,12 @@ export function useLessonEditorViewModel(lessonId: string | undefined) {
       homework: parseScript(meta.homework),
     };
   }
+
+  const totalDuration = steps.reduce((sum, step) => sum + step.durationMinutes, 0);
+  // Obie długości są dokładne, nie widełkowe: lekcja rezerwuje w kalendarzu konkretne okno
+  // i ma je wypełnić. Przy pokazówce 55. minuta to granica wyjścia uczestnika, a nie
+  // dopuszczalna długość planu.
+  const durationValid = totalDuration === scheduledMinutesFor(meta.kind);
 
   return {
     addNote,
@@ -691,7 +708,8 @@ export function useLessonEditorViewModel(lessonId: string | undefined) {
     statusSaving,
     stepForm,
     steps,
-    totalDuration: steps.reduce((sum, step) => sum + step.durationMinutes, 0),
+    totalDuration,
+    durationValid,
     updateMeta,
     updateProjectFile,
     updateStep,

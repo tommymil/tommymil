@@ -19,6 +19,10 @@ const lesson: LessonDetails = {
   statusLabel: "Gotowa",
   stepCount: 1,
   durationMinutes: 8,
+  kind: "standard",
+  kindLabel: "Standardowa grupowa (45 + 5 + 45 min)",
+  scheduledDurationMinutes: 95,
+  earlyLeaveAfterMinutes: null,
   projectFiles: {},
   tags: [],
   steps: [

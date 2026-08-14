@@ -1,4 +1,5 @@
 export type LessonStatus = "draft" | "review" | "ready";
+export type LessonKind = "standard" | "showcase";
 
 export type LessonSummary = {
   id: string;
@@ -11,6 +12,10 @@ export type LessonSummary = {
   statusLabel: string;
   stepCount: number;
   durationMinutes: number;
+  kind: LessonKind;
+  kindLabel: string;
+  scheduledDurationMinutes: number;
+  earlyLeaveAfterMinutes: number | null;
 };
 
 export type LessonDetails = LessonSummary & {
@@ -109,6 +114,7 @@ export type UpdateLessonRunSessionRequest = {
 };
 
 export type CreateLessonRequest = {
+  kind: LessonKind;
   title: string;
   subject: string;
   level: string;

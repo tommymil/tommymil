@@ -80,7 +80,7 @@ public sealed class GroupService(
         }
 
         var instructor = await userRepository.GetByIdAsync(group.InstructorId, cancellationToken);
-        var lessonTitles = await LessonTitleMapAsync(cancellationToken);
+        var lessonsById = await LessonMapAsync(cancellationToken);
         var locationNames = await LocationNameMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
         var participants = await participantRepository.GetByIdsAsync(
@@ -91,7 +91,7 @@ public sealed class GroupService(
             group,
             instructor?.Email ?? "(nieznany)",
             instructor?.DisplayName ?? "(nieznany)",
-            lessonTitles,
+            lessonsById,
             locationNames,
             instructorNames,
             participants);
@@ -185,10 +185,9 @@ public sealed class GroupService(
         await EnsureNoSchedulingConflictsAsync(group, group.Sessions, new HashSet<Guid>(), cancellationToken);
         await groupRepository.AddAsync(group, cancellationToken);
 
-        var lessonTitles = lessonById.ToDictionary(pair => pair.Key, pair => pair.Value.Title);
         var locationNames = await LocationNameMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
-        return ToDetails(group, instructor.Email, instructor.DisplayName, lessonTitles, locationNames, instructorNames, participants);
+        return ToDetails(group, instructor.Email, instructor.DisplayName, lessonById, locationNames, instructorNames, participants);
     }
 
     public async Task<GroupDetailsDto?> UpdateAsync(Guid id, UpdateGroupDto dto, CancellationToken cancellationToken)
@@ -233,14 +232,14 @@ public sealed class GroupService(
             await groupRepository.SetEnrollmentStatusAsync(group.Id, enrollment.ParticipantId, enrollment.Status, cancellationToken);
         }
 
-        var lessonTitles = await LessonTitleMapAsync(cancellationToken);
+        var lessonsById = await LessonMapAsync(cancellationToken);
         var locationNames = await LocationNameMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
         var participants = await participantRepository.GetByIdsAsync(
             group.Enrollments.Select(enrollment => enrollment.ParticipantId).ToList(),
             cancellationToken);
 
-        return ToDetails(group, instructor.Email, instructor.DisplayName, lessonTitles, locationNames, instructorNames, participants);
+        return ToDetails(group, instructor.Email, instructor.DisplayName, lessonsById, locationNames, instructorNames, participants);
     }
 
     public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken) =>
@@ -291,10 +290,10 @@ public sealed class GroupService(
             guardiansNotified: false,
             cancellationToken);
 
-        var lessonTitles = await LessonTitleMapAsync(cancellationToken);
+        var lessonsById = await LessonMapAsync(cancellationToken);
         var locationNames = await LocationNameMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
-        return GroupMapping.ToSessionDto(session, group, lessonTitles, locationNames, instructorNames);
+        return GroupMapping.ToSessionDto(session, group, lessonsById, locationNames, instructorNames);
     }
 
     public async Task<ScheduledSessionDto?> CancelSessionAsync(
@@ -342,10 +341,10 @@ public sealed class GroupService(
             await ShiftFollowingLessonsAsync(group, session, actingUserId, cancellationToken);
         }
 
-        var lessonTitles = await LessonTitleMapAsync(cancellationToken);
+        var lessonsById = await LessonMapAsync(cancellationToken);
         var locationNames = await LocationNameMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
-        return GroupMapping.ToSessionDto(session, group, lessonTitles, locationNames, instructorNames);
+        return GroupMapping.ToSessionDto(session, group, lessonsById, locationNames, instructorNames);
     }
 
     /// <summary>
@@ -507,10 +506,10 @@ public sealed class GroupService(
             notified || dto.GuardiansNotified,
             cancellationToken);
 
-        var lessonTitles = await LessonTitleMapAsync(cancellationToken);
+        var lessonsById = await LessonMapAsync(cancellationToken);
         var locationNames = await LocationNameMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
-        return GroupMapping.ToSessionDto(session, group, lessonTitles, locationNames, instructorNames);
+        return GroupMapping.ToSessionDto(session, group, lessonsById, locationNames, instructorNames);
     }
 
     public async Task<ScheduledSessionDto?> SetSubstituteInstructorAsync(
@@ -545,10 +544,10 @@ public sealed class GroupService(
             guardiansNotified: false,
             cancellationToken);
 
-        var lessonTitles = await LessonTitleMapAsync(cancellationToken);
+        var lessonsById = await LessonMapAsync(cancellationToken);
         var locationNames = await LocationNameMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
-        return GroupMapping.ToSessionDto(session, group, lessonTitles, locationNames, instructorNames);
+        return GroupMapping.ToSessionDto(session, group, lessonsById, locationNames, instructorNames);
     }
 
     public async Task<ScheduledSessionDto?> SetSessionLinksAsync(
@@ -580,10 +579,10 @@ public sealed class GroupService(
             guardiansNotified: false,
             cancellationToken);
 
-        var lessonTitles = await LessonTitleMapAsync(cancellationToken);
+        var lessonsById = await LessonMapAsync(cancellationToken);
         var locationNames = await LocationNameMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
-        return GroupMapping.ToSessionDto(session, group, lessonTitles, locationNames, instructorNames);
+        return GroupMapping.ToSessionDto(session, group, lessonsById, locationNames, instructorNames);
     }
 
     public async Task<GroupAttendanceSummaryDto?> GetAttendanceSummaryAsync(Guid groupId, CancellationToken cancellationToken)
@@ -724,9 +723,9 @@ public sealed class GroupService(
         var participants = await participantRepository.GetByIdsAsync(participantIds, cancellationToken);
         var participantsById = participants.ToDictionary(participant => participant.Id);
         var attendanceById = session.Attendance.ToDictionary(record => record.ParticipantId);
-        var lessonTitles = await LessonTitleMapAsync(cancellationToken);
-        var lessonTitle = session.LessonId is Guid lessonId && lessonTitles.TryGetValue(lessonId, out var title)
-            ? title
+        var lessonsById = await LessonMapAsync(cancellationToken);
+        var lessonTitle = session.LessonId is Guid lessonId && lessonsById.TryGetValue(lessonId, out var lesson)
+            ? lesson.Title
             : string.Empty;
 
         var lines = new List<IReadOnlyList<string>>
@@ -767,10 +766,11 @@ public sealed class GroupService(
         return instructors.Select(user => new InstructorDto(user.Id, user.Email, user.DisplayName)).ToList();
     }
 
-    private async Task<IReadOnlyDictionary<Guid, string>> LessonTitleMapAsync(CancellationToken cancellationToken)
+    /// <summary>Konspekty pod ręką w całości — termin potrzebuje i tytułu, i rodzaju lekcji.</summary>
+    private async Task<IReadOnlyDictionary<Guid, Lesson>> LessonMapAsync(CancellationToken cancellationToken)
     {
         var lessons = await lessonRepository.ListAsync(cancellationToken);
-        return lessons.ToDictionary(lesson => lesson.Id, lesson => lesson.Title);
+        return lessons.ToDictionary(lesson => lesson.Id);
     }
 
     private async Task<IReadOnlyDictionary<Guid, string>> LocationNameMapAsync(CancellationToken cancellationToken)
@@ -911,10 +911,10 @@ public sealed class GroupService(
             dto.GuardiansNotified,
             cancellationToken);
 
-        var lessonTitles = await LessonTitleMapAsync(cancellationToken);
+        var lessonsById = await LessonMapAsync(cancellationToken);
         var locationNames = await LocationNameMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
-        return GroupMapping.ToSessionDto(session, group, lessonTitles, locationNames, instructorNames);
+        return GroupMapping.ToSessionDto(session, group, lessonsById, locationNames, instructorNames);
     }
 
     public IReadOnlyList<SessionStatusOptionDto> GetSessionStatusOptions() => GroupMapping.SessionStatusOptions;
@@ -1276,7 +1276,7 @@ public sealed class GroupService(
         Group group,
         string instructorEmail,
         string instructorName,
-        IReadOnlyDictionary<Guid, string> lessonTitles,
+        IReadOnlyDictionary<Guid, Lesson> lessonsById,
         IReadOnlyDictionary<Guid, string> locationNames,
         IReadOnlyDictionary<Guid, string> instructorNames,
         IReadOnlyList<Participant> participants)
@@ -1306,7 +1306,7 @@ public sealed class GroupService(
                 .ToList(),
             group.Sessions
                 .OrderBy(session => session.SequenceNumber)
-                .Select(session => GroupMapping.ToSessionDto(session, group, lessonTitles, locationNames, instructorNames))
+                .Select(session => GroupMapping.ToSessionDto(session, group, lessonsById, locationNames, instructorNames))
                 .ToList());
     }
 }

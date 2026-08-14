@@ -1,6 +1,26 @@
 # Lesson Runner — aktualny stan projektu
 
-Ostatnia aktualizacja: 13.08.2026
+Ostatnia aktualizacja: 14.08.2026
+
+## Zmiany z 14.08.2026 — dwa formaty lekcji
+
+- Konspekt ma teraz jawny rodzaj: `standard` albo `showcase`. Stare dokumenty JSON bez pola
+  pozostają lekcjami standardowymi, więc zmiana nie wymaga migracji bazy.
+- Reguły czasu są wspólne dla backendu i interfejsu: standardowa rezerwuje 95 minut
+  (`45 + 5 + 45`), pokazowa 60 minut z możliwością zakończenia od 55. minuty.
+- Importer rozpoznaje `Rodzaj: standardowa` i `Rodzaj: pokazowa`, stosuje właściwą regułę
+  przerwy i pilnuje długości planu. Obie długości są **dokładne**: 95 minut i 60 minut.
+  55. minuta pokazówki to granica wyjścia uczestnika, a nie dopuszczalna długość konspektu —
+  plan na 55 minut zostawiałby pięć minut zarezerwowanego okna pustych.
+- Regułę czasu sprawdzamy przy publikacji **i przy zapisie już opublikowanej lekcji**. Bez tego
+  drugiego opublikowaną pokazówkę dawało się skrócić do dwudziestu minut i zostawała gotowa.
+- Rodzaju lekcji nie da się zmienić, gdy konspekt jest wpięty w termin grupy albo w lekcję
+  próbną — przeliczyłoby to długość wpisów w kalendarzach rodziców.
+- Lekcje z seedu doprowadzone do 95 minut (były 53, 28, 25 i 22) i uzupełnione o przerwę,
+  żeby dane demonstracyjne spełniały regułę, którą egzekwujemy.
+- Rodzaj widać w bibliotece i edytorze. Eksporty ICS używają czasu właściwego dla konspektu.
+- Do lekcji próbnej można przypisać wyłącznie opublikowany konspekt pokazowy; instruktor
+  otwiera go bezpośrednio ze swojej listy spotkań.
 
 Ten plik opisuje **stan bieżący** i plan prac. Powiązane dokumenty:
 

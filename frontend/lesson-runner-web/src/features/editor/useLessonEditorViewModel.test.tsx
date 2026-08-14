@@ -38,6 +38,10 @@ const richLesson: LessonDetails = {
   statusLabel: "Szkic",
   stepCount: 2,
   durationMinutes: 9,
+  kind: "standard",
+  kindLabel: "Standardowa grupowa (45 + 5 + 45 min)",
+  scheduledDurationMinutes: 95,
+  earlyLeaveAfterMinutes: null,
   projectFiles: {},
   tags: ["Pętle"],
   steps: [
@@ -294,6 +298,37 @@ describe("useLessonEditorViewModel", () => {
       url: "/uploads/ekran.png",
     });
     expect(vi.mocked(lessonsApi.publishLesson)).toHaveBeenCalledWith("lesson-1");
+  });
+
+  // Backend odmawia zapisu z konkretnego powodu — plan pokazówki poza oknem 55-60 minut albo
+  // zmiana rodzaju lekcji wpiętej w terminy. Wcześniej `catch` bez parametru zamieniał to na
+  // ogólne „nie udało się” i autor konspektu nie wiedział, co poprawić.
+  it("pokazuje powód odmowy z serwera zamiast ogólnego błędu zapisu", async () => {
+    vi.mocked(lessonsApi.updateLesson).mockRejectedValue(
+      new ApiError(409, "Konspekt pokazowy musi mieć od 55 do 60 minut w krokach, a ma 20."),
+    );
+
+    const { result } = renderHook(() => useLessonEditorViewModel("lesson-1"), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.saveLesson();
+    });
+
+    expect(result.current.error).toBe("Konspekt pokazowy musi mieć od 55 do 60 minut w krokach, a ma 20.");
+  });
+
+  it("zostawia ogólny komunikat, gdy zapis padnie bez odpowiedzi serwera", async () => {
+    vi.mocked(lessonsApi.updateLesson).mockRejectedValue(new Error("network down"));
+
+    const { result } = renderHook(() => useLessonEditorViewModel("lesson-1"), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.saveLesson();
+    });
+
+    expect(result.current.error).toBe("Nie udało się zapisać lekcji.");
   });
 
   it("blocks saving when a started step has content but no title", async () => {

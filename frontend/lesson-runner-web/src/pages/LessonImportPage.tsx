@@ -2,12 +2,13 @@ import { Button } from "../components/ui/Button";
 import { plural } from "../features/groups/datetime";
 import { stepTypeLabel } from "../features/lessons/lessonLabels";
 import { useLessonImportViewModel } from "../features/import/useLessonImportViewModel";
-import { STANDARD_LESSON_MINUTES, blockMinutes } from "../features/import/lessonMarkdown";
+import { blockMinutes, scheduledMinutesFor } from "../features/import/lessonMarkdown";
 import type { ParseIssue } from "../features/import/lessonMarkdown";
 
 const formatExample = `# Tytuł lekcji
 Subject: Scratch
 Level: Poziom 1
+Rodzaj: standardowa
 Czas: 95 min
 Tags: Pętle, Sterowanie
 Opis: Krótki opis lekcji.
@@ -117,6 +118,12 @@ export function LessonImportPage() {
                   {[parsed.lesson.subject, parsed.lesson.level].filter(Boolean).join(" - ") || "brak metadanych"}
                   {parsed.lesson.tags.length > 0 ? ` - tagi: ${parsed.lesson.tags.join(", ")}` : ""}
                 </p>
+                <p>
+                  <strong>Rodzaj:</strong>{" "}
+                  {parsed.lesson.kind === "showcase"
+                    ? "pokazowa — 60 min, możliwość wyjścia od 55. minuty"
+                    : "standardowa grupowa — 45 + 5 + 45 min"}
+                </p>
                 {parsed.lesson.description ? <p>{parsed.lesson.description}</p> : null}
                 {/* Cel i listy pokazujemy w podglądzie, bo to nowe pola formatu -
                     bez nich autor nie ma jak sprawdzić, czy w ogóle zostały rozpoznane. */}
@@ -197,6 +204,7 @@ export function LessonImportPage() {
  */
 function TimeBudget({ parsed }: { parsed: NonNullable<ReturnType<typeof useLessonImportViewModel>["parsed"]> }) {
   const { totalMinutes, plannedMinutes } = parsed;
+  const expectedMinutes = scheduledMinutesFor(parsed.lesson.kind);
 
   const blocks = blockMinutes(parsed.lesson);
   const blockLine = `Bloki pracy: ${blocks.join(" min · przerwa · ")} min`;
@@ -205,7 +213,7 @@ function TimeBudget({ parsed }: { parsed: NonNullable<ReturnType<typeof useLesso
     return (
       <p className="import-time">
         Suma kroków: <strong>{totalMinutes} min</strong>. {blockLine}. Dopisz{" "}
-        <code>Czas: {STANDARD_LESSON_MINUTES} min</code> w metadanych, żeby sprawdzić plan względem
+        <code>Czas: {expectedMinutes} min</code> w metadanych, żeby sprawdzić plan względem
         długości zajęć.
       </p>
     );

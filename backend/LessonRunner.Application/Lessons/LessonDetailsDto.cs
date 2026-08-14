@@ -1,3 +1,5 @@
+using LessonRunner.Domain.Lessons;
+
 namespace LessonRunner.Application.Lessons;
 
 public sealed record LessonDetailsDto(
@@ -17,7 +19,11 @@ public sealed record LessonDetailsDto(
     string? Objective = null,
     IReadOnlyList<string>? SuccessCriteria = null,
     IReadOnlyList<string>? Preparation = null,
-    IReadOnlyList<string>? Homework = null);
+    IReadOnlyList<string>? Homework = null,
+    string Kind = "standard",
+    string KindLabel = "Standardowa grupowa (45 + 5 + 45 min)",
+    int ScheduledDurationMinutes = LessonKindExtensions.StandardDurationMinutes,
+    int? EarlyLeaveAfterMinutes = null);
 
 public sealed record LessonProjectFilesDto(
     LessonProjectFileDto? Starter,

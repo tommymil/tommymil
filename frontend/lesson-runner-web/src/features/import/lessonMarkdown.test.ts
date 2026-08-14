@@ -240,6 +240,68 @@ Cel: Dziecko rozumie powtarzanie.
   });
 
   describe("budżet czasu i plan zajęć", () => {
+    it("rozróżnia godzinną lekcję pokazową od standardowej", () => {
+      const { lesson, issues, totalMinutes, plannedMinutes } = parseLessonMarkdown(
+        `# Pokaz Scratcha
+Rodzaj: pokazowa
+Czas: 60 min
+Cel: Sprawdzić, czy dziecko dobrze czuje się przy komputerze.
+
+## [intro] Powitanie (10 min)
+## [demo] Pokaz (15 min)
+## [guided] Wspólne zadanie (20 min)
+## [summary] Domknięcie i pytania (15 min)
+`,
+      );
+
+      expect(lesson.kind).toBe("showcase");
+      expect(plannedMinutes).toBe(60);
+      expect(totalMinutes).toBe(60);
+      expect(issues).toEqual([]);
+    });
+
+    it("nie wymaga przerwy w lekcji pokazowej — to jeden ciąg 60 minut", () => {
+      const { issues } = parseLessonMarkdown(
+        `# Pokaz
+Rodzaj: pokazowa
+Czas: 60 min
+Cel: Poznać dziecko.
+## [intro] Start (10 min)
+## [guided] Zadanie (35 min)
+## [summary] Domknięcie (15 min)
+`,
+      );
+
+      expect(issues.some((issue) => issue.message.includes("bez przerwy"))).toBe(false);
+    });
+
+    /**
+     * 55. minuta to granica wyjścia uczestnika, a nie dopuszczalna długość planu. Plan na
+     * 55 minut zostawiałby pięć minut zarezerwowanego okna pustych.
+     */
+    it("zgłasza lekcję pokazową krótszą niż 60 minut, mimo że mieści się po 55. minucie", () => {
+      const { issues } = parseLessonMarkdown(
+        `# Pokaz
+Rodzaj: pokazowa
+Czas: 60 min
+Cel: Poznać dziecko.
+## [intro] Start (10 min)
+## [guided] Zadanie (35 min)
+## [summary] Domknięcie (10 min)
+`,
+      );
+
+      expect(issues.some((issue) => issue.message.includes("dokładnie 60 min — brakuje 5 min"))).toBe(true);
+    });
+
+    it("ostrzega, gdy lekcja pokazowa ma długość standardowych zajęć", () => {
+      const { issues } = parseLessonMarkdown(
+        "# Pokaz\nRodzaj: pokazowa\nCzas: 95 min\nCel: X\n## [intro] Start (20 min)\n## [summary] Koniec (40 min)\n",
+      );
+
+      expect(issues.some((issue) => issue.message.includes("z 95 na 60 min"))).toBe(true);
+    });
+
     it("reads the declared lesson length and sums the steps", () => {
       const { totalMinutes, plannedMinutes } = parseLessonMarkdown(
         "# Lekcja\nCzas: 90 min\n\n## [intro] Start (10 min)\n## [summary] Koniec (15 min)\n",
@@ -254,12 +316,17 @@ Cel: Dziecko rozumie powtarzanie.
       expect(issues.some((issue) => issue.message.includes("25 min") || issue.message.includes("10 min"))).toBe(true);
     });
 
-    it("accepts a plan within the tolerance without complaining about time", () => {
+    /**
+     * Sumę porównujemy z długością wynikającą z rodzaju lekcji, a nie z metadaną „Czas”.
+     * Wcześniej szło to przez tolerancję 10% od deklaracji autora i dla pokazówki przechodziło
+     * wszystko od 54 do 66 minut.
+     */
+    it("zgłasza sumę kroków inną niż długość wynikająca z rodzaju lekcji", () => {
       const { issues } = parseLessonMarkdown(
-        "# Lekcja\nCzas: 60 min\n\n## [intro] Start (10 min)\n## [concept] Praca (20 min)\n## [challenge] Zadanie (20 min)\n## [summary] Koniec (8 min)\n",
+        "# Lekcja\nCzas: 95 min\nCel: X\n\n## [intro] Start (10 min)\n## [concept] Praca (20 min)\n## [break] Przerwa (5 min)\n## [summary] Koniec (20 min)\n",
       );
 
-      expect(issues.some((issue) => issue.message.includes("sumują się"))).toBe(false);
+      expect(issues.some((issue) => issue.message.includes("dokładnie 95 min — brakuje 40 min"))).toBe(true);
     });
 
     /** Zajęcia mają kształt 45 min + 5 min przerwy + 45 min, razem 95. */

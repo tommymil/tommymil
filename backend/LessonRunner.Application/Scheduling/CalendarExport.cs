@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using LessonRunner.Domain.Lessons;
 
 namespace LessonRunner.Application.Scheduling;
 
@@ -30,7 +31,7 @@ public static class CalendarExport
     /// Wpis w kalendarzu obejmuje przerwę, bo rodzic i instruktor blokują sobie czas od
     /// wejścia do wyjścia — 90 minut kończyło każde zajęcia pięć minut za wcześnie.
     /// </summary>
-    public const int DefaultDurationMinutes = 95;
+    public const int DefaultDurationMinutes = LessonKindExtensions.StandardDurationMinutes;
 
     public static byte[] ToIcs(IReadOnlyList<CalendarEventDto> events, string calendarName)
     {

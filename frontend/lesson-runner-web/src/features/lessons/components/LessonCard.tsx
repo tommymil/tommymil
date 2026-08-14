@@ -18,6 +18,7 @@ export function LessonCard({ canManage = false, deleting = false, lesson, onDele
         <div className="lesson-card-header-left">
           {lesson.order > 0 ? <span className="order-pill">#{lesson.order}</span> : null}
           <span className="subject-pill">{lesson.subject}</span>
+          <span className="subject-pill">{lesson.kindLabel}</span>
         </div>
         <span className={`status-pill status-${lesson.status}`}>{lesson.statusLabel}</span>
       </div>
@@ -28,7 +29,10 @@ export function LessonCard({ canManage = false, deleting = false, lesson, onDele
       <div className="lesson-meta">
         <span>{lesson.level}</span>
         <span>{lesson.stepCount} kroków</span>
-        <span>{lesson.durationMinutes} min</span>
+        <span>{lesson.scheduledDurationMinutes} min</span>
+        {lesson.earlyLeaveAfterMinutes !== null ? (
+          <span>wyjście od {lesson.earlyLeaveAfterMinutes}. minuty</span>
+        ) : null}
       </div>
       <div className="lesson-actions">
         <div className="lesson-action-primary">

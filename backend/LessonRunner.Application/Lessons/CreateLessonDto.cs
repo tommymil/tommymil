@@ -18,7 +18,9 @@ public sealed record CreateLessonDto(
     /// <summary>Co przygotować przed zajęciami.</summary>
     IReadOnlyList<string>? Preparation = null,
     /// <summary>Zadanie domowe albo co pokazać rodzicom.</summary>
-    IReadOnlyList<string>? Homework = null);
+    IReadOnlyList<string>? Homework = null,
+    /// <summary>`standard` albo `showcase`. Starsi klienci bez pola tworzą lekcję standardową.</summary>
+    string Kind = "standard");
 
 public sealed record CreateLessonProjectFilesDto(
     CreateLessonProjectFileDto? Starter,
@@ -65,6 +67,7 @@ internal static class CreateLessonDtoMapping
         return new Lesson
         {
             Id = id ?? Guid.NewGuid(),
+            Kind = ParseEnum(dto.Kind, LessonKind.Standard),
             Title = dto.Title.Trim(),
             Subject = dto.Subject.Trim(),
             Level = dto.Level.Trim(),

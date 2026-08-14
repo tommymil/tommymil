@@ -17,6 +17,10 @@ function makeLesson(overrides: Partial<LessonSummary> = {}): LessonSummary {
     statusLabel: "Gotowa",
     stepCount: 7,
     durationMinutes: 53,
+    kind: "standard",
+    kindLabel: "Standardowa grupowa (45 + 5 + 45 min)",
+    scheduledDurationMinutes: 95,
+    earlyLeaveAfterMinutes: null,
     ...overrides,
   };
 }
@@ -36,7 +40,21 @@ describe("LessonCard", () => {
     expect(screen.getByRole("heading", { name: "Pierwsza gra" })).toBeInTheDocument();
     expect(screen.getByText("Scratch")).toBeInTheDocument();
     expect(screen.getByText("7 kroków")).toBeInTheDocument();
-    expect(screen.getByText("53 min")).toBeInTheDocument();
+    expect(screen.getByText("95 min")).toBeInTheDocument();
+    expect(screen.getByText("Standardowa grupowa (45 + 5 + 45 min)")).toBeInTheDocument();
+  });
+
+  it("wyróżnia lekcję pokazową i godzinę możliwego wyjścia", () => {
+    renderCard(makeLesson({
+      kind: "showcase",
+      kindLabel: "Pokazowa (60 min)",
+      scheduledDurationMinutes: 60,
+      earlyLeaveAfterMinutes: 55,
+    }));
+
+    expect(screen.getByText("Pokazowa (60 min)")).toBeInTheDocument();
+    expect(screen.getByText("60 min")).toBeInTheDocument();
+    expect(screen.getByText("wyjście od 55. minuty")).toBeInTheDocument();
   });
 
   it("shows the order badge when the lesson has an assigned order", () => {

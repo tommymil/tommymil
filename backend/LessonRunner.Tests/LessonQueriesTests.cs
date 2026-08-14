@@ -9,7 +9,7 @@ public sealed class LessonQueriesTests
     public async Task GetSummariesAsync_OrdersByExplicitOrder()
     {
         var repository = new InMemoryLessonRepository();
-        var commands = new LessonCommands(repository, new LessonQueries(repository), new InMemoryGroupRepository());
+        var commands = new LessonCommands(repository, new LessonQueries(repository), new InMemoryGroupRepository(), new InMemoryTrialRepository());
         await commands.CreateAsync(TestData.ValidLesson(title: "Zebra", subject: "Scratch") with { Order = 3 }, CancellationToken.None);
         await commands.CreateAsync(TestData.ValidLesson(title: "Alfabet", subject: "Scratch") with { Order = 1 }, CancellationToken.None);
         await commands.CreateAsync(TestData.ValidLesson(title: "Cokolwiek", subject: "Python") with { Order = 2 }, CancellationToken.None);
@@ -26,7 +26,7 @@ public sealed class LessonQueriesTests
     public async Task GetSummariesAsync_AssignsSequentialOrder_WhenNotSpecified()
     {
         var repository = new InMemoryLessonRepository();
-        var commands = new LessonCommands(repository, new LessonQueries(repository), new InMemoryGroupRepository());
+        var commands = new LessonCommands(repository, new LessonQueries(repository), new InMemoryGroupRepository(), new InMemoryTrialRepository());
         await commands.CreateAsync(TestData.ValidLesson(title: "Pierwsza"), CancellationToken.None);
         await commands.CreateAsync(TestData.ValidLesson(title: "Druga"), CancellationToken.None);
 
@@ -43,7 +43,7 @@ public sealed class LessonQueriesTests
     public async Task GetSummariesAsync_AssignsOrderPerSubject_StartsFromOneForEach()
     {
         var repository = new InMemoryLessonRepository();
-        var commands = new LessonCommands(repository, new LessonQueries(repository), new InMemoryGroupRepository());
+        var commands = new LessonCommands(repository, new LessonQueries(repository), new InMemoryGroupRepository(), new InMemoryTrialRepository());
         await commands.CreateAsync(TestData.ValidLesson(title: "S1", subject: "Scratch"), CancellationToken.None);
         await commands.CreateAsync(TestData.ValidLesson(title: "S2", subject: "Scratch"), CancellationToken.None);
         await commands.CreateAsync(TestData.ValidLesson(title: "M1", subject: "Minecraft"), CancellationToken.None);
@@ -62,14 +62,14 @@ public sealed class LessonQueriesTests
     public async Task GetSummariesAsync_MapsDurationAndStepCount()
     {
         var repository = new InMemoryLessonRepository();
-        var commands = new LessonCommands(repository, new LessonQueries(repository), new InMemoryGroupRepository());
+        var commands = new LessonCommands(repository, new LessonQueries(repository), new InMemoryGroupRepository(), new InMemoryTrialRepository());
         await commands.CreateAsync(TestData.ValidLesson(), CancellationToken.None);
 
         var queries = new LessonQueries(repository);
         var summary = Assert.Single(await queries.GetSummariesAsync(CancellationToken.None));
 
         Assert.Equal(2, summary.StepCount);
-        Assert.Equal(15, summary.DurationMinutes);
+        Assert.Equal(95, summary.DurationMinutes);
         Assert.Equal("draft", summary.Status);
     }
 

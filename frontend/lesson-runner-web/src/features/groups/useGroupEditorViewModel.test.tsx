@@ -24,9 +24,9 @@ vi.mock("../../api/schedulingApi");
 const instructors: Instructor[] = [{ id: "inst-1", email: "i@x.pl", displayName: "Instruktor Test" }];
 
 const lessons: LessonSummary[] = [
-  { id: "l1", title: "Lekcja 1", subject: "Scratch", level: "P1", description: "", order: 1, status: "ready", statusLabel: "Gotowa", stepCount: 3, durationMinutes: 20 },
-  { id: "l2", title: "Lekcja 2", subject: "Scratch", level: "P1", description: "", order: 2, status: "ready", statusLabel: "Gotowa", stepCount: 4, durationMinutes: 25 },
-  { id: "l3", title: "Szkic", subject: "Scratch", level: "P1", description: "", order: 3, status: "draft", statusLabel: "Szkic", stepCount: 2, durationMinutes: 10 },
+  { id: "l1", title: "Lekcja 1", subject: "Scratch", level: "P1", description: "", order: 1, status: "ready", statusLabel: "Gotowa", stepCount: 3, durationMinutes: 20, kind: "standard", kindLabel: "Standardowa grupowa", scheduledDurationMinutes: 95, earlyLeaveAfterMinutes: null },
+  { id: "l2", title: "Lekcja 2", subject: "Scratch", level: "P1", description: "", order: 2, status: "ready", statusLabel: "Gotowa", stepCount: 4, durationMinutes: 25, kind: "standard", kindLabel: "Standardowa grupowa", scheduledDurationMinutes: 95, earlyLeaveAfterMinutes: null },
+  { id: "l3", title: "Szkic", subject: "Scratch", level: "P1", description: "", order: 3, status: "draft", statusLabel: "Szkic", stepCount: 2, durationMinutes: 10, kind: "standard", kindLabel: "Standardowa grupowa", scheduledDurationMinutes: 95, earlyLeaveAfterMinutes: null },
 ];
 
 function wrapper({ children }: PropsWithChildren) {

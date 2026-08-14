@@ -1,3 +1,5 @@
+using LessonRunner.Domain.Lessons;
+
 namespace LessonRunner.Application.Groups;
 
 public sealed record CreateGroupDto(
@@ -56,7 +58,11 @@ public sealed record ScheduledSessionDto(
     /// <summary>Czego nie zdążyliśmy - podpowiadane na kolejnym terminie tej grupy.</summary>
     string? UnfinishedNote = null,
     /// <summary>Podsumowanie dla rodzica - jedyny fragment debriefu widoczny w portalu.</summary>
-    string? ParentSummary = null);
+    string? ParentSummary = null,
+    int DurationMinutes = LessonKindExtensions.StandardDurationMinutes,
+    int? EarlyLeaveAfterMinutes = null,
+    string LessonKind = "standard",
+    string LessonKindLabel = "Standardowa grupowa (45 + 5 + 45 min)");
 
 /// <summary>Ustawienie linku do spotkania i nagrania dla pojedynczego terminu.
 /// Puste wartości oznaczają wyczyszczenie - link grupy wraca wtedy do gry.</summary>

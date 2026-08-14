@@ -4,6 +4,8 @@ namespace LessonRunner.Domain.Lessons;
 
 public sealed class Lesson : Entity
 {
+    /// <summary>Format zajęć. Brak pola w starszym dokumencie JSON daje wartość Standard.</summary>
+    public LessonKind Kind { get; set; } = LessonKind.Standard;
     public required string Title { get; set; }
     public required string Subject { get; set; }
     public required string Level { get; set; }

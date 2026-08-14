@@ -18,6 +18,7 @@ const lessons: LessonSummary[] = [
     statusLabel: "Gotowa",
     stepCount: 7,
     durationMinutes: 53,
+    kind: "standard", kindLabel: "Standardowa grupowa", scheduledDurationMinutes: 95, earlyLeaveAfterMinutes: null,
   },
   {
     id: "2",
@@ -30,6 +31,7 @@ const lessons: LessonSummary[] = [
     statusLabel: "Gotowa",
     stepCount: 6,
     durationMinutes: 45,
+    kind: "standard", kindLabel: "Standardowa grupowa", scheduledDurationMinutes: 95, earlyLeaveAfterMinutes: null,
   },
   {
     id: "3",
@@ -42,6 +44,7 @@ const lessons: LessonSummary[] = [
     statusLabel: "Szkic",
     stepCount: 5,
     durationMinutes: 40,
+    kind: "standard", kindLabel: "Standardowa grupowa", scheduledDurationMinutes: 95, earlyLeaveAfterMinutes: null,
   },
   {
     id: "4",
@@ -54,6 +57,7 @@ const lessons: LessonSummary[] = [
     statusLabel: "Do sprawdzenia",
     stepCount: 4,
     durationMinutes: 30,
+    kind: "standard", kindLabel: "Standardowa grupowa", scheduledDurationMinutes: 95, earlyLeaveAfterMinutes: null,
   },
 ];
 

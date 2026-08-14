@@ -4,6 +4,7 @@ using LessonRunner.Application.Notifications;
 using LessonRunner.Application.Participants;
 using LessonRunner.Application.Scheduling;
 using LessonRunner.Domain.Groups;
+using LessonRunner.Domain.Lessons;
 using LessonRunner.Domain.Participants;
 
 namespace LessonRunner.Application.Groups;
@@ -18,13 +19,13 @@ public sealed class SessionService(
     public async Task<IReadOnlyList<ScheduledSessionDto>> GetScheduleAsync(Guid userId, CancellationToken cancellationToken)
     {
         var groups = await groupRepository.ListAsync(cancellationToken);
-        var lessonTitles = await LessonTitleMapAsync(cancellationToken);
+        var lessonsById = await LessonMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
 
         return groups
             .SelectMany(group => group.Sessions
                 .Where(session => group.InstructorId == userId || session.SubstituteInstructorId == userId)
-                .Select(session => GroupMapping.ToSessionDto(session, group, lessonTitles, null, instructorNames)))
+                .Select(session => GroupMapping.ToSessionDto(session, group, lessonsById, null, instructorNames)))
             .OrderBy(session => session.ScheduledAt)
             .ThenBy(session => session.SequenceNumber)
             .ToList();
@@ -39,7 +40,10 @@ public sealed class SessionService(
                 session.Id,
                 $"{session.GroupName}: {session.LessonTitle ?? "zajęcia"}",
                 session.ScheduledAt,
-                CalendarExport.DefaultDurationMinutes,
+                // Czas bierzemy z terminu, a nie liczymy drugi raz z konspektu: grafik i plik ICS
+                // muszą pokazywać tę samą długość, a lekcje leżą w bazie jako dokumenty JSON,
+                // więc ponowne wczytanie całego katalogu kosztuje deserializację każdego z nich.
+                session.DurationMinutes,
                 session.SubstituteInstructorName is null ? null : $"Zastępstwo: {session.SubstituteInstructorName}",
                 session.LocationName,
                 session.MeetingUrl,
@@ -61,9 +65,9 @@ public sealed class SessionService(
             return null;
         }
 
-        var lessonTitles = await LessonTitleMapAsync(cancellationToken);
+        var lessonsById = await LessonMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
-        return GroupMapping.ToSessionDto(session, group, lessonTitles, null, instructorNames);
+        return GroupMapping.ToSessionDto(session, group, lessonsById, null, instructorNames);
     }
 
     public async Task<SessionAttendanceDto?> StartAsync(Guid sessionId, Guid userId, CancellationToken cancellationToken)
@@ -311,9 +315,9 @@ public sealed class SessionService(
             }
         }
 
-        var lessonTitles = await LessonTitleMapAsync(cancellationToken);
+        var lessonsById = await LessonMapAsync(cancellationToken);
         var instructorNames = await InstructorNameMapAsync(cancellationToken);
-        return GroupMapping.ToSessionDto(session, group, lessonTitles, null, instructorNames);
+        return GroupMapping.ToSessionDto(session, group, lessonsById, null, instructorNames);
     }
 
     /// <summary>Nierozpoznany albo pusty znacznik traktujemy jako „bez zmiany”, a nie jako
@@ -356,10 +360,11 @@ public sealed class SessionService(
         return (group, session);
     }
 
-    private async Task<IReadOnlyDictionary<Guid, string>> LessonTitleMapAsync(CancellationToken cancellationToken)
+    /// <summary>Konspekty pod ręką w całości — termin potrzebuje i tytułu, i rodzaju lekcji.</summary>
+    private async Task<IReadOnlyDictionary<Guid, Lesson>> LessonMapAsync(CancellationToken cancellationToken)
     {
         var lessons = await lessonRepository.ListAsync(cancellationToken);
-        return lessons.ToDictionary(lesson => lesson.Id, lesson => lesson.Title);
+        return lessons.ToDictionary(lesson => lesson.Id);
     }
 
     private async Task<IReadOnlyDictionary<Guid, string>> InstructorNameMapAsync(CancellationToken cancellationToken)
@@ -426,7 +431,7 @@ public sealed class SessionService(
         CancellationToken cancellationToken)
     {
         var groups = await groupRepository.ListAsync(cancellationToken);
-        var lessonTitles = await LessonTitleMapAsync(cancellationToken);
+        var lessonsById = await LessonMapAsync(cancellationToken);
         var earliest = DateTimeOffset.UtcNow.AddDays(-1);
 
         return groups
@@ -442,7 +447,7 @@ public sealed class SessionService(
                 item.group.Id,
                 item.group.Name,
                 item.session.ScheduledAt,
-                item.session.LessonId is Guid lessonId && lessonTitles.TryGetValue(lessonId, out var title) ? title : null))
+                item.session.LessonId is Guid lessonId && lessonsById.TryGetValue(lessonId, out var lesson) ? lesson.Title : null))
             .ToList();
     }
 }

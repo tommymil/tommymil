@@ -25,7 +25,7 @@ internal static class LessonSeedData
                         Order = 1,
                         Type = LessonStepType.Intro,
                         Title = "Powitanie i cel lekcji",
-                        DurationMinutes = 3,
+                        DurationMinutes = 5,
                         Script =
                         [
                             "Przywitaj się z grupą i zapytaj, kto grał dziś w jakąś grę na komputerze albo telefonie.",
@@ -52,7 +52,7 @@ internal static class LessonSeedData
                         Order = 2,
                         Type = LessonStepType.Review,
                         Title = "Co już potrafimy",
-                        DurationMinutes = 4,
+                        DurationMinutes = 5,
                         Script =
                         [
                             "Przypomnij wspólnie: gdzie jest scena, gdzie są bloki, jak przeciągamy blok do skryptu.",
@@ -78,7 +78,7 @@ internal static class LessonSeedData
                         Order = 3,
                         Type = LessonStepType.Concept,
                         Title = "Pętla zawsze i bloki ruchu",
-                        DurationMinutes = 8,
+                        DurationMinutes = 15,
                         Script =
                         [
                             "Wyjaśnij pętle zawsze: komputer powtarza środek w kółko, bez końca.",
@@ -105,7 +105,7 @@ internal static class LessonSeedData
                         Order = 4,
                         Type = LessonStepType.Demo,
                         Title = "Demo: kotek rusza strzałkami",
-                        DurationMinutes = 10,
+                        DurationMinutes = 20,
                         Script =
                         [
                             "Buduj na żywo, mówiąc każdy krok na głos.",
@@ -129,9 +129,26 @@ internal static class LessonSeedData
                     new LessonStep
                     {
                         Order = 5,
+                        Type = LessonStepType.Break,
+                        Title = "Przerwa",
+                        DurationMinutes = 5,
+                        Script =
+                        [
+                            "5 minut przerwy: dzieci wstają od ekranów, piją wodę, rozprostowują się.",
+                            "Poproś, żeby nie zamykały projektu - po przerwie wracamy do tego samego.",
+                            "Zapowiedź: po przerwie kotek zacznie zbierać jabłka i liczyć punkty."
+                        ],
+                        Notes =
+                        [
+                            new LessonNote { Kind = LessonNoteKind.Pace, Text = "Powiedz wprost, o której wracamy, i pokaż zegar. Dzieci zdalnie nie mają poczucia czasu przerwy." }
+                        ]
+                    },
+                    new LessonStep
+                    {
+                        Order = 6,
                         Type = LessonStepType.Guided,
                         Title = "Ćwiczenie z prowadzeniem: pełne sterowanie",
-                        DurationMinutes = 12,
+                        DurationMinutes = 20,
                         Script =
                         [
                             "Dzieci dodają samodzielnie górę i dół.",
@@ -154,10 +171,10 @@ internal static class LessonSeedData
                     },
                     new LessonStep
                     {
-                        Order = 6,
+                        Order = 7,
                         Type = LessonStepType.Challenge,
                         Title = "Samodzielne wyzwanie: zbierz jabłko",
-                        DurationMinutes = 12,
+                        DurationMinutes = 15,
                         Script =
                         [
                             "Postaw wyzwanie: dodaj jabłko. Gdy kotek go dotknie, jabłko ucieka w losowe miejsce.",
@@ -181,10 +198,10 @@ internal static class LessonSeedData
                     },
                     new LessonStep
                     {
-                        Order = 7,
+                        Order = 8,
                         Type = LessonStepType.Summary,
                         Title = "Podsumowanie i zapisanie projektu",
-                        DurationMinutes = 4,
+                        DurationMinutes = 10,
                         Script =
                         [
                             "Zbierz grupę z powrotem i zapytaj, co dziś zbudowaliśmy.",
@@ -221,7 +238,7 @@ internal static class LessonSeedData
                         Order = 1,
                         Type = LessonStepType.Intro,
                         Title = "Co dziś animujemy",
-                        DurationMinutes = 3,
+                        DurationMinutes = 10,
                         Script =
                         [
                             "Zapytaj, czy ktoś widział kreskówkę - jak postacie się poruszają i mówią.",
@@ -247,7 +264,7 @@ internal static class LessonSeedData
                         Order = 2,
                         Type = LessonStepType.Concept,
                         Title = "Blok mów i dymek",
-                        DurationMinutes = 6,
+                        DurationMinutes = 15,
                         Script =
                         [
                             "Pokaż kategorie Wygląd i blok 'mów [Cześć!] przez (2) sekundy'.",
@@ -273,7 +290,7 @@ internal static class LessonSeedData
                         Order = 3,
                         Type = LessonStepType.Guided,
                         Title = "Zmiana kostiumów",
-                        DurationMinutes = 8,
+                        DurationMinutes = 20,
                         Script =
                         [
                             "Pokaż zakładkę Kostiumy - kotek ma dwa kostiumy.",
@@ -297,9 +314,26 @@ internal static class LessonSeedData
                     new LessonStep
                     {
                         Order = 4,
+                        Type = LessonStepType.Break,
+                        Title = "Przerwa",
+                        DurationMinutes = 5,
+                        Script =
+                        [
+                            "5 minut przerwy: dzieci wstają od ekranów, piją wodę, rozprostowują się.",
+                            "Poproś, żeby nie zamykały projektu - po przerwie wracamy do tego samego.",
+                            "Zapowiedź: po przerwie kotek zacznie mówić i grać dźwiękiem."
+                        ],
+                        Notes =
+                        [
+                            new LessonNote { Kind = LessonNoteKind.Pace, Text = "Powiedz wprost, o której wracamy, i pokaż zegar. Dzieci zdalnie nie mają poczucia czasu przerwy." }
+                        ]
+                    },
+                    new LessonStep
+                    {
+                        Order = 5,
                         Type = LessonStepType.Challenge,
                         Title = "Dodaj dźwięk",
-                        DurationMinutes = 8,
+                        DurationMinutes = 25,
                         Script =
                         [
                             "Postaw wyzwanie: gdy klikniesz kotka, ma zagrać dźwięk 'Meow'.",
@@ -321,10 +355,10 @@ internal static class LessonSeedData
                     },
                     new LessonStep
                     {
-                        Order = 5,
+                        Order = 6,
                         Type = LessonStepType.Summary,
                         Title = "Podsumowanie",
-                        DurationMinutes = 3,
+                        DurationMinutes = 20,
                         Script =
                         [
                             "Zapytaj: jakie trzy bloki dziś poznaliśmy?",
@@ -359,7 +393,7 @@ internal static class LessonSeedData
                         Order = 1,
                         Type = LessonStepType.Intro,
                         Title = "Czym jest program tekstowy",
-                        DurationMinutes = 4,
+                        DurationMinutes = 20,
                         Script =
                         [
                             "Wyjaśnij różnicę: w Scratch układamy bloki, w Pythonie piszemy linie tekstu.",
@@ -384,7 +418,7 @@ internal static class LessonSeedData
                         Order = 2,
                         Type = LessonStepType.Concept,
                         Title = "Zmienna trzyma wartość",
-                        DurationMinutes = 8,
+                        DurationMinutes = 25,
                         Script =
                         [
                             "Wyjaśnij zmienną jako pudełko z etykietą.",
@@ -409,9 +443,26 @@ internal static class LessonSeedData
                     new LessonStep
                     {
                         Order = 3,
+                        Type = LessonStepType.Break,
+                        Title = "Przerwa",
+                        DurationMinutes = 5,
+                        Script =
+                        [
+                            "5 minut przerwy: dzieci wstają od ekranów, piją wodę, rozprostowują się.",
+                            "Poproś, żeby nie zamykały projektu - po przerwie wracamy do tego samego.",
+                            "Zapowiedź: po przerwie komputer zacznie zadawać wam pytania."
+                        ],
+                        Notes =
+                        [
+                            new LessonNote { Kind = LessonNoteKind.Pace, Text = "Powiedz wprost, o której wracamy, i pokaż zegar. Dzieci zdalnie nie mają poczucia czasu przerwy." }
+                        ]
+                    },
+                    new LessonStep
+                    {
+                        Order = 4,
                         Type = LessonStepType.Guided,
                         Title = "Pytanie do użytkownika: input",
-                        DurationMinutes = 10,
+                        DurationMinutes = 30,
                         Script =
                         [
                             "Pokaż 'input' jako sposób, by program zapytał i zapamiętał odpowiedź.",
@@ -434,10 +485,10 @@ internal static class LessonSeedData
                     },
                     new LessonStep
                     {
-                        Order = 4,
+                        Order = 5,
                         Type = LessonStepType.Summary,
                         Title = "Podsumowanie",
-                        DurationMinutes = 3,
+                        DurationMinutes = 15,
                         Script =
                         [
                             "Zapytaj: do czego służy print, a do czego input?",
@@ -472,7 +523,7 @@ internal static class LessonSeedData
                         Order = 1,
                         Type = LessonStepType.Review,
                         Title = "Powtórka: zmienne",
-                        DurationMinutes = 4,
+                        DurationMinutes = 15,
                         Script =
                         [
                             "Przypomnij, czym jest zmienna i jak działa print.",
@@ -492,7 +543,7 @@ internal static class LessonSeedData
                         Order = 2,
                         Type = LessonStepType.Concept,
                         Title = "Pętla for i lista",
-                        DurationMinutes = 10,
+                        DurationMinutes = 30,
                         Script =
                         [
                             "Wyjaśnij listę jako uporządkowany zbiór elementów.",
@@ -514,9 +565,26 @@ internal static class LessonSeedData
                     new LessonStep
                     {
                         Order = 3,
+                        Type = LessonStepType.Break,
+                        Title = "Przerwa",
+                        DurationMinutes = 5,
+                        Script =
+                        [
+                            "5 minut przerwy: dzieci wstają od ekranów, piją wodę, rozprostowują się.",
+                            "Poproś, żeby nie zamykały projektu - po przerwie wracamy do tego samego.",
+                            "Zapowiedź: po przerwie wasza lista zacznie się sama wypisywać."
+                        ],
+                        Notes =
+                        [
+                            new LessonNote { Kind = LessonNoteKind.Pace, Text = "Powiedz wprost, o której wracamy, i pokaż zegar. Dzieci zdalnie nie mają poczucia czasu przerwy." }
+                        ]
+                    },
+                    new LessonStep
+                    {
+                        Order = 4,
                         Type = LessonStepType.Challenge,
                         Title = "Wyzwanie: własna lista",
-                        DurationMinutes = 8,
+                        DurationMinutes = 30,
                         Script =
                         [
                             "Niech każdy stworzy listę 3 ulubionych rzeczy i wypisze je pętlą.",
@@ -529,6 +597,27 @@ internal static class LessonSeedData
                         Notes =
                         [
                             new LessonNote { Kind = LessonNoteKind.Hint, Text = "Do uzupełnienia: dodać przykład z licznikiem." }
+                        ]
+                    },
+                    new LessonStep
+                    {
+                        Order = 5,
+                        Type = LessonStepType.Summary,
+                        Title = "Podsumowanie i zapowiedź",
+                        DurationMinutes = 15,
+                        Script =
+                        [
+                            "Zbierz grupę i zapytaj, czym różni się pętla od trzech razy przepisanego polecenia.",
+                            "Poproś dwoje dzieci o przeczytanie swojego kodu na głos.",
+                            "Zapowiedz następne zajęcia i przypomnij o zapisaniu pliku."
+                        ],
+                        StudentItems =
+                        [
+                            new StudentItem { Kind = StudentItemKind.Text, Text = "Dziś nauczyliśmy się: pętla for, lista, powtarzanie bez przepisywania." }
+                        ],
+                        Notes =
+                        [
+                            new LessonNote { Kind = LessonNoteKind.Hint, Text = "Czytanie własnego kodu na głos wyłapuje więcej niż pytanie \"czy rozumiecie\"." }
                         ]
                     }
                 ]

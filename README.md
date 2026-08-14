@@ -157,6 +157,22 @@ wystartuje. Lokalnie bierze się z `appsettings.Development.json`, na produkcji 
 
 ## Import konspektów
 
+Konspekt ma jawny rodzaj:
+
+- `Rodzaj: standardowa` — zwykłe zajęcia grupowe, **dokładnie 95 minut**: 45 pracy,
+  5 przerwy, 45 pracy. Żaden blok bez przerwy nie może przekroczyć 45 minut.
+- `Rodzaj: pokazowa` — spotkanie **dokładnie 60-minutowe**, bez wymaganej przerwy. Od 55. minuty
+  uczestnik może zakończyć zajęcia, więc końcówkę planuje się jako domknięcie, a nie nowy
+  materiał. To granica wyjścia, a nie dopuszczalna długość planu: konspekt na 55 minut
+  zostawiałby pięć minut zarezerwowanego okna pustych.
+
+Brak pola `Rodzaj` oznacza lekcję standardową, dzięki czemu starsze pliki pozostają zgodne.
+Importer dobiera walidację czasu i przerwy do rodzaju, a wartość jest zapisywana w konspekcie.
+
+Regułę czasu sprawdza też backend — przy publikacji i przy zapisie lekcji już opublikowanej.
+Rodzaju nie da się zmienić, gdy konspekt jest wpięty w termin grupy albo w lekcję próbną.
+Lekcji próbnej można przypisać wyłącznie opublikowany konspekt pokazowy.
+
 Pojedynczy konspekt wgrywa się w aplikacji: **Konspekty → Importuj**, wklejając treść
 albo wskazując plik `.md`. Po imporcie system otwiera edytor, żeby dorzucić zrzuty ekranu.
 

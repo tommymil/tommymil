@@ -41,9 +41,17 @@ export type TrialLesson = {
   hasDiagnosis: boolean;
   /** Czeka na ruch: świeże zgłoszenie bez terminu albo dziecko po lekcji. */
   needsAttention: boolean;
+  durationMinutes: number;
+  earlyLeaveAfterMinutes: number;
 };
 
 export type TrialOption = { value: string; label: string };
+export type TrialLessonOption = {
+  id: string;
+  title: string;
+  durationMinutes: number;
+  earlyLeaveAfterMinutes: number;
+};
 
 export type TrialBoard = {
   trials: TrialLesson[];
@@ -52,6 +60,7 @@ export type TrialBoard = {
   programmingOptions: TrialOption[];
   recommendationOptions: TrialOption[];
   statusOptions: TrialOption[];
+  lessonOptions: TrialLessonOption[];
 };
 
 export type CreateTrialRequest = {

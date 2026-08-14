@@ -284,6 +284,7 @@ function ScheduleDialog({ vm, trial, onClose }: { vm: ViewModel; trial: TrialLes
   const [instructorId, setInstructorId] = useState(trial.instructorId ?? "");
   const [scheduledAt, setScheduledAt] = useState(toLocalInput(trial.scheduledAt));
   const [meetingUrl, setMeetingUrl] = useState(trial.meetingUrl ?? "");
+  const [lessonId, setLessonId] = useState(trial.lessonId ?? "");
   const toast = useToast();
 
   return (
@@ -304,6 +305,7 @@ function ScheduleDialog({ vm, trial, onClose }: { vm: ViewModel; trial: TrialLes
                 instructorId: instructorId || null,
                 scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : null,
                 meetingUrl: meetingUrl.trim() || null,
+                lessonId: lessonId || null,
               });
 
               if (ok) {
@@ -332,6 +334,19 @@ function ScheduleDialog({ vm, trial, onClose }: { vm: ViewModel; trial: TrialLes
       <label className="form-field">
         <span>Termin</span>
         <input type="datetime-local" value={scheduledAt} onChange={(event) => setScheduledAt(event.target.value)} />
+      </label>
+
+      <label className="form-field">
+        <span>Konspekt pokazowy</span>
+        <select value={lessonId} onChange={(event) => setLessonId(event.target.value)}>
+          <option value="">Bez przypisanego konspektu</option>
+          {(vm.board?.lessonOptions ?? []).map((lesson) => (
+            <option key={lesson.id} value={lesson.id}>
+              {lesson.title} — {lesson.durationMinutes} min
+            </option>
+          ))}
+        </select>
+        <small>Lista zawiera wyłącznie konspekty oznaczone jako pokazowe.</small>
       </label>
 
       <label className="form-field">

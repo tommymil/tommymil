@@ -1,7 +1,10 @@
+using LessonRunner.Domain.Lessons;
+
 namespace LessonRunner.Application.Trials;
 
 /// <summary>Słownik do list rozwijanych — etykiety pochodzą z domeny, nie z kopii we froncie.</summary>
 public sealed record TrialOptionDto(string Value, string Label);
+public sealed record TrialLessonOptionDto(Guid Id, string Title, int DurationMinutes, int EarlyLeaveAfterMinutes);
 
 public sealed record TrialLessonDto(
     Guid Id,
@@ -40,7 +43,9 @@ public sealed record TrialLessonDto(
     /// <summary>Diagnoza wypełniona w komplecie — administracja ma na czym oprzeć decyzję.</summary>
     bool HasDiagnosis,
     /// <summary>Czeka na ruch: świeże zgłoszenie bez terminu albo dziecko po lekcji.</summary>
-    bool NeedsAttention);
+    bool NeedsAttention,
+    int DurationMinutes = LessonKindExtensions.ShowcaseDurationMinutes,
+    int EarlyLeaveAfterMinutes = LessonKindExtensions.ShowcaseEarlyLeaveAfterMinutes);
 
 /// <summary>Zgłoszenie z telefonu albo formularza. Wymagamy wyłącznie imienia i nazwiska
 /// dziecka — reszta dosypuje się w trakcie rozmowy.</summary>
@@ -95,4 +100,5 @@ public sealed record TrialBoardDto(
     IReadOnlyList<TrialOptionDto> ComputerOptions,
     IReadOnlyList<TrialOptionDto> ProgrammingOptions,
     IReadOnlyList<TrialOptionDto> RecommendationOptions,
-    IReadOnlyList<TrialOptionDto> StatusOptions);
+    IReadOnlyList<TrialOptionDto> StatusOptions,
+    IReadOnlyList<TrialLessonOptionDto>? LessonOptions = null);

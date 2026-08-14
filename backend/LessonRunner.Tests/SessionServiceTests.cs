@@ -8,10 +8,11 @@ namespace LessonRunner.Tests;
 
 public sealed class SessionServiceTests
 {
-    private static async Task<(SessionService Sessions, GroupService Groups, GroupDetailsDto Group, Guid InstructorId)> BuildAsync()
+    private static async Task<(SessionService Sessions, GroupService Groups, GroupDetailsDto Group, Guid InstructorId)> BuildAsync(
+        LessonKind lessonKind = LessonKind.Standard)
     {
         var lessons = new InMemoryLessonRepository();
-        var lesson = new Lesson { Title = "L1", Subject = "Scratch", Level = "P1", Description = "d", Status = LessonStatus.Ready };
+        var lesson = new Lesson { Title = "L1", Subject = "Scratch", Level = "P1", Description = "d", Status = LessonStatus.Ready, Kind = lessonKind };
         await lessons.AddAsync(lesson, CancellationToken.None);
 
         var users = new InMemoryUserRepository();
@@ -172,6 +173,19 @@ public sealed class SessionServiceTests
 
         Assert.Single(mine);
         Assert.Empty(others);
+    }
+
+    [Theory]
+    [InlineData(LessonKind.Standard, "DTEND:20260615T173500Z")]
+    [InlineData(LessonKind.Showcase, "DTEND:20260615T170000Z")]
+    public async Task ExportScheduleIcsAsync_UsesDurationDefinedByLessonKind(LessonKind kind, string expectedEnd)
+    {
+        var (sessions, _, _, instructorId) = await BuildAsync(kind);
+
+        var bytes = await sessions.ExportScheduleIcsAsync(instructorId, CancellationToken.None);
+        var ics = System.Text.Encoding.UTF8.GetString(bytes);
+
+        Assert.Contains(expectedEnd, ics);
     }
 
     [Fact]

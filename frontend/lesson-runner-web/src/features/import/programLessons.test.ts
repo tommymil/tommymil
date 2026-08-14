@@ -57,6 +57,7 @@ describe("konspekty w docs/program", () => {
       expect(problemy.map((issue) => `linia ${issue.line}: ${issue.message}`)).toEqual([]);
 
       expect(lesson.title).not.toBe("");
+      expect(lesson.kind).toBe("standard");
       expect(lesson.objective).toBeTruthy();
       expect(lesson.steps.length).toBeGreaterThan(0);
 

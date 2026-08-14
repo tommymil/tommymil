@@ -3,6 +3,7 @@ using LessonRunner.Application.Lessons;
 using LessonRunner.Application.Parents;
 using LessonRunner.Application.Participants;
 using LessonRunner.Domain.Participants;
+using LessonRunner.Domain.Lessons;
 using LessonRunner.Domain.Trials;
 using LessonRunner.Domain.Users;
 
@@ -80,6 +81,22 @@ public sealed class TrialService(
             if (instructor.Role is not (UserRole.Instructor or UserRole.Admin))
             {
                 throw new ArgumentException("Lekcję próbną może poprowadzić wyłącznie instruktor albo administrator.");
+            }
+        }
+
+        if (dto.LessonId is Guid lessonId)
+        {
+            var lesson = await lessonRepository.GetByIdAsync(lessonId, cancellationToken)
+                ?? throw new ArgumentException("Wybrany konspekt nie istnieje.");
+
+            if (lesson.Kind != LessonKind.Showcase)
+            {
+                throw new ArgumentException("Do lekcji pokazowej można przypisać wyłącznie konspekt rodzaju „Pokazowa”.");
+            }
+
+            if (lesson.Status != LessonStatus.Ready)
+            {
+                throw new ArgumentException("Konspekt lekcji pokazowej musi być opublikowany przed przypisaniem do terminu.");
             }
         }
 
@@ -279,7 +296,8 @@ public sealed class TrialService(
     {
         var dtos = new List<TrialLessonDto>(trials.Count);
         var instructorNames = await InstructorNamesAsync(cancellationToken);
-        var lessonTitles = await LessonTitlesAsync(cancellationToken);
+        var lessons = await lessonRepository.ListAsync(cancellationToken);
+        var lessonTitles = lessons.ToDictionary(lesson => lesson.Id, lesson => lesson.Title);
 
         foreach (var trial in trials)
         {
@@ -292,7 +310,16 @@ public sealed class TrialService(
             Options<ComputerSkill>(value => value.Name(), value => value.Label()),
             Options<ProgrammingBackground>(value => value.Name(), value => value.Label()),
             Options<TrialRecommendation>(value => value.Name(), value => value.Label()),
-            Options<TrialStatus>(value => value.Name(), value => value.Label()));
+            Options<TrialStatus>(value => value.Name(), value => value.Label()),
+            lessons
+                .Where(lesson => lesson.Kind == LessonKind.Showcase && lesson.Status == LessonStatus.Ready)
+                .OrderBy(lesson => lesson.Title)
+                .Select(lesson => new TrialLessonOptionDto(
+                    lesson.Id,
+                    lesson.Title,
+                    lesson.Kind.ScheduledDurationMinutes(),
+                    lesson.Kind.EarlyLeaveAfterMinutes() ?? LessonKindExtensions.ShowcaseEarlyLeaveAfterMinutes))
+                .ToList());
     }
 
     private async Task<TrialLessonDto> ToDtoAsync(TrialLesson trial, CancellationToken cancellationToken) =>

@@ -25,6 +25,11 @@ internal sealed class EfTrialRepository(AppDbContext dbContext) : ITrialReposito
         return Sorted(documents);
     }
 
+    public Task<bool> AnyForLessonAsync(Guid lessonId, CancellationToken cancellationToken)
+    {
+        return dbContext.TrialLessons.AnyAsync(trial => trial.LessonId == lessonId, cancellationToken);
+    }
+
     public async Task<TrialLesson?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var document = await dbContext.TrialLessons

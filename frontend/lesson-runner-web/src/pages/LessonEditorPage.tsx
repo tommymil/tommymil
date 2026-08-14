@@ -120,6 +120,21 @@ export function LessonEditorPage() {
           <section className="editor-panel editor-meta-panel lesson-builder-meta">
             <PanelTitle icon={NotebookPen} title="Podstawy konspektu" />
             <label>
+              Rodzaj lekcji
+              <select
+                value={editor.meta.kind}
+                onChange={(event) => editor.updateMeta("kind", event.target.value)}
+              >
+                <option value="standard">Standardowa grupowa — 45 + 5 + 45 min</option>
+                <option value="showcase">Pokazowa — 60 min, wyjście od 55. minuty</option>
+              </select>
+            </label>
+            <p className="cue-empty">
+              {editor.meta.kind === "showcase"
+                ? "Plan ma zajmować dokładnie 60 minut. Od 55. minuty uczestnik może wyjść, więc końcówka to domknięcie, a nie nowy materiał."
+                : "Zajęcia trwają 95 minut i obejmują 5-minutową przerwę po pierwszym bloku pracy."}
+            </p>
+            <label>
               Tytuł
               <input
                 required
@@ -204,7 +219,12 @@ export function LessonEditorPage() {
             <PanelTitle icon={BookOpenText} title="Co warto uzupełnić" />
             <ChecklistItem done={Boolean(editor.meta.title.trim())} label="Tytuł i opis lekcji" />
             <ChecklistItem done={editor.steps.length > 0} label="Minimum jeden krok prowadzenia" />
-            <ChecklistItem done={editor.totalDuration > 0} label="Realny czas trwania" />
+            <ChecklistItem
+              done={editor.durationValid}
+              label={editor.meta.kind === "showcase"
+                ? "Plan zajmuje dokładnie 60 minut"
+                : "Plan zajmuje dokładnie 95 minut z przerwą"}
+            />
             <ChecklistItem done={totalExtras > 0} label="Materiały lub wskazówki" />
             <ChecklistItem
               done={Boolean(editor.projectFiles.starter || editor.projectFiles.final)}

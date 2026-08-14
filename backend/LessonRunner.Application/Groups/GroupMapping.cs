@@ -1,5 +1,6 @@
 using LessonRunner.Domain.Groups;
 using LessonRunner.Domain.Participants;
+using LessonRunner.Domain.Lessons;
 
 namespace LessonRunner.Application.Groups;
 
@@ -40,16 +41,25 @@ internal static class GroupMapping
             participant.Email,
             enrollmentStatus.ToString().ToLowerInvariant());
 
+    /// <summary>
+    /// Termin bierze konspekt w całości, a nie sam tytuł.
+    ///
+    /// Tytuł i rodzaj lekcji szły wcześniej dwoma osobnymi słownikami, z których drugi był
+    /// opcjonalny. Siedem z jedenastu wywołań go nie podawało, więc ta sama sesja pokazowa
+    /// raportowała 60 minut na grafiku i 95 w zarządzaniu grupami. Jedna mapa lekcji sprawia,
+    /// że nie da się podać tytułu bez rodzaju.
+    /// </summary>
     public static ScheduledSessionDto ToSessionDto(
         ScheduledSession session,
         Group group,
-        IReadOnlyDictionary<Guid, string> lessonTitles,
+        IReadOnlyDictionary<Guid, Lesson> lessons,
         IReadOnlyDictionary<Guid, string>? locationNames = null,
         IReadOnlyDictionary<Guid, string>? instructorNames = null)
     {
-        string? lessonTitle = session.LessonId is Guid lessonId && lessonTitles.TryGetValue(lessonId, out var title)
-            ? title
+        var lesson = session.LessonId is Guid lessonId && lessons.TryGetValue(lessonId, out var found)
+            ? found
             : null;
+        var lessonKind = lesson?.Kind ?? LessonKind.Standard;
         var locationId = session.LocationId ?? group.LocationId;
         string? locationName = locationId is Guid id && locationNames?.TryGetValue(id, out var name) == true
             ? name
@@ -60,7 +70,7 @@ internal static class GroupMapping
             group.Id,
             group.Name,
             session.LessonId,
-            lessonTitle,
+            lesson?.Title,
             session.ScheduledAt,
             session.SequenceNumber,
             StatusName(session.Status),
@@ -80,7 +90,11 @@ internal static class GroupMapping
             session.MeetingUrl,
             session.RecordingUrl,
             session.UnfinishedNote,
-            session.ParentSummary);
+            session.ParentSummary,
+            lessonKind.ScheduledDurationMinutes(),
+            lessonKind.EarlyLeaveAfterMinutes(),
+            lessonKind.Name(),
+            lessonKind.Label());
     }
 
     public static SessionAttendanceDto ToAttendanceDto(

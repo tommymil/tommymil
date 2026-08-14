@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { GraduationCap, Video } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { EmptyState } from "../components/ui/EmptyState";
@@ -90,6 +91,9 @@ function TrialCard({
             {trial.childAge !== null ? <span className="participant-age"> · {trial.childAge} lat</span> : null}
           </strong>
           <span>{trial.scheduledAt ? formatFriendlyDateTime(trial.scheduledAt) : "Termin nieustalony"}</span>
+          <span>
+            Lekcja pokazowa · {trial.durationMinutes} min · wyjście możliwe od {trial.earlyLeaveAfterMinutes}. minuty
+          </span>
         </div>
         <StatusBadge label={trial.statusLabel} tone={trial.hasDiagnosis ? "success" : "warning"} dot />
       </div>
@@ -105,6 +109,14 @@ function TrialCard({
               Dołącz do spotkania
             </Button>
           </a>
+        </div>
+      ) : null}
+
+      {trial.lessonId ? (
+        <div className="participant-row-actions">
+          <Link to={`/presenter/${trial.lessonId}`}>
+            <Button variant="secondary">Otwórz konspekt pokazowy</Button>
+          </Link>
         </div>
       ) : null}
 

@@ -10,4 +10,8 @@ public sealed record LessonSummaryDto(
     string Status,
     string StatusLabel,
     int StepCount,
-    int DurationMinutes);
+    int DurationMinutes,
+    string Kind,
+    string KindLabel,
+    int ScheduledDurationMinutes,
+    int? EarlyLeaveAfterMinutes);

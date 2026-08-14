@@ -30,6 +30,10 @@ export type ParentScheduleItem = {
   courseLength?: number;
   /** Kto faktycznie poprowadzi te zajęcia (zastępstwo wygrywa z instruktorem grupy). */
   instructorName?: string | null;
+  durationMinutes?: number;
+  earlyLeaveAfterMinutes?: number | null;
+  lessonKind?: "standard" | "showcase";
+  lessonKindLabel?: string;
 };
 
 export type ParentAttendanceItem = {

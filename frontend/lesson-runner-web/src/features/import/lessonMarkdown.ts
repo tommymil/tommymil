@@ -3,6 +3,7 @@ import type {
   CreateLessonStepRequest,
   LessonNote,
   LessonResource,
+  LessonKind,
 } from "../../types/lesson";
 
 /**
@@ -64,9 +65,9 @@ const LONG_STEP_MINUTES = 20;
  */
 const STANDARD_BLOCK_MINUTES = 45;
 export const STANDARD_LESSON_MINUTES = 95;
+export const SHOWCASE_LESSON_MINUTES = 60;
+export const SHOWCASE_EARLY_LEAVE_MINUTES = 55;
 
-/** O ile procent suma kroków może rozjechać się z deklarowanym czasem, zanim to zgłosimy. */
-const TIME_TOLERANCE = 0.1;
 
 const stepTypeAliases: Record<string, string[]> = {
   intro: ["intro", "wprowadzenie", "wstep", "powitanie"],
@@ -218,6 +219,7 @@ function applyMeta(
   key: string,
   value: string,
   state: { plannedMinutes: number | null; description: string[] },
+  issues: IssueLog,
 ): MetaResult {
   const normalizedKey = normalize(key);
 
@@ -250,6 +252,21 @@ function applyMeta(
 
   if (normalizedKey === "time" || normalizedKey === "czas" || normalizedKey === "dlugosc") {
     state.plannedMinutes = parseMinutes(value);
+    return "applied";
+  }
+
+  if (normalizedKey === "kind" || normalizedKey === "type" || normalizedKey === "rodzaj" || normalizedKey === "typ") {
+    const normalizedValue = normalize(value);
+
+    if (["showcase", "pokazowa", "pokazowe", "demo", "demonstracyjna"].includes(normalizedValue)) {
+      lesson.kind = "showcase";
+    } else if (["standard", "standardowa", "grupowa", "zwykla", "zwykle"].includes(normalizedValue)) {
+      lesson.kind = "standard";
+    } else {
+      issues.notice(null, `Nieznany rodzaj lekcji „${value}” — przyjęto lekcję standardową.`);
+      lesson.kind = "standard";
+    }
+
     return "applied";
   }
 
@@ -318,6 +335,7 @@ export function parseLessonMarkdown(markdown: string): ParsedLesson {
   const lines = markdown.replace(/\r\n/g, "\n").split("\n");
   const issues = new IssueLog();
   const lesson: CreateLessonRequest = {
+    kind: "standard",
     title: "",
     subject: "",
     level: "",
@@ -427,7 +445,7 @@ export function parseLessonMarkdown(markdown: string): ParsedLesson {
       // już zdanie opisu i nie ma po co go zgłaszać.
       const meta = line.match(/^([^\s:][^:]{0,30}):\s+(.+)$/);
       if (meta && meta[1].trim().split(/\s+/).length <= 2) {
-        const result = applyMeta(lesson, meta[1].trim(), meta[2].trim(), state);
+        const result = applyMeta(lesson, meta[1].trim(), meta[2].trim(), state, issues);
         if (result === "applied") {
           continue;
         }
@@ -494,28 +512,46 @@ function appendPlanIssues(
     return;
   }
 
-  if (plannedMinutes !== null && plannedMinutes > 0) {
-    const drift = Math.abs(totalMinutes - plannedMinutes) / plannedMinutes;
-    if (drift > TIME_TOLERANCE) {
-      const direction = totalMinutes < plannedMinutes ? "mniej" : "więcej";
-      issues.notice(
-        null,
-        `Kroki sumują się do ${totalMinutes} min, a zajęcia mają trwać ${plannedMinutes} min — to o ${Math.abs(totalMinutes - plannedMinutes)} min ${direction}.`,
-      );
-    }
-  }
+  const expectedMinutes = scheduledMinutesFor(lesson.kind);
 
-  blockMinutes(lesson).forEach((minutes, index, blocks) => {
-    if (minutes <= STANDARD_BLOCK_MINUTES) {
-      return;
-    }
-
-    const which = blocks.length === 1 ? "Zajęcia trwają" : `Blok ${index + 1} trwa`;
+  if (plannedMinutes !== null && plannedMinutes > 0 && plannedMinutes !== expectedMinutes) {
     issues.notice(
       null,
-      `${which} ${minutes} min bez przerwy — zajęcia mają kształt ${STANDARD_BLOCK_MINUTES} min + 5 min przerwy + ${STANDARD_BLOCK_MINUTES} min. Dodaj krok „## [przerwa] ... (5 min)”.`,
+      lesson.kind === "showcase"
+        ? `Lekcja pokazowa zawsze rezerwuje ${SHOWCASE_LESSON_MINUTES} min — zmień metadaną „Czas” z ${plannedMinutes} na ${SHOWCASE_LESSON_MINUTES} min.`
+        : `Lekcja standardowa trwa ${STANDARD_LESSON_MINUTES} min (${STANDARD_BLOCK_MINUTES} + 5 przerwy + ${STANDARD_BLOCK_MINUTES}) — zmień metadaną „Czas” z ${plannedMinutes} na ${STANDARD_LESSON_MINUTES} min.`,
     );
-  });
+  }
+
+  // Sumę kroków porównujemy z długością wynikającą z rodzaju lekcji, a nie z metadaną „Czas”.
+  // Wcześniej szło to przez tolerancję 10% od deklaracji autora, przez co dla pokazówki
+  // przechodziło wszystko od 54 do 66 minut — trzy różne liczby na jedną regułę.
+  if (totalMinutes !== expectedMinutes) {
+    const difference = Math.abs(totalMinutes - expectedMinutes);
+    const direction = totalMinutes < expectedMinutes ? "brakuje" : "za dużo";
+
+    issues.notice(
+      null,
+      lesson.kind === "showcase"
+        ? `Kroki sumują się do ${totalMinutes} min, a lekcja pokazowa ma zająć dokładnie ${SHOWCASE_LESSON_MINUTES} min — ${direction} ${difference} min. Od ${SHOWCASE_EARLY_LEAVE_MINUTES}. minuty uczestnik może wyjść, więc końcówkę zaplanuj jako domknięcie, a nie nowy materiał.`
+        : `Kroki sumują się do ${totalMinutes} min, a lekcja standardowa ma zająć dokładnie ${STANDARD_LESSON_MINUTES} min — ${direction} ${difference} min.`,
+    );
+  }
+
+  // Przerwa w środku obowiązuje tylko standard. Pokazówka to jeden ciąg 60 minut.
+  if (lesson.kind !== "showcase") {
+    blockMinutes(lesson).forEach((minutes, index, blocks) => {
+      if (minutes <= STANDARD_BLOCK_MINUTES) {
+        return;
+      }
+
+      const which = blocks.length === 1 ? "Zajęcia trwają" : `Blok ${index + 1} trwa`;
+      issues.notice(
+        null,
+        `${which} ${minutes} min bez przerwy — zajęcia mają kształt ${STANDARD_BLOCK_MINUTES} min + 5 min przerwy + ${STANDARD_BLOCK_MINUTES} min. Dodaj krok „## [przerwa] ... (5 min)”.`,
+      );
+    });
+  }
 
   if (!lesson.steps.some((step) => step.type === "intro")) {
     issues.notice(null, "Brak kroku wprowadzającego — zajęcia zaczynają się od materiału.");
@@ -528,6 +564,10 @@ function appendPlanIssues(
   if (!lesson.objective) {
     issues.notice(null, "Brak celu lekcji — dopisz „Cel: …”, żeby prowadzący wiedział, co jest w niej najważniejsze.");
   }
+}
+
+export function scheduledMinutesFor(kind: LessonKind): number {
+  return kind === "showcase" ? SHOWCASE_LESSON_MINUTES : STANDARD_LESSON_MINUTES;
 }
 
 /**

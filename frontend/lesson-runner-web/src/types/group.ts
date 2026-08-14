@@ -68,6 +68,10 @@ export type ScheduledSession = {
   recordingUrl?: string | null;
   unfinishedNote?: string | null;
   parentSummary?: string | null;
+  durationMinutes?: number;
+  earlyLeaveAfterMinutes?: number | null;
+  lessonKind?: "standard" | "showcase";
+  lessonKindLabel?: string;
 };
 
 export type CancelSessionRequest = {

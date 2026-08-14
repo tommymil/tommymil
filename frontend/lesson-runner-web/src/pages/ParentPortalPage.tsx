@@ -186,6 +186,8 @@ function NextSessionHero({
 
   const lessonLine = [
     session.groupName,
+    session.durationMinutes ? `${session.durationMinutes} min` : null,
+    session.earlyLeaveAfterMinutes ? `wyjście od ${session.earlyLeaveAfterMinutes}. minuty` : null,
     session.instructorName ? `prowadzi ${session.instructorName}` : null,
     session.sequenceNumber && session.courseLength
       ? `lekcja ${session.sequenceNumber} z ${session.courseLength}`
@@ -270,6 +272,8 @@ function PlanTab({
             <strong>{formatFriendlyDateTime(session.scheduledAt)}</strong>
             <small>
               {session.groupName} · {session.lessonTitle ?? "Zajęcia"}
+              {session.durationMinutes ? ` · ${session.durationMinutes} min` : ""}
+              {session.earlyLeaveAfterMinutes ? ` · wyjście od ${session.earlyLeaveAfterMinutes}. minuty` : ""}
               {session.instructorName ? ` · ${session.instructorName}` : ""}
             </small>
           </div>

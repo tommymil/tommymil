@@ -13,6 +13,9 @@ internal sealed class InMemoryTrialRepository : ITrialRepository
     public Task<IReadOnlyList<TrialLesson>> ListByInstructorAsync(Guid instructorId, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<TrialLesson>>(items.Where(trial => trial.InstructorId == instructorId).ToList());
 
+    public Task<bool> AnyForLessonAsync(Guid lessonId, CancellationToken cancellationToken) =>
+        Task.FromResult(items.Any(trial => trial.LessonId == lessonId));
+
     public Task<TrialLesson?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
         Task.FromResult(items.FirstOrDefault(trial => trial.Id == id));
 
