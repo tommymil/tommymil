@@ -155,6 +155,41 @@ Klucz podpisu (`Jwt:SigningKey`, min. 32 bajty) jest wymagany — bez niego apli
 wystartuje. Lokalnie bierze się z `appsettings.Development.json`, na produkcji ze zmiennej
 środowiskowej `Jwt__SigningKey`.
 
+## Import konspektów
+
+Pojedynczy konspekt wgrywa się w aplikacji: **Konspekty → Importuj**, wklejając treść
+albo wskazując plik `.md`. Po imporcie system otwiera edytor, żeby dorzucić zrzuty ekranu.
+
+Całe partie plików — na przykład gotowy semestr z `docs/program/` — wgrywa skrypt wsadowy.
+Używa tego samego parsera co ekran importu, więc plik wgrany wsadowo daje ten sam konspekt
+co wklejony ręcznie.
+
+```bash
+cd frontend/lesson-runner-web && npm run import:lekcje -- --dir ../../docs/program/scratch-7-9 --dry-run
+```
+
+`--dry-run` tylko sprawdza pliki i nie łączy się z API — od tego zaczynaj. Bez tej flagi
+skrypt loguje się i wysyła konspekty:
+
+```bash
+LESSON_RUNNER_PASSWORD='...' npm run import:lekcje -- --dir ../../docs/program/scratch-7-9 --email admin@example.com
+```
+
+Hasło idzie zmienną środowiskową, nie parametrem — parametry zostają w historii powłoki.
+Zamiast loginu można podać gotowy `LESSON_RUNNER_TOKEN`.
+
+- Błąd parsera w którymkolwiek pliku **przerywa całą partię**. Błąd znaczy, że fragment
+  pliku nie trafiłby do konspektu, a wsadowo nikt tego nie zobaczy na ekranie. `--force`
+  wymusza import mimo to.
+- Konspekt o tytule, który już jest w systemie, zostaje **pominięty**. `--update` nadpisuje
+  go zamiast pomijać, więc poprawki w plikach wgrywa się tą samą komendą.
+- Konspekty powstają jako wersje robocze. `--publish` publikuje je od razu (wymaga roli Admin).
+- Domyślny adres API to `http://localhost:5000`, inny podasz przez `--api`.
+
+Pliki w `docs/program/` są pilnowane testem `programLessons.test.ts`: każdy musi się
+parsować bez błędów i mieć cel, wprowadzenie, przerwę, podsumowanie oraz dokładnie
+95 minut w krokach.
+
 ## Testy
 
 ```bash
