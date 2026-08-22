@@ -1,0 +1,8 @@
+[submodule "backend"]
+	path = backend
+	url = https://github.com/tommymil/ak-house-backend.git
+	branch = master
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/tommymil/ak-house-frontend.git
+	branch = main

@@ -64,7 +64,7 @@ Domena nie wie nic o bazie, web ani frameworkach.
 
 | Projekt | Odpowiedzialność |
 |---|---|
-| `AkHouse.Domain` | Encje, agregaty (`Lead`, `OfferItem`, `Realization`, `GalleryImage`), value objects (`Email`), reguły biznesowe. Zero zależności zewnętrznych. |
+| `AkHouse.Domain` | Encje, agregaty (`Lead`, `OfferItem`, `Realization`, `GalleryImage`, `ShopProduct`, `ShopOrder`), value objects (`Email`), reguły biznesowe. Zero zależności zewnętrznych — także od ASP.NET Identity. |
 | `AkHouse.Application` | Przypadki użycia (`LeadService`, `ContentService`), DTO, interfejsy portów (`IApplicationDbContext`, `IEmailSender`, `IDateTimeProvider`). |
 | `AkHouse.Infrastructure` | EF Core (SQLite), konfiguracje encji, migracje, seeder, implementacje portów. **Tu izolowany jest dostawca bazy** — zamiana SQLite → PostgreSQL (zgodnie z wyceną) to jedna linijka w `DependencyInjection`. |
 | `AkHouse.Api` | Minimal API (endpointy `Content`, `Leads`), CORS, OpenAPI, bootstrap. |
@@ -101,6 +101,42 @@ CPQ i panel CMS bez przepisywania rdzenia.
   (multipart: `file`, `caption`, `category`), zmiana podpisu i kategorii, usunięcie. Kategoria musi być
   jedną z `domki`/`sauny`/`meble`/`wnetrza`.
 - `GET  /health` — status.
+
+### Sklep (`/api/shop`, `/api/account`, `/api/admin/shop`)
+
+Osobna ścieżka sprzedaży: gotowe produkty i akcesoria kupowane z półki, niezależna od lejka
+zapytań ofertowych. **Kwoty są liczone wyłącznie na serwerze** — przeglądarka wysyła tylko
+`productId` i `quantity`, a ceny czytane są z bazy. Pieniądze trzymamy w groszach jako `int`
+(SQLite zapisuje `decimal` jako TEXT, przez co `SUM` i `ORDER BY` po cenie dawałyby złe wyniki).
+
+Publiczne:
+- `GET  /api/shop/products` — opublikowane produkty; filtry `?category=&search=&sort=`.
+- `GET  /api/shop/products/{slug}` — karta produktu (`404` dla nieopublikowanego).
+- `GET  /api/shop/shipping-methods` — aktywne metody dostawy ze stawkami.
+- `POST /api/shop/cart/validate` — przelicza koszyk: aktualne ceny, przycięcie ilości do stanu
+  magazynowego, lista pozycji wycofanych ze sprzedaży.
+- `POST /api/shop/orders` — złożenie zamówienia (honeypot + rate-limit jak przy leadach).
+  Rezerwuje stan magazynowy i wysyła maila z numerem `SKL-…` i danymi do przelewu.
+- `GET  /api/shop/orders/{reference}?email=` — status zamówienia dla gościa. Sam numer nie
+  wystarczy — e-mail musi się zgadzać, inaczej `404`.
+
+Konto klienta (ciasteczko sesji `akhouse.session`, `HttpOnly`):
+- `POST /api/account/register` `/login` `/logout` `/forgot-password` `/reset-password`,
+- `GET/PUT /api/account/profile` — dane do wysyłki,
+- `GET  /api/account/orders` — historia zamówień zalogowanego (**chronione**).
+
+Zakup jako gość jest możliwy; przy zalogowanej sesji zamówienie dostaje `UserId` i pojawia się
+w `/konto`. Zakładanie konta nie „przejmuje” wcześniejszych zamówień gościa z tym samym adresem.
+
+Panel (**chronione `Admin:ApiKey`**, nagłówek `X-Api-Key`):
+- `GET/POST/PUT/DELETE /api/admin/shop/products[/{id}]` — asortyment,
+- `POST /api/admin/shop/products/{id}/images` (multipart, pole `file`) i `DELETE .../images/{imageId}`,
+- `GET/POST/PUT/DELETE /api/admin/shop/shipping-methods[/{id}]` — metody dostawy i stawki,
+- `GET /api/admin/shop/orders[/{id}]`, `PATCH .../status`, `POST .../notes`, `PATCH .../read`.
+
+Zmiana statusu na `Cancelled` **zwraca zarezerwowany stan magazynowy** na półkę (jednokrotnie).
+Pozycje zamówienia trzymają własną kopię nazwy i ceny, więc późniejsza zmiana cennika ani
+usunięcie produktu nie przepisują historii zamówień.
 
 ### Ukryty panel zdjęć (`/admin/zdjecia`)
 
@@ -149,14 +185,22 @@ Globalny `IExceptionHandler` mapuje błędy domenowe na `400`, pozostałe na `50
   ustaw go poza repo, np. `dotnet user-secrets set "Admin:ApiKey" "<silny-losowy-klucz>" --project backend/src/AkHouse.Api`.
 - `Admin:MediaApiKey` — **osobny** klucz do ukrytego panelu zdjęć (`/admin/zdjecia`). Niezależny od
   `Admin:ApiKey`, więc dostęp do zleceń i do zdjęć nadaje się i odbiera oddzielnie. Pusty = panel wyłączony (503).
+- `Shop:BankAccountNumber` / `BankAccountHolder` / `BankName` / `PaymentDueDays` — dane do przelewu
+  wysyłane klientowi w potwierdzeniu zamówienia. **Numer konta jest domyślnie pusty** — dopóki go nie
+  uzupełnisz, mail informuje, że dane prześlemy osobno.
+- `Shop:SiteBaseUrl` — publiczny adres używany do budowania linku resetu hasła w mailu. Brany
+  z konfiguracji, a nie z nagłówka `Host`, żeby podrobiony nagłówek nie przekierował linku.
+  W `appsettings.Development.json` wskazuje na `http://localhost:5173`.
 - `Media:UploadRoot` — katalog na wgrane zdjęcia. Pusty = `uploads/` obok binariów, co na Azure
   **znika przy każdej publikacji** — na produkcji ustaw ścieżkę pod `/home`, np. `/home/data/uploads`.
 - `Email:SmtpHost` + `SmtpPort/SmtpUser/SmtpPassword/SmtpUseSsl`, `Email:FromAddress/FromName`, `Email:StudioInbox` — gdy `SmtpHost` puste, używany jest deweloperski `LoggingEmailSender` (loguje maile zamiast wysyłać).
 - Sekrety trzymaj poza repo: `dotnet user-secrets set "Email:SmtpPassword" "…"`.
 
 ### Testy
-`backend/tests/AkHouse.Tests` (xUnit): testy domeny (`Lead`, `Email`) + integracyjne na `WebApplicationFactory`
-(POST leada, walidacja, honeypot, ochrona admina). Uruchom: `dotnet test backend/AkHouse.slnx`.
+`backend/tests/AkHouse.Tests` (xUnit): testy domeny (`Lead`, `Email`, `ShopProduct`, `ShopOrder`,
+`ShippingMethod`) + integracyjne na `WebApplicationFactory` (POST leada, walidacja, honeypot,
+ochrona admina, katalog i checkout sklepu, konta klientów, panel sklepu).
+Uruchom: `dotnet test backend/AkHouse.slnx`.
 
 ### Zgodność / RODO i SEO
 Formularz ma checkbox zgody i link do **`/polityka-prywatnosci.html`** (wzorzec do uzupełnienia danymi firmy).
@@ -187,6 +231,24 @@ co ułatwia testy i przyszłą rozbudowę (np. React Query, kolejne strony).
 - Katalog jest ładowany jako osobne chunki, więc jego rozbudowana treść nie zwiększa istotnie
   początkowego pakietu strony głównej.
 
+### Sklep (`/sklep`) — osobna zakładka
+
+Polskojęzyczna część sklepowa, bez lustra `/en` (przełącznik języka jest na tych trasach ukrywany,
+bo nie ma dokąd prowadzić). Trasy: `/sklep`, `/sklep/:slug`, `/koszyk`, `/zamowienie-sklep`,
+`/zamowienie-sklep/potwierdzenie`, `/konto` oraz `/konto/logowanie|rejestracja|haslo|nowe-haslo`.
+
+- **Koszyk** żyje w `localStorage` pod wersjonowanym kluczem `akhouse.cart.v1` — działa dla gościa
+  i nie wymaga sesji. Trzymana tam cena służy **wyłącznie do podglądu**: strona koszyka i checkout
+  zawsze przeliczają zamówienie po stronie serwera.
+- **Płatność**: przelew tradycyjny. Klient dostaje numer `SKL-…` i dane do przelewu w mailu.
+  Bramka płatnicza jest poza zakresem MVP.
+- **Konto** jest opcjonalne. Sesja to ciasteczko `HttpOnly` (nie token w `localStorage`), więc
+  skrypt na stronie nie ma do niej dostępu.
+- Ekran `/zamowienie-sklep/potwierdzenie` po odświeżeniu zamienia się w wyszukiwarkę statusu
+  zamówienia (numer + e-mail), zamiast pokazywać pustą stronę.
+- Dokumenty `/regulamin.html` i `/zwroty.html` to **wzorce do weryfikacji prawnej** — akceptacja
+  regulaminu jest warunkiem złożenia zamówienia i jest sprawdzana także po stronie serwera.
+
 ### Panel zleceń (`/admin`)
 Stanowisko pracy do kompleksowej obsługi zamówień. Po wejściu na `/admin` podajesz **klucz API**
 (ten z `Admin:ApiKey`), który trafia do nagłówka `X-Api-Key` i jest trzymany w `sessionStorage`
@@ -198,6 +260,9 @@ lejka; migracja kopiuje do niego również historyczne rekordy z tabel zamówie�
   lejka) oraz rozkład zleceń per etap (klik w etap przenosi do przefiltrowanej listy).
 - **Tablica** (kanban) — kolumna na każdy etap lejka; karty przeciąga się między etapami
   (natywny HTML5 drag-and-drop), co optymistycznie zmienia etap (z wycofaniem przy błędzie).
+- **Sklep** — asortyment (dodawanie, edycja, zdjęcia, publikacja), zamówienia sklepowe
+  (status, notatki) oraz metody dostawy ze stawkami. Ceny wpisujesz w złotych, w bazie lądują
+  w groszach.
 - **Lista** — tabela z filtrami i sortowaniem po ostatniej aktywności, ostatnim kontakcie,
   dacie wpływu albo następnym działaniu. Domyślnie najdawniej obsługiwane zgłoszenia są na górze.
 
@@ -221,6 +286,9 @@ wewnętrznego — pod publiczne wdrożenie warto dołożyć pełne logowanie (os
 - **Faza 0–1 (zrobione tu):** strona prezentacyjna 1:1 + treść z backendu + działający formularz (RODO, anty-spam, e-mail SMTP), podgląd leadów dla studia, a11y, SEO, testy. CMS = treść już jest w bazie i serwowana przez API, gotowa pod panel edycji.
 - **Faza 2 — ZAWIESZONA:** konfigurator WebGL (Three.js / R3F) wraz z encjami `Product`/`Configuration`, regułami CPQ i generowaniem PDF. Kod pozostaje w repozytorium, ale nie jest wystawiany — szczegóły w sekcji „Konfigurator 3D — ZAWIESZONY" na górze. Rolę doboru wariantu przejął kreator SVG (`features/catalog/variants.tsx`).
 - **Faza 3:** integracje (SMTP/SendGrid zamiast `LoggingEmailSender`), analityka, wdrożenie; zamiana SQLite → PostgreSQL.
+- **Sklep (poza pierwotną wyceną):** katalog z bazy, koszyk, checkout z płatnością przelewem,
+  konta klientów i obsługa zamówień w panelu. Poza zakresem MVP zostają: bramka płatnicza,
+  faktury VAT, osobny adres wysyłki, kody rabatowe, wersja EN sklepu i integracja z kurierem.
 
 ## Przydatne komendy
 

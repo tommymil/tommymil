@@ -1,6 +1,38 @@
 # Stan prac — A.K. HOUSE
 
-Aktualizacja: **29 lipca 2026**
+Aktualizacja: **12 sierpnia 2026**
+
+## Sklep internetowy — zrealizowany
+
+Dodano osobną zakładkę **Sklep** na gotowe produkty i akcesoria, niezależną od lejka zapytań
+ofertowych. Zakres i decyzje opisuje README (sekcje „Sklep"). W skrócie:
+
+- katalog sklepu z bazy (`ShopProduct`, `ShippingMethod`), strony `/sklep` i `/sklep/:slug`;
+- koszyk w `localStorage` (`akhouse.cart.v1`) z przeliczaniem cen po stronie serwera;
+- checkout z płatnością przelewem tradycyjnym, numerem `SKL-…` i mailem potwierdzającym;
+- konta klientów na ASP.NET Core Identity (ciasteczko `HttpOnly`), zakup jako gość nadal możliwy;
+- zakładka **Sklep** w panelu `/admin`: asortyment ze zdjęciami, metody dostawy, obsługa zamówień;
+- wzorce `regulamin.html` i `zwroty.html` + akceptacja regulaminu wymagana przy zamówieniu.
+
+Kluczowe decyzje techniczne: **kwoty w groszach jako `int`** (SQLite zapisuje `decimal` jako TEXT),
+**cena zawsze liczona na serwerze** (z przeglądarki przychodzą tylko `productId` i `quantity`),
+**snapshot nazwy i ceny w pozycji zamówienia** (zmiana cennika nie przepisuje historii).
+
+Nowe migracje: `AddShopCatalog`, `AddShopOrders`, `AddCustomerAccounts`.
+
+Testy po zmianach: backend **149/149**, frontend **106/106**, produkcyjny build frontendu poprawny.
+
+### Do uzupełnienia przed uruchomieniem sprzedaży
+
+- `Shop:BankAccountNumber` (oraz nazwa banku) — bez tego mail nie zawiera danych do przelewu.
+- `Shop:SiteBaseUrl` na produkcji — używany w linku resetu hasła.
+- Weryfikacja prawna `regulamin.html` i `zwroty.html` oraz uzupełnienie pól `[w nawiasach]`.
+- Realny asortyment: produkty, ceny, stany magazynowe i zdjęcia (panel `/admin` → Sklep).
+- Stawki dostawy — seed zakłada kurier 25 zł (gratis od 500 zł), paleta 199 zł, odbiór osobisty 0 zł.
+
+---
+
+## Stan wcześniejszy (29 lipca 2026)
 
 ## Status ogólny
 
