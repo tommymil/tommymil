@@ -221,9 +221,9 @@ Pełna lista w `CLAUDE.md`. Najkosztowniejsze w skrócie:
 | Migracja `ShopCategoriesAndPricing` | ✅ wygenerowana i zastosowana |
 | Import 68 cen + narzut | ✅ przeszedł, panel działa |
 
-Testów backendu nie dało się uruchomić w środowisku roboczym: SDK .NET 10 jest, ale NuGet
-jest zablokowany (`CONNECT tunnel failed, 403`). Odblokowanie wymaga `api.nuget.org`
-i `globalcdn.nuget.org` na liście dozwolonych.
+Testy backendu zostały ponownie uruchomione 25 sierpnia 2026 po dodaniu oficjalnego SDK Stripe:
+176/176 przechodzi. Frontend: 135/135; build produkcyjny i lint przechodzą (lint zachowuje
+36 wcześniejszych ostrzeżeń, bez błędów).
 
 ## 9. Otwarte punkty
 
@@ -232,15 +232,13 @@ i `globalcdn.nuget.org` na liście dozwolonych.
 0. **WYMIENIĆ KLUCZ z pliku `klucz upload/Nowy Dokument tekstowy.txt`.** Plik był zacommitowany
    i wypchnięty na GitHub — siedzi w historii, więc `git rm --cached` go stamtąd nie usunie.
    Jedyne skuteczne rozwiązanie to wygenerowanie nowego `Admin:MediaApiKey`.
-1. **Uruchomić `dotnet test backend/AkHouse.slnx`.** 148 metod nie było nigdy wykonanych.
-2. **Zastane ostrzeżenia zepsują build `Release`** (`TreatWarningsAsErrors`): `xUnit1051`
+1. **Zastane ostrzeżenia mogą zepsuć build `Release`** (`TreatWarningsAsErrors`): `xUnit1051`
    w kilku miejscach i jeden `CS8602` w `LeadTests`. Nie są moje, ale trzeba je zgasić przed wdrożeniem.
-3. **Zacommitować trzy repozytoria** (submoduły + wskaźniki w repo nadrzędnym).
-4. **Uruchomić `posprzataj.ps1`** — śmieci są już zebrane w `_do-usuniecia/` (115 MB), ale zdalna
+2. **Uruchomić `posprzataj.ps1`** — śmieci są już zebrane w `_do-usuniecia/` (115 MB), ale zdalna
    powłoka nie ma prawa kasować plików. Skrypt kasuje ten katalog, wynosi `elementy/` do
    `..\ak-house-materialy` i wypisuje z gita to, co przestało być częścią projektu.
    Podgląd bez zmian: `posprzataj.ps1 -NaSucho`.
-5. Rozważyć zastąpienie kluczy API kontami operatorów (uzgodnione jako słuszny kierunek, nie zrobione).
+3. Rozważyć zastąpienie kluczy API kontami operatorów (uzgodnione jako słuszny kierunek, nie zrobione).
 
 ### Ceny — 88 produktów wciąż bez ceny detalicznej
 
@@ -253,8 +251,13 @@ i `globalcdn.nuget.org` na liście dozwolonych.
 
 ### Przed uruchomieniem sprzedaży
 
+- Płatności online są domyślnie niewidoczne. Aby je włączyć, ustaw sekrety środowiskowe
+  `Payments__Stripe__SecretKey`, `Payments__Stripe__WebhookSecret` i dopiero wtedy
+  `Payments__Stripe__Enabled=true`. Webhook Stripe kieruj na
+  `/api/shop/payments/stripe/webhook`; checkout udostępnia kartę, BLIK i Przelewy24 w PLN.
+
 - `Shop:BankAccountNumber` i nazwa banku — bez tego mail nie zawiera danych do przelewu.
-- `Shop:SiteBaseUrl` na produkcji — używany w linku resetu hasła.
+- `Shop:SiteBaseUrl` na produkcji — używany w linku resetu hasła i adresach powrotu z płatności.
 - Weryfikacja prawna `regulamin.html` i `zwroty.html`, uzupełnienie pól `[w nawiasach]`.
 - Realny telefon, WhatsApp i profile społecznościowe zamiast tymczasowych.
 - Produkcyjny adres e-mail i konfiguracja SMTP.
@@ -293,6 +296,10 @@ npm --prefix D:\moje\ak-house\frontend run build
 ---
 
 # Archiwum
+
+Plan rozwoju sklepu po bieżącym P0/P1 znajduje się w `ROADMAP-SKLEP.md`. Obejmuje odłożone
+P2/P3 oraz jednoznaczną zasadę, że konfigurator 3D pozostaje w kodzie, lecz bez publicznej trasy,
+odnośników i ładowania WebGL.
 
 ## 12 sierpnia 2026 — sklep internetowy uruchomiony
 
