@@ -1,0 +1,276 @@
+{
+  "prices": [
+    {
+      "slug": "kubek-miarowy-do-chemii-basenowej",
+      "basePriceGrosze": 1430
+    },
+    {
+      "slug": "termometr-bojka-dozownik-na-chemie",
+      "basePriceGrosze": 1331
+    },
+    {
+      "slug": "magiczna-gabka-melaminowa-do-basenu-5-szt",
+      "basePriceGrosze": 889
+    },
+    {
+      "slug": "rekawica-z-wbudowana-gabka-do-czyszczenia-basenu",
+      "basePriceGrosze": 1798
+    },
+    {
+      "slug": "gabka-z-uchwytem-do-czyszczenia-basenu",
+      "basePriceGrosze": 1061
+    },
+    {
+      "slug": "wklad-akrylowy-dwuosobowy-ofuro",
+      "basePriceGrosze": 375000
+    },
+    {
+      "slug": "dodatkowy-metr-komina-do-pieca-na-drewno-do-balii-ogrodowej",
+      "basePriceGrosze": 14900
+    },
+    {
+      "slug": "rurka-przedluzajaca-podpiecie-pieca-na-drewno-na-weza-48-mm",
+      "basePriceGrosze": 8999
+    },
+    {
+      "slug": "dysza-wodna-do-hydromasazu",
+      "basePriceGrosze": 4999
+    },
+    {
+      "slug": "dysza-powietrzna-do-aeromasazu-na-weza-3-8-cala",
+      "basePriceGrosze": 1999
+    },
+    {
+      "slug": "dysza-powietrzna-do-aeromasazu-zintegrowana-z-oswietleniem-led",
+      "basePriceGrosze": 6799
+    },
+    {
+      "slug": "minibarek-zawieszany",
+      "basePriceGrosze": 15000
+    },
+    {
+      "slug": "glosniki-bluetooth",
+      "basePriceGrosze": 39900
+    },
+    {
+      "slug": "termometr-elektryczny-z-przetwornikiem",
+      "basePriceGrosze": 18899
+    },
+    {
+      "slug": "zawory-do-filtracji",
+      "basePriceGrosze": 8999
+    },
+    {
+      "slug": "zestaw-przylaczeniowy-filtracji-na-deske-obiciowa",
+      "basePriceGrosze": 31999
+    },
+    {
+      "slug": "korek-spustowy-klik-klak",
+      "basePriceGrosze": 3999
+    },
+    {
+      "slug": "sterownik-do-jacuzzi-i-balii-ogrodowych-w-04-nowoczesny-panel-sterowania",
+      "basePriceGrosze": 39999
+    },
+    {
+      "slug": "sterownik-wi-fi-do-bali-ogrodowej-z-czujnikiem-temperatury-i-przejsciowka",
+      "basePriceGrosze": 29900
+    },
+    {
+      "slug": "zabezpieczenie-roznicowo-pradowe-rozdzielnica-do-balii-ogrodowej-1f-230v-3-6-kw",
+      "basePriceGrosze": 39900
+    },
+    {
+      "slug": "ph-minus-granulat",
+      "basePriceGrosze": 1899
+    },
+    {
+      "slug": "ph-plus-granulat",
+      "basePriceGrosze": 1999
+    },
+    {
+      "slug": "glon-fighter",
+      "basePriceGrosze": 1699
+    },
+    {
+      "slug": "wklad-akrylowy-okragly-200cm-bezowa-perla",
+      "basePriceGrosze": 389900
+    },
+    {
+      "slug": "gabki-absorbujace-tluszcz-do-basenu-2-szt",
+      "basePriceGrosze": 3599
+    },
+    {
+      "slug": "pompa-hydromasazu-dxd-1100w",
+      "basePriceGrosze": 49900
+    },
+    {
+      "slug": "korek-spustowy-klik-klak-komplet",
+      "basePriceGrosze": 3999
+    },
+    {
+      "slug": "piec-zewnetrzny-z-szybka-30kw-aisi-304",
+      "basePriceGrosze": 299900
+    },
+    {
+      "slug": "piec-zewnetrzny-z-szybka-30kw-aisi-316",
+      "basePriceGrosze": 349900
+    },
+    {
+      "slug": "piec-zewnetrzny-z-szybka-35kw-aisi-304",
+      "basePriceGrosze": 449900
+    },
+    {
+      "slug": "pokrywa-termiczna-200-cm-okragla",
+      "basePriceGrosze": 109000
+    },
+    {
+      "slug": "pokrywa-termiczna-225-cm-okragla",
+      "basePriceGrosze": 133999
+    },
+    {
+      "slug": "zawor-zabezpieczajacy-32-mm",
+      "basePriceGrosze": 3999
+    },
+    {
+      "slug": "wklad-akrylowy-okragly-200cm-z-wytloczeniemi-na-dysze-szara-perla",
+      "basePriceGrosze": 389900
+    },
+    {
+      "slug": "zawor-zwrotny-32-mm",
+      "basePriceGrosze": 3999
+    },
+    {
+      "slug": "piec-zewnetrzny-bez-szybki-26kw-aisi-304",
+      "basePriceGrosze": 209900
+    },
+    {
+      "slug": "termometr-na-baterie-dotykowy",
+      "basePriceGrosze": 13800
+    },
+    {
+      "slug": "zestaw-startowy-do-wanny-spa",
+      "basePriceGrosze": 16399
+    },
+    {
+      "slug": "porecz-do-balii",
+      "basePriceGrosze": 34899
+    },
+    {
+      "slug": "wklad-do-beczki-schladzajacej-pokrywa-z-laminatu-do-beczki-do-schladzania",
+      "basePriceGrosze": 34999
+    },
+    {
+      "slug": "stolik-obrotowy-360-stopni",
+      "basePriceGrosze": 20000
+    },
+    {
+      "slug": "obejmy-do-balii",
+      "basePriceGrosze": 30000
+    },
+    {
+      "slug": "pokrywa-termiczna-196-cm-x-203-cm",
+      "basePriceGrosze": 109000
+    },
+    {
+      "slug": "zestaw-przylaczeniowy-do-pieca-zewnetrznego-cena-za-1-kpl",
+      "basePriceGrosze": 34899
+    },
+    {
+      "slug": "pokrywa-termiczna-172-cm-x-202-cm",
+      "basePriceGrosze": 104000
+    },
+    {
+      "slug": "waz-cisnieniowy-do-pieca-48-mm-cena-za-1-mb",
+      "basePriceGrosze": 9900
+    },
+    {
+      "slug": "wklad-z-wlokna-szklanego-ofuro-dwuosobowe",
+      "basePriceGrosze": 209900
+    },
+    {
+      "slug": "aeromasaz-na-12-dysz-z-oswietleniem-led",
+      "basePriceGrosze": 129000
+    },
+    {
+      "slug": "wklad-z-wlokna-szklanego-kwadrat-z-miejscem-lezacym-196-cm-x-203-cm-granicoat",
+      "basePriceGrosze": 459900
+    },
+    {
+      "slug": "przycisk-pneumatyczny",
+      "basePriceGrosze": 3999
+    },
+    {
+      "slug": "grzalka-3kw-lx-h30-rs1",
+      "basePriceGrosze": 43899
+    },
+    {
+      "slug": "regulator-hydromasazu",
+      "basePriceGrosze": 4499
+    },
+    {
+      "slug": "tabliczka-na-przycisk-do-balii-ogrodowej",
+      "basePriceGrosze": 1000
+    },
+    {
+      "slug": "trojnik-20-mm",
+      "basePriceGrosze": 599
+    },
+    {
+      "slug": "piec-wewnetrzny-z-szybka-30kw-komplet-bez-oslony-aisi-304",
+      "basePriceGrosze": 299900
+    },
+    {
+      "slug": "piec-wewnetrzny-z-szybka-30kw-komplet-bez-oslony-aisi-316",
+      "basePriceGrosze": 349900
+    },
+    {
+      "slug": "aktywny-tlen",
+      "basePriceGrosze": 6999
+    },
+    {
+      "slug": "piec-wewnetrzny-horizon-30kw-komplet-bez-oslony-aisi-304",
+      "basePriceGrosze": 324900
+    },
+    {
+      "slug": "przejscie-burtowe-do-podlaczenia-pieca-do-balii-ogrodowej-cena-za-1-szt",
+      "basePriceGrosze": 6999
+    },
+    {
+      "slug": "tasma-led-komplet",
+      "basePriceGrosze": 33899
+    },
+    {
+      "slug": "stelaz-do-balii",
+      "basePriceGrosze": 49900
+    },
+    {
+      "slug": "obejmy-do-beczki",
+      "basePriceGrosze": 25000
+    },
+    {
+      "slug": "wklad-akrylowy-okragly-200cm-szara-perla",
+      "basePriceGrosze": 466000
+    },
+    {
+      "slug": "pompa-obiegowa-do-grzalki-0-25kw",
+      "basePriceGrosze": 54999
+    },
+    {
+      "slug": "ssak-do-hydromasazu-50-mm-katowy",
+      "basePriceGrosze": 3999
+    },
+    {
+      "slug": "zatyczka-32-mm",
+      "basePriceGrosze": 299
+    },
+    {
+      "slug": "zatyczka-20-mm",
+      "basePriceGrosze": 299
+    },
+    {
+      "slug": "ssak-do-hydromasazu-50-mm-prosty",
+      "basePriceGrosze": 3999
+    }
+  ]
+}

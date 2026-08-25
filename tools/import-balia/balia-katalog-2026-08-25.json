@@ -1,0 +1,1826 @@
+[
+ {
+  "slug": "balia-harmony-brazowy-marmur",
+  "name": "Balia HARMONY brązowy marmur",
+  "prices": {
+   "price": "2090000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "gabka-z-uchwytem-do-czyszczenia-basenu",
+  "name": "Gąbka z uchwytem do czyszczenia basenu",
+  "prices": {
+   "price": "1061",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "gabki-absorbujace-tluszcz-do-basenu",
+  "name": "Gąbki absorbujące tłuszcz do basenu",
+  "prices": {
+   "price": "3599",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "kubek-miarowy-do-chemii-basenowej",
+  "name": "Kubek miarowy do chemii basenowej",
+  "prices": {
+   "price": "1430",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "magiczna-gabka-melaminowa-do-basenu-5-szt",
+  "name": "Magiczna gąbka melaminowa do basenu 5 szt.",
+  "prices": {
+   "price": "889",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "rekawica-z-wbudowana-gabka-do-czyszczenia-basenu",
+  "name": "Rękawica z wbudowaną gąbką do czyszczenia basenu",
+  "prices": {
+   "price": "1798",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "szczotka-z-wloknina-do-czyszczenia-basenu",
+  "name": "Szczotka z włókniną do czyszczenia basenu",
+  "prices": {
+   "price": "1061",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "termometr-basenowy-zawieszany-z-linka-c-f-2",
+  "name": "Termometr basenowy zawieszany z linką °C °F",
+  "prices": {
+   "price": "899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "termometr-basenowy-zawieszany-z-linka-c-f",
+  "name": "Termometr basenowy zawieszany z linką °C °F",
+  "prices": {
+   "price": "953",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "termometr-bojka-dozownik-na-chemie",
+  "name": "Termometr bojka + dozownik na chemie",
+  "prices": {
+   "price": "1331",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "hydrauliczny-podnosnik-pokrywy-termicznej",
+  "name": "Hydrauliczny podnośnik pokrywy termicznej",
+  "prices": {
+   "price": "55999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "minibarek-dmuchany-plywajacy-z-obciaznikami-stabilizujacymi",
+  "name": "Minibarek dmuchany pływający z obciążnikami stabilizującymi",
+  "prices": {
+   "price": "4789",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "poduszka-podwyzszajaca-siedzisko-do-balii-ogrodowej",
+  "name": "Poduszka podwyższająca, siedzisko do balii ogrodowej",
+  "prices": {
+   "price": "2899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pompa-wodna-hydromasazu-2200-w-22kw-3hp-lp-300",
+  "name": "Pompa wodna hydromasażu LP-300 2200 W 2,2kW 3HP",
+  "prices": {
+   "price": "119900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pompa-wodna-hydromasazu-wpp1100e-1100w-1-5hp",
+  "name": "Pompa wodna hydromasażu WPP1100E 1100W 1.5HP",
+  "prices": {
+   "price": "41999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pompa-wodna-hydromasazu-wpp1500e-1500w-2-0hp",
+  "name": "Pompa wodna hydromasażu WPP1500E 1500W 2.0HP",
+  "prices": {
+   "price": "99699",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-okragly-z-wytloczeniami-pod-dysze-szara-perla",
+  "name": "Wkład akrylowy okrągły z wytłoczeniami pod dysze szara perła",
+  "prices": {
+   "price": "389900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pompa-wodna-hydromasazu-wpp2000e-2000w-20kw-2-7hp",
+  "name": "Pompa wodna hydromasażu WPP2000E 2000W 2,0kW 2.7HP",
+  "prices": {
+   "price": "104799",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "sterownik-do-jacuzzi-i-balii-ogrodowych-w-04-nowoczesny-panel-sterowania",
+  "name": "Sterownik do Jacuzzi i Balii ogrodowych W-04",
+  "prices": {
+   "price": "39999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "sterownik-wi-fi-do-bali-ogrodowej-z-czujnikiem-temperatury-i-przejsciowka",
+  "name": "Sterownik Wi-Fi do Bali Ogrodowej z Czujnikiem Temperatury i Przejściówką",
+  "prices": {
+   "price": "29900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "stojak-na-pokrywe-termiczna-do-balii-ogrodowej",
+  "name": "Stojak na pokrywę termiczną do balii ogrodowej",
+  "prices": {
+   "price": "49900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zabezpieczenie-roznicowo-pradowe-rozdzielnica-do-balii-ogrodowej-1f-230v-36-kw",
+  "name": "Zabezpieczenie różnicowo-prądowe rozdzielnica do balii ogrodowej 1F 230V 3,6 kW",
+  "prices": {
+   "price": "39900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zasilacz-led-12v-5w-wodoodporny-sterownik-do-oswietlenia-50-60hz",
+  "name": "Zasilacz LED 12V 5W wodoodporny sterownik do oświetlenia 50-60Hz",
+  "prices": {
+   "price": "7999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "dodatkowy-metr-komina-do-pieca-na-drewno-do-balii-ogrodowej",
+  "name": "Dodatkowy metr komina do pieca na drewno do balii ogrodowej",
+  "prices": {
+   "price": "14900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pompa-do-hydromasazu-dxd-315e-1000w",
+  "name": "Pompa do hydromasażu DXD 315E 1100W",
+  "prices": {
+   "price": "49900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pokrywa-z-laminatu-do-beczki-do-schladzania",
+  "name": "Pokrywa z laminatu do beczki do schładzania",
+  "prices": {
+   "price": "34999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-aeromasazu-na-12-dysz",
+  "name": "Zestaw aeromasażu na 12 dysz 750W",
+  "prices": {
+   "price": "109000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-aeromasazu-na-16-dysz-900w",
+  "name": "Zestaw aeromasażu na 16 dysz 900W",
+  "prices": {
+   "price": "138999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-hydromasazu-na-8-dysz",
+  "name": "Zestaw hydromasażu na 8 dysz 1100W",
+  "prices": {
+   "price": "119000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "aeromasaz-na-12-dysz-z-oswietleniem-led-do-balii-ogrodowej",
+  "name": "Zestaw aeromasażu na 12 dysz z oświetleniem led 750W",
+  "prices": {
+   "price": "129000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "porecz-do-balii-ogrodowej",
+  "name": "Poręcz do balii ogrodowej",
+  "prices": {
+   "price": "34899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "silikon-calebo-wysokotemperaturowy-bezbarwny-do-balii-ogrodowej",
+  "name": "Silikon calebo wysokotemperaturowy bezbarwny do balii ogrodowej",
+  "prices": {
+   "price": "1199",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "waz-pneumatyczny-10-mm-do-aeromasazu-w-balii-ogrodowej",
+  "name": "Wąż pneumatyczny 10 mm do aeromasażu w balii ogrodowej",
+  "prices": {
+   "price": "499",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "waz-pvc-2-do-hydromasazu-w-balii-ogrodowej",
+  "name": "Wąż PVC 2\" do hydromasażu w balii ogrodowej",
+  "prices": {
+   "price": "3999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "waz-pvc-20-mm-do-hydromasazu-w-balii-ogrodowej",
+  "name": "Wąż PVC 20 mm do hydromasażu w balii ogrodowej",
+  "prices": {
+   "price": "1299",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "waz-pvc-3-8-do-aeromasazu-w-balii-ogrodowej",
+  "name": "Wąż PVC 3/8\" do aeromasażu w balii ogrodowej",
+  "prices": {
+   "price": "699",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "waz-pvc-32-mm-do-hydromasazu-aeromasazu-w-balii-ogrodowej",
+  "name": "Wąż PVC 32 mm do hydromasażu/aeromasażu w balii ogrodowej",
+  "prices": {
+   "price": "1499",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "waz-pvc-50-mm-do-hydromasazu-w-balii-ogrodowej",
+  "name": "Wąż PVC 50 mm do hydromasażu w balii ogrodowej",
+  "prices": {
+   "price": "2199",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wezyk-pneumatyczny-3x5mm-do-przyciskow",
+  "name": "Wężyk pneumatyczny 3x5mm do przycisków",
+  "prices": {
+   "price": "299",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zawor-kulowy-1-do-pieca-na-drewno-do-balii-ogrodowej-i-systemow-grzewczych",
+  "name": "Zawór kulowy 1\" do pieca na drewno w balii ogrodowej",
+  "prices": {
+   "price": "3999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "komplet-zaworow-do-filtracji",
+  "name": "Zawory do filtracji",
+  "prices": {
+   "price": "8999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "komplet-zaworow-do-filtracji-z-przejsciami-filtracyjnymi",
+  "name": "Przejścia filtracyjne z zaworami do filtracji",
+  "prices": {
+   "price": "21999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "kompletny-system-filtracyjny-do-balii-ogrodowej",
+  "name": "Kompletny system filtracyjny do balii ogrodowej",
+  "prices": {
+   "price": "82999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-przylaczeniowy-filtracji-na-deske-obiciowa",
+  "name": "Zestaw przyłączeniowy filtracji na deskę obiciową",
+  "prices": {
+   "price": "31999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "kolano-pvc-90-d50-mm",
+  "name": "Kolano PVC 90° d50 mm",
+  "prices": {
+   "price": "1199",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "przycisk-pneumatyczny-do-pompy-wody",
+  "name": "Przycisk pneumatyczny AISI 316",
+  "prices": {
+   "price": "3999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "ssak-do-pompy-wodnej-balia-ogrodowa",
+  "name": "Ssak do pompy wodnej balia ogrodowa",
+  "prices": {
+   "price": "3999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pompa-obiegowa-ja35-025kw",
+  "name": "Pompa obiegowa JA35 0,25kW",
+  "prices": {
+   "price": "54999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pompa-obiegowa-wcp250f-025kw",
+  "name": "Pompa obiegowa WCP250F 0,25kW",
+  "prices": {
+   "price": "54999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "grzalka-wody-o-mocy-3kw",
+  "name": "Grzałka elektryczna LX H30-RS1 3 kW",
+  "prices": {
+   "price": "43899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pompa-powietrza-do-aeromasazu-075kw",
+  "name": "Pompa powietrza do aeromasażu 0,75kW",
+  "prices": {
+   "price": "39900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pompa-powietrza-do-aeromasazu-09kw-ap900",
+  "name": "Pompa powietrza do aeromasażu 0,9kW AP900",
+  "prices": {
+   "price": "64900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "blachy-naroznikowe-do-wkladow-akrylowych-czarny-mat",
+  "name": "Blachy narożnikowe do wkładów akrylowych czarny mat",
+  "prices": {
+   "price": "50000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "blachy-naroznikowe-do-wkladow-z-wlokna-szklanego-czarny-mat",
+  "name": "Blachy narożnikowe do wkładów z włókna szklanego czarny mat",
+  "prices": {
+   "price": "50000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "cleaner-do-rur-pvc-weld-on-c-65-eco-max",
+  "name": "Czyścik do PVC CPVC ABS WELD-ON C-65 ECO MAX THF FREE 473 ml",
+  "prices": {
+   "price": "2820",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "dysza-powietrzna-do-aeromasazu-na-weza-pneumatycznego",
+  "name": "Dysza powietrzna do aeromasażu na węża pneumatycznego",
+  "prices": {
+   "price": "2499",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "dysza-powietrzna-do-aeromasazu-na-weza-pneumatycznego-2",
+  "name": "Dysza powietrzna do aeromasażu na węża pneumatycznego",
+  "prices": {
+   "price": "2499",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "dysza-powietrzna-do-aeromasazu-na-weza-pvc-3-8-cala",
+  "name": "Dysza powietrzna do aeromasażu na węża 3/8 cala",
+  "prices": {
+   "price": "1999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "dysza-powietrzna-do-aeromasazu-zintegrowana-z-oswietleniem-led",
+  "name": "Dysza powietrzna do aeromasażu zintegrowana z oświetleniem LED",
+  "prices": {
+   "price": "6799",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-hydromasazu-na-12-dysz",
+  "name": "Zestaw hydromasażu na 12 dysz 1500W",
+  "prices": {
+   "price": "159000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-hydromasazu-na-16-dysz-2000w",
+  "name": "Zestaw hydromasażu na 16 dysz 2000W",
+  "prices": {
+   "price": "189899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "dysza-wodna-do-hydromasazu",
+  "name": "Dysza wodna do hydromasażu",
+  "prices": {
+   "price": "4999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pompa-filtracyjna-intex-26642",
+  "name": "Filtr do balii ogrodowej Intex 26642",
+  "prices": {
+   "price": "57900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "filtr-piaskowy-z-zabudowa",
+  "name": "Filtr piaskowy do balii z zabudową",
+  "prices": {
+   "price": "139900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "klej-do-rur-pvc-weld-on-717-przezroczysty-wysokolepki-237-ml",
+  "name": "Klej do rur pvc WELD-ON 717 przezroczysty wysokolepki 237 ml",
+  "prices": {
+   "price": "3499",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "klej-do-rur-pvc-weld-on-717-przezroczysty-wysokolepki-473-ml",
+  "name": "Klej do rur pvc WELD-ON 717 przezroczysty wysokolepki 473 ml",
+  "prices": {
+   "price": "5985",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "klej-do-rur-pvc-weld-on-748-eco-pool",
+  "name": "Klej do rur PVC Weld-On 748 ECO Pool",
+  "prices": {
+   "price": "3999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "klej-do-rur-pvc-c-weld-on-724-odporny-chemicznie-szary-473-ml",
+  "name": "Klej do rur PVC-C WELD-ON 724 odporny chemicznie szary 473 ml",
+  "prices": {
+   "price": "8032",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "klej-do-rur-wodnych-basenow-spa-pvc-weld-on-747-poolr-spa-ultraszybki-237-ml",
+  "name": "Klej do rur wodnych basenów spa PVC WELD-ON 747 POOL'R SPA ultraszybki 237 ml",
+  "prices": {
+   "price": "3250",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "klej-do-rur-wodnych-basenow-spa-pvc-weld-on-747-poolr-spa-ultraszybki-473-ml",
+  "name": "Klej do rur wodnych basenów spa PVC WELD-ON 747 POOL'R SPA ultraszybki 473 ml",
+  "prices": {
+   "price": "5212",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "primer-do-rur-pvc-cpvc-weld-on-p-70-przezroczysty-przemyslowy-237-ml",
+  "name": "Primer do rur PVC CPVC WELD-ON P-70 przezroczysty przemysłowy 237 ml",
+  "prices": {
+   "price": "3199",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "primer-do-rur-pvc-cpvc-weld-on-p-70-przezroczysty-przemyslowy-473-ml",
+  "name": "Primer do rur PVC CPVC WELD-ON P-70 przezroczysty przemysłowy 473 ml",
+  "prices": {
+   "price": "5125",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "kolanko-pneumatyczne-10-mm-do-aeromasazu",
+  "name": "Kolanko pneumatyczne 10 mm do aeromasażu",
+  "prices": {
+   "price": "330",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "kolano-pvc-90-d20-mm",
+  "name": "Kolano PVC 90° d20 mm",
+  "prices": {
+   "price": "499",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "kolano-pvc-90-d32-mm",
+  "name": "Kolano PVC 90° d32 mm",
+  "prices": {
+   "price": "599",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "kulki-filtracyjne-do-filtr-piaskowego-500g-intex-29045",
+  "name": "Kulki filtracyjne do filtra piaskowego 500g INTEX 29045",
+  "prices": {
+   "price": "2899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "mufa-pvc-32mm",
+  "name": "Mufa PVC 32mm",
+  "prices": {
+   "price": "999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "mufa-pvc-50mm",
+  "name": "Mufa PVC 50mm",
+  "prices": {
+   "price": "1199",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "regulator-do-hydromasazu-aisi-316",
+  "name": "Regulator do hydromasażu AISI 316",
+  "prices": {
+   "price": "4499",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "rozdzielacz-powietrza-do-aeromasazu-na-weza-3-8-cala",
+  "name": "Rozdzielacz powietrza do aeromasażu na węża 3/8 cala",
+  "prices": {
+   "price": "3999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "rozdzielacz-powietrza-do-aeromasazu-na-weza-pneumatycznego-10-mm",
+  "name": "Rozdzielacz powietrza do aeromasażu na węża pneumatycznego 10 mm",
+  "prices": {
+   "price": "5999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "ssak-50-mm-aisi-316-do-hydromasazu",
+  "name": "Ssak 50 mm AISI 316 do hydromasażu",
+  "prices": {
+   "price": "3999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "ssak-katowy-50-mm-aisi-316-do-hydromasazu",
+  "name": "Ssak kątowy 50 mm AISI 316 do hydromasażu",
+  "prices": {
+   "price": "3999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "stolik-obrotowy-do-balii-ogrodowej-360-stopni",
+  "name": "Stolik obrotowy do balii ogrodowej 360 stopni",
+  "prices": {
+   "price": "20000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "mufa-pneumatyczna-10-mm-do-aeromasazu",
+  "name": "Mufa pneumatyczna 10 mm do aeromasażu",
+  "prices": {
+   "price": "330",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "trojnik-pneumatyczny-10-mm-do-aeromasazu",
+  "name": "Trójnik pneumatyczny 10 mm do aeromasażu",
+  "prices": {
+   "price": "499",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "trojnik-pvc-32-32-32-mm",
+  "name": "Trójnik PVC 32/32/32 mm",
+  "prices": {
+   "price": "599",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "trojnik-pvc-32-32-50-mm",
+  "name": "Trójnik PVC 32/32/50 mm",
+  "prices": {
+   "price": "1999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "trojnik-skosny-pvc-20-mm",
+  "name": "Trójnik skośny PVC 20 mm",
+  "prices": {
+   "price": "599",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zatyczka-pvc-20mm",
+  "name": "Zatyczka 20mm",
+  "prices": {
+   "price": "299",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zatyczka-pvc-32mm",
+  "name": "Zatyczka 32mm",
+  "prices": {
+   "price": "299",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zawor-zabezpieczajacy-pvc-32-mm-do-aeromasazu",
+  "name": "Zawór zabezpieczający 32 mm do aeromasażu",
+  "prices": {
+   "price": "3999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zawor-zwrotny-pvc-32-mm-do-aeromasazu",
+  "name": "Zawór zwrotny 32 mm do aeromasażu",
+  "prices": {
+   "price": "3999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-do-ogrzewania-elektrycznego-pahlen-grzalka-3-kw",
+  "name": "Zestaw do ogrzewania elektrycznego Pahlen grzałka 3 kW",
+  "prices": {
+   "price": "184999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-do-ogrzewania-elektrycznego-pahlen-grzalka-6-kw",
+  "name": "Zestaw do ogrzewania elektrycznego Pahlen grzałka 6 kW",
+  "prices": {
+   "price": "186999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-do-ogrzewania-elektrycznego-pahlen-grzalka-9-kw-kopia",
+  "name": "Zestaw do ogrzewania elektrycznego Pahlen grzałka 9 kW",
+  "prices": {
+   "price": "191999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "korek-spustowy-klik-klak",
+  "name": "Korek spustowy klik-klak",
+  "prices": {
+   "price": "3999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "odplyw-do-balii-ogrodowej-komplet-klik-klak-6-4-z-zaworem-bezpieczenstwa",
+  "name": "Odpływ do balii ogrodowej komplet Klik Klak 6/4\" z zaworem bezpieczeństwa",
+  "prices": {
+   "price": "11999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pokrowiec-ochronny",
+  "name": "Pokrowiec ochronny",
+  "prices": {
+   "price": "40000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-przylaczeniowy-do-pieca",
+  "name": "Zestaw przyłączeniowy do pieca zewnętrznego",
+  "prices": {
+   "price": "34899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "balia-infinity",
+  "name": "Balia INFINITY",
+  "prices": {
+   "price": "1840000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "balia-harmony",
+  "name": "Balia HARMONY",
+  "prices": {
+   "price": "1990000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "beczka-do-schladzania-po-saunie-morsowania",
+  "name": "Beczka do schładzania po saunie, morsowania",
+  "prices": {
+   "price": "349000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "beczka-do-schladzania-po-saunie-morsowania-premium",
+  "name": "Beczka do schładzania po saunie, morsowania PREMIUM",
+  "prices": {
+   "price": "399000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "chlortix-oxy-aktywny-tlen",
+  "name": "ChlorTix OXY Aktywny Tlen",
+  "prices": {
+   "price": "6999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "deska-kompozytowa",
+  "name": "Deska kompozytowa do obicia balii",
+  "prices": {
+   "price": "126000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "glon-fighter-i",
+  "name": "Glon Fighter I",
+  "prices": {
+   "price": "1699",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "glosniki-bluetooth",
+  "name": "Głośniki bluetooth",
+  "prices": {
+   "price": "39900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "grzalka-do-basenu-pahlen-aqua-compact-9-0-kw",
+  "name": "Grzałka do basenu Pahlen Aqua Compact 12.0 kW",
+  "prices": {
+   "price": "129999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "grzalka-do-basenu-pahlen-aqua-compact-15-0-kw",
+  "name": "Grzałka do basenu Pahlen Aqua Compact 15.0 kW",
+  "prices": {
+   "price": "133900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "grzalka-do-basenu-pahlen-aqua-compact-18-0-kw",
+  "name": "Grzałka do basenu Pahlen Aqua Compact 18.0 kW",
+  "prices": {
+   "price": "136900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "grzalka-do-basenu-pahlen-aqua-compact-3-kw",
+  "name": "Grzałka do basenu Pahlen Aqua Compact 3.0 kW",
+  "prices": {
+   "price": "109999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "grzalka-do-basenu-pahlen-aqua-compact-6-0-kw",
+  "name": "Grzałka do basenu Pahlen Aqua Compact 6.0 kW",
+  "prices": {
+   "price": "111999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "grzalka-do-basenu-pahlen-aqua-compact-9-0-kw-2",
+  "name": "Grzałka do basenu Pahlen Aqua Compact 9.0 kW",
+  "prices": {
+   "price": "114999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "minibarek-drewniany-przykrecany-2",
+  "name": "Minibarek drewniany przykręcany",
+  "prices": {
+   "price": "20000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "ph-minus-granulat",
+  "name": "pH Minus Granulat",
+  "prices": {
+   "price": "1899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "ph-plus-granulat",
+  "name": "pH Plus Granulat",
+  "prices": {
+   "price": "1999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "piana-natryskowa-do-izolacji-bauhus-875ml",
+  "name": "Termoizolacyjna piana natryskowa PUR Raptor",
+  "prices": {
+   "price": "3999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "termometr-elektryczny-z-przetwornikiem",
+  "name": "Termometr elektryczny z przetwornikiem",
+  "prices": {
+   "price": "18899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wioslo-drewniane-do-mieszania-wody",
+  "name": "Wiosło drewniane do mieszania wody",
+  "prices": {
+   "price": "7000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-laminatu-do-baczki-do-schladzania-morsowania-bezowy",
+  "name": "Wkład z laminatu do baczki do schładzania / morsowania beżowy",
+  "prices": {
+   "price": "129900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-laminatu-do-baczki-do-schladzania-morsowania-grafit",
+  "name": "Wkład z laminatu do baczki do schładzania / morsowania grafit",
+  "prices": {
+   "price": "169900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-laminatu-do-baczki-do-schladzania-morsowania",
+  "name": "Wkład z laminatu do baczki do schładzania / morsowania grafit",
+  "prices": {
+   "price": "129900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-laminatu-do-baczki-do-schladzania-morsowania-jasnoszary",
+  "name": "Wkład z laminatu do baczki do schładzania / morsowania jasnoszary",
+  "prices": {
+   "price": "129900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zawieszany-stolik-do-balii-ogrodowej",
+  "name": "Zawieszany stolik do Balii Ogrodowej",
+  "prices": {
+   "price": "15000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-startowy-do-wanny-spa",
+  "name": "Zestaw startowy do balii ogrodowej / wanny spa",
+  "prices": {
+   "price": "16399",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "tabliczki-na-przyciski-do-balii-ogrodowej",
+  "name": "Tabliczki na przyciski do balii ogrodowej",
+  "prices": {
+   "price": "1000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "kolanko-hydrauliczne-50mm",
+  "name": "Kolanko hydrauliczne 50mm",
+  "prices": {
+   "price": "1000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "opaska-zaciskowa-na-weza-cisnieniowego",
+  "name": "Opaska zaciskowa na węża ciśnieniowego",
+  "prices": {
+   "price": "1500",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zawor-32mm-do-klejenia-pvc",
+  "name": "Zawór 32mm do klejenia PVC",
+  "prices": {
+   "price": "1999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zaglowek-z-przyssawkami",
+  "name": "Zagłówek do balii ogrodowej",
+  "prices": {
+   "price": "4599",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zawor-spustowy-z-odplywem-do-wanny",
+  "name": "Zawór spustowy z odpływem do wanny",
+  "prices": {
+   "price": "11999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "przejscie-burtowe-do-wkladu-akrylowego",
+  "name": "Przejście burtowe do podłączenia pieca",
+  "prices": {
+   "price": "6999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "waz-cisnieniowy-do-pieca-48-mm",
+  "name": "Wąż ciśnieniowy do pieca 48 mm",
+  "prices": {
+   "price": "9900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "glosnik-pojedynczy-bluetooth",
+  "name": "Zestaw głośników bluetooth",
+  "prices": {
+   "price": "45000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "minibarek-zawieszany-do-balii-ogrodowej",
+  "name": "Minibarek zawieszany",
+  "prices": {
+   "price": "15000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "minibarek-drewniany-przykrecany",
+  "name": "Minibarek drewniany przykręcany",
+  "prices": {
+   "price": "19000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "minibarek-drewniany-zaokraglony-przykrecany",
+  "name": "Minibarek drewniany zaokrąglony przykręcany",
+  "prices": {
+   "price": "19000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "minibarek-stalowy-przykrecany-do-samodzielnego-montazu",
+  "name": "Minibarek stalowy przykręcany",
+  "prices": {
+   "price": "18000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "termometr-dotykowy-na-baterie-z-sonda",
+  "name": "Termometr dotykowy na baterie z sondą",
+  "prices": {
+   "price": "13800",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "przejscia-filtracyjne-do-balii-ogrodowej",
+  "name": "Przejścia filtracyjne do balii ogrodowej",
+  "prices": {
+   "price": "12999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "przejscia-filtracyjne-do-balii-ogrodowej-2",
+  "name": "Przejścia filtracyjne do balii ogrodowej",
+  "prices": {
+   "price": "12999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "kolanka-do-pieca-90-2",
+  "name": "Kolanko do pieca 90°",
+  "prices": {
+   "price": "7199",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "rurka-przedluzajaca-podpiecie-pieca-na-drewno-na-weza-48-mm",
+  "name": "Rurka przedłużająca podpięcie pieca na drewno na węża 48 mm",
+  "prices": {
+   "price": "8999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "kolanka-do-pieca-90",
+  "name": "Zestaw kolanek do pieca 90°",
+  "prices": {
+   "price": "19900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "lampka-podwodna-pojedyncza-solo-7-kolorow-rgb",
+  "name": "Lampka podwodna pojedyncza 7 kolorów RGB",
+  "prices": {
+   "price": "7999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "lampki-podwodne-punktowe-8-kolorow-kopia",
+  "name": "Zestaw lampki podwodnej pojedynczy punkt świetlny 7 kolorów",
+  "prices": {
+   "price": "19899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "lampka-podwodna-dwu-punktowy-led-7-kolorow-rgb",
+  "name": "Zestaw lampek podwodnych dwa punkty led 7 kolorów RGB",
+  "prices": {
+   "price": "29900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "oslona-komina-przeciw-oparzeniowa-do-balii-ogrodowej",
+  "name": "Osłona komina przeciw oparzeniowa",
+  "prices": {
+   "price": "24899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "obejmy-nierdzewne-do-balii",
+  "name": "Obejmy nierdzewne do balii",
+  "prices": {
+   "price": "30000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "obejmy-nierdzewne-do-beczki-do-schladzania",
+  "name": "Obejmy nierdzewne do beczki do schładzania",
+  "prices": {
+   "price": "25000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "schody-kompozytowe-do-balii-ogrodowej",
+  "name": "Schody kompozytowe do balii ogrodowej",
+  "prices": {
+   "price": "49900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "schody-pvc-antyposlizgowe-do-balii-ogrodowej",
+  "name": "Schody PVC antypoślizgowe do balii ogrodowej",
+  "prices": {
+   "price": "35900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "schody-drewniane-do-balii-ogrodowej",
+  "name": "Schody świerkowe do balii ogrodowej",
+  "prices": {
+   "price": "35000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "schody-termodrewno-do-balii-ogrodowej",
+  "name": "Schody termodrewno do balii ogrodowej",
+  "prices": {
+   "price": "45000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "tasma-led-z-przetwornikiem",
+  "name": "Taśma LED z przetwornikiem",
+  "prices": {
+   "price": "33899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "lampki-punktowe-8-kolorow-do-balii",
+  "name": "Zestaw lampek podwodnych 10-punktowe miniledy RGB 7 kolorów",
+  "prices": {
+   "price": "38899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "minibarek-plywajacy-z-podswietleniem-led",
+  "name": "Minibarek pływający z podświetleniem led",
+  "prices": {
+   "price": "26000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "stelaz-drewniany-do-balii-ogrodowej",
+  "name": "Stelaż drewniany do balii ogrodowej",
+  "prices": {
+   "price": "49900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "grzalka-elektryczna-harvia-3kw-do-balii-ogrodowej",
+  "name": "Grzałka Elektryczna Harvia 3kW do Balii Ogrodowej",
+  "prices": {
+   "price": "245999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-do-ogrzewania-elektrycznego-lx-h30-rs-grzalka-3-kw",
+  "name": "Zestaw do ogrzewania elektrycznego LX H30-RS grzałka do balii 3 kW",
+  "prices": {
+   "price": "122999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "deska-swierkowa-do-obicia-balii",
+  "name": "Deska świerkowa do obicia balii",
+  "prices": {
+   "price": "63600",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pokrywa-termiczna-100-cm",
+  "name": "Pokrywa beczki do schładzania po saunie 100 cm",
+  "prices": {
+   "price": "49999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pokrywa-termiczna-do-balii-ogrodowej-200cm",
+  "name": "Pokrywa termiczna 200 cm",
+  "prices": {
+   "price": "109000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pokrywa-termiczna-180-cm",
+  "name": "Pokrywa termiczna 180 cm",
+  "prices": {
+   "price": "104999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pokrywa-termiczna-225-cm",
+  "name": "Pokrywa termiczna 225 cm",
+  "prices": {
+   "price": "133999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "termodrewno-do-obicia-balii",
+  "name": "Termodrewno do obicia balii",
+  "prices": {
+   "price": "96000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pokrywa-termiczna-kwadratowa-200x200",
+  "name": "Pokrywa termiczna kwadratowa 202x202",
+  "prices": {
+   "price": "109000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pokrywa-termiczna-kwadratowa-203x203",
+  "name": "Pokrywa termiczna kwadratowa 203x203",
+  "prices": {
+   "price": "145000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pokrywa-termiczna-prostokatna-160x200",
+  "name": "Pokrywa termiczna prostokątna 160x200",
+  "prices": {
+   "price": "104000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pokrywa-termiczna-prostokatna-172x202",
+  "name": "Pokrywa termiczna prostokątna 172x202",
+  "prices": {
+   "price": "104000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pokrywa-termiczna-kwadratowa-196x203",
+  "name": "Pokrywa termiczna kwadratowa 196x203",
+  "prices": {
+   "price": "109000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "pokrywa-termiczna-kwadratowa-220x220",
+  "name": "Pokrywa termiczna kwadratowa 220x220",
+  "prices": {
+   "price": "159900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "piec-do-balii-24kw-bez-szybki",
+  "name": "Piec do balii 26kW bez szybki AISI 304",
+  "prices": {
+   "price": "209900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "piec-do-bali-jacuzzi-ruskiej-bani-basenu-24kw-z-szybka",
+  "name": "Piec do balii 26kW z szybką AISI 304",
+  "prices": {
+   "price": "239900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-okragly-bialy",
+  "name": "Wkład z włókna szklanego okrągły biały",
+  "prices": {
+   "price": "223000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-okragly-niebieski",
+  "name": "Wkład z włókna szklanego okrągły niebieski",
+  "prices": {
+   "price": "223000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-okragly-bezowy",
+  "name": "Wkład z włókna szklanego okrągły beżowy",
+  "prices": {
+   "price": "223000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-okragly-szary",
+  "name": "Wkład z włókna szklanego okrągły grafit",
+  "prices": {
+   "price": "223000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-dwuosobowy-ofuro-grafit",
+  "name": "Wkład z włókna szklanego dwuosobowy Ofuro grafit",
+  "prices": {
+   "price": "209900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-okragly-jasnoszary",
+  "name": "Wkład z włókna szklanego okrągły jasnoszary",
+  "prices": {
+   "price": "223000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad",
+  "name": "Wkład z włókna szklanego okrągły grafit perła",
+  "prices": {
+   "price": "233000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "piec-30kw-z-szybka-aisi-304",
+  "name": "Piec 30kW z szybką AISI 304",
+  "prices": {
+   "price": "299900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "piec-do-balii-24kw-z-szybka-aisi-316",
+  "name": "Piec do balii 26kW AISI 316",
+  "prices": {
+   "price": "299900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "piec-horizon-wewnetrzny-24kw-z-szybka",
+  "name": "Piec zintegrowany HORIZON 30kW AISI 304",
+  "prices": {
+   "price": "324900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "piec-zintegrowany-30kw-aisi-304",
+  "name": "Piec zintegrowany 30kW AISI 304",
+  "prices": {
+   "price": "299900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-okragly-szary-granitcoat",
+  "name": "Wkład z włókna szklanego okrągły czarny granitcoat",
+  "prices": {
+   "price": "263000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-kwadrat-z-miejscem-lezacym-grafit-granitcoat",
+  "name": "Wkład z włókna szklanego kwadrat z miejscem leżącym grafit granitcoat",
+  "prices": {
+   "price": "459900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-okragly-jasnoszary-granitcoat",
+  "name": "Wkład z włókna szklanego okrągły jasnoszary granitcoat",
+  "prices": {
+   "price": "263000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-prostokat-z-miejscem-lezacym-trzyosobowy-grafit-granitcoat",
+  "name": "Wkład z włókna szklanego prostokąt z miejscem leżącym trzyosobowy grafit granitcoat",
+  "prices": {
+   "price": "325899",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-okragly-szary-granitcoat-2",
+  "name": "Wkład z włókna szklanego okrągły grafit granitcoat",
+  "prices": {
+   "price": "263000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-kwadrat-grafit-3",
+  "name": "Wkład z włókna szklanego kwadrat grafit",
+  "prices": {
+   "price": "326900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-kwadrat-grafit-2",
+  "name": "Wkład z włókna szklanego kwadrat grafit",
+  "prices": {
+   "price": "326900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-kwadrat-grafit",
+  "name": "Wkład z włókna szklanego prostokąt grafit",
+  "prices": {
+   "price": "309900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-kwadrat-bialy-granitcoat",
+  "name": "Wkład z włókna szklanego prostokąt biały granitcoat",
+  "prices": {
+   "price": "349900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-kwadrat-lezanka",
+  "name": "Wkład z włókna szklanego grafit kwadrat leżanka",
+  "prices": {
+   "price": "337500",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-biala-perla-kwadrat-lezanka",
+  "name": "Wkład z włókna szklanego biała perła kwadrat leżanka",
+  "prices": {
+   "price": "347500",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-czarna-perla-kwadrat-lezanka",
+  "name": "Wkład z włókna szklanego czarna perła kwadrat leżanka",
+  "prices": {
+   "price": "347500",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-z-wlokna-szklanego-niebieski-kwadrat-lezanka",
+  "name": "Wkład z włókna szklanego niebieski kwadrat leżanka",
+  "prices": {
+   "price": "337500",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "piec-30kw-z-szybka-aisi-316",
+  "name": "Piec 30kW z szybką AISI 316",
+  "prices": {
+   "price": "349900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "piec-35kw-z-szybka-aisi-304",
+  "name": "Piec 35kW z szybką AISI 304",
+  "prices": {
+   "price": "449900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "piec-zintegrowany-30kw-aisi-316",
+  "name": "Piec zintegrowany 30kW AISI 316",
+  "prices": {
+   "price": "349900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-okragly-czarny-marmur-2",
+  "name": "Wkład akrylowy okrągły czarny marmur",
+  "prices": {
+   "price": "389900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-okragly-grafitowa-perla",
+  "name": "Wkład akrylowy okrągły grafitowa perła",
+  "prices": {
+   "price": "389900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-okragly-mleczna-perla",
+  "name": "Wkład akrylowy okrągły mleczna perła",
+  "prices": {
+   "price": "389900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-okragly-perlowy-bez",
+  "name": "Wkład akrylowy okrągły beżowa perła",
+  "prices": {
+   "price": "389900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-okragly-szara-perla",
+  "name": "Wkład akrylowy okrągły szara perła",
+  "prices": {
+   "price": "466000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-okragly-szara-perla-2",
+  "name": "Wkład akrylowy okrągły szara perła",
+  "prices": {
+   "price": "466000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-okragly-zloty",
+  "name": "Wkład akrylowy okrągły złota perła",
+  "prices": {
+   "price": "466000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-okragly-zloty-2",
+  "name": "Wkład akrylowy okrągły złota perła",
+  "prices": {
+   "price": "466000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-kwadratowy-szary",
+  "name": "Wkład akrylowy kwadratowy szara perła",
+  "prices": {
+   "price": "569900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-kwadratowy-szary-2",
+  "name": "Wkład akrylowy kwadratowy szara perła",
+  "prices": {
+   "price": "569900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-kwadratowy-zloty",
+  "name": "Wkład akrylowy kwadratowy złota perła",
+  "prices": {
+   "price": "569900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-kwadratowy-zloty-2",
+  "name": "Wkład akrylowy kwadratowy złota perła",
+  "prices": {
+   "price": "569900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-dwuosobowy-ofuro",
+  "name": "Wkład akrylowy dwuosobowy Ofuro",
+  "prices": {
+   "price": "375000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-z-miejscem-lezacym-bialy",
+  "name": "Wkład akrylowy z miejscem leżącym biała perła",
+  "prices": {
+   "price": "619900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-z-miejscem-lezacym-brazowy-marmur",
+  "name": "Wkład akrylowy z miejscem leżącym brązowy marmur",
+  "prices": {
+   "price": "719900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-z-miejscem-lezacym-czarny-marmur-2",
+  "name": "Wkład akrylowy z miejscem leżącym czarny marmur",
+  "prices": {
+   "price": "719900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-z-miejscem-lezacym-grafit",
+  "name": "Wkład akrylowy z miejscem leżącym szara perła",
+  "prices": {
+   "price": "619900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-z-miejscem-lezacym-zlota",
+  "name": "Wkład akrylowy z miejscem leżącym złota perła",
+  "prices": {
+   "price": "619900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "wklad-akrylowy-z-miejscem-lezacym-bezowy-marmur",
+  "name": "Wkład akrylowy z miejscem leżącym beżowy marmur",
+  "prices": {
+   "price": "619999",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-do-samodzielnego-montazu-beczka-do-schladzania",
+  "name": "Zestaw do samodzielnego montażu. Beczka do schładzania",
+  "prices": {
+   "price": "229000",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-do-samodzielnego-montazu-balia-ogrodowa-diy",
+  "name": "Zestaw do samodzielnego montażu. Wkład włókno szklane okrągły",
+  "prices": {
+   "price": "699900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-do-samodzielnego-montazu-wklad-akrylowy-okragly",
+  "name": "Zestaw do samodzielnego montażu. Wkład akrylowy okrągły",
+  "prices": {
+   "price": "879900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-do-samodzielnego-montazu-wklad-akrylowy-kwadratowy",
+  "name": "Zestaw do samodzielnego montażu. Wkład akrylowy kwadratowy",
+  "prices": {
+   "price": "1094900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-do-samodzielnego-montazu-wklad-z-wlokna-szklanego-kwadratowy",
+  "name": "Zestaw do samodzielnego montażu. Wkład z włókna szklanego kwadratowy",
+  "prices": {
+   "price": "799900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-do-samodzielnego-montazu-wklad-akrylowy-z-miejscem-lezacym",
+  "name": "Zestaw do samodzielnego montażu. Wkład akrylowy z miejscem leżącym",
+  "prices": {
+   "price": "1149900",
+   "currency_minor_unit": 2
+  }
+ },
+ {
+  "slug": "zestaw-do-samodzielnego-montazu-balia-ogrodowa-wklad-wlokno-szklane-kwadratowy",
+  "name": "Zestaw do samodzielnego montażu. Wkład włókno szklane kwadratowy",
+  "prices": {
+   "price": "849900",
+   "currency_minor_unit": 2
+  }
+ }
+]

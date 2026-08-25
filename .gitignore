@@ -22,3 +22,27 @@ frontend/*.local
 *.swp
 .DS_Store
 Thumbs.db
+
+# ---- Python (narzędzia w tools/) ----
+__pycache__/
+*.pyc
+
+# ---- Śmieci robocze ----
+# Archiwa i logi powstające przy pracy na zdalnej maszynie.
+*.tgz
+*.tar.gz
+*.log
+_do-usuniecia/
+
+# ---- Materiały źródłowe ----
+# Zdjęcia, filmy i modele 3D trzymamy obok repozytorium (..\ak-house-materialy),
+# żeby nie pompować historii gita plikami po kilka MB.
+elementy/
+
+# ---- Sekrety ----
+# Kluczy API nie trzymamy w plikach w repo — idą przez `dotnet user-secrets`
+# albo zmienne środowiskowe (Admin__ApiKey, Admin__MediaApiKey, Admin__ShopApiKey).
+klucz upload/
+*.key
+secrets.json
+.claude/settings.local.json

@@ -112,6 +112,8 @@ zapytań ofertowych. **Kwoty są liczone wyłącznie na serwerze** — przegląd
 Publiczne:
 - `GET  /api/shop/products` — opublikowane produkty; filtry `?category=&search=&sort=`.
 - `GET  /api/shop/products/{slug}` — karta produktu (`404` dla nieopublikowanego).
+- `GET  /api/shop/categories` — aktywne półki, które mają choć jeden opublikowany produkt.
+  Zasila chipy filtrów na `/sklep`; pusta półka nie trafia na listę, bo klik w nią dawałby pustą stronę.
 - `GET  /api/shop/shipping-methods` — aktywne metody dostawy ze stawkami.
 - `POST /api/shop/cart/validate` — przelicza koszyk: aktualne ceny, przycięcie ilości do stanu
   magazynowego, lista pozycji wycofanych ze sprzedaży.
@@ -128,15 +130,96 @@ Konto klienta (ciasteczko sesji `akhouse.session`, `HttpOnly`):
 Zakup jako gość jest możliwy; przy zalogowanej sesji zamówienie dostaje `UserId` i pojawia się
 w `/konto`. Zakładanie konta nie „przejmuje” wcześniejszych zamówień gościa z tym samym adresem.
 
-Panel (**chronione `Admin:ApiKey`**, nagłówek `X-Api-Key`):
+Panel sklepu (**chronione `Admin:ShopApiKey`** — **osobny klucz**, nie ten od zleceń; nagłówek `X-Api-Key`):
 - `GET/POST/PUT/DELETE /api/admin/shop/products[/{id}]` — asortyment,
+- `GET  /api/admin/shop/pricing` — obowiązujący narzut i ile pozycji za nim idzie,
+- `PUT  /api/admin/shop/pricing/margin` — ustawia narzut i przelicza wszystkie pozycje z ceną bazową,
+- `POST /api/admin/shop/pricing/base-prices` — wgrywa ceny detaliczne dostawcy po slugu; zwraca
+  `updated` i `unknownSlugs` (niepusta lista = dopasowanie się rozjechało),
+- `POST /api/admin/shop/products/bulk` — jedna zmiana na wielu pozycjach naraz: publikacja,
+  dostępność, przeniesienie do kategorii, procentowa zmiana ceny. Pola opcjonalne (`null` = nie ruszaj),
+  zmiana ceny ograniczona do zakresu −99%…+500%, żeby zgubione zero nie rozdało asortymentu,
 - `POST /api/admin/shop/products/{id}/images` (multipart, pole `file`) i `DELETE .../images/{imageId}`,
+- `GET/POST/PUT/DELETE /api/admin/shop/categories[/{key}]` — półki sklepu. Kasowanie półki z produktami
+  wymaga `?moveProductsTo=<klucz>` (inaczej `400`), więc nic nie zostaje bez kategorii,
+- `POST /api/admin/shop/categories/restore-defaults` — odtwarza skasowane kategorie startowe (idempotentne),
 - `GET/POST/PUT/DELETE /api/admin/shop/shipping-methods[/{id}]` — metody dostawy i stawki,
 - `GET /api/admin/shop/orders[/{id}]`, `PATCH .../status`, `POST .../notes`, `PATCH .../read`.
 
 Zmiana statusu na `Cancelled` **zwraca zarezerwowany stan magazynowy** na półkę (jednokrotnie).
 Pozycje zamówienia trzymają własną kopię nazwy i ceny, więc późniejsza zmiana cennika ani
 usunięcie produktu nie przepisują historii zamówień.
+
+### Panel sklepu (`/sklep/panel`)
+
+Osobne wejście do zarządzania sklepem: asortyment, kategorie, zamówienia i dostawa.
+Nie prowadzi tam żaden odnośnik, trasa jest wyłączona w `robots.txt` i nie ma jej w `sitemap.xml`.
+
+**Dlaczego osobno, a nie zakładka w `/admin`:** wcześniej sklepem zarządzało się piątą zakładką
+panelu zleceń, chronioną tym samym `Admin:ApiKey`. Kto miał prowadzić asortyment, dostawał wgląd
+we wszystkie zapytania klientów. Teraz panel ma własny `Admin:ShopApiKey` — obie role nadaje się
+i odbiera niezależnie. Klucz jest sprawdzany przy wejściu (nie dopiero przy pierwszym zapisie)
+i leży w `sessionStorage`, więc znika po zamknięciu karty.
+
+Cztery zakładki:
+
+- **Asortyment** — tabela, nie ściana kafelków. Wyszukiwarka (nazwa, opis, adres), filtr kategorii,
+  filtr widoczności (widoczne / ukryte / niedostępne), sortowanie i stronicowanie po 25 pozycji.
+  Przy 156 pozycjach z importu cennika to jest różnica między „da się pracować" a „przewiń 155 kart,
+  żeby zmienić cenę uszczelki".
+  **Zaznaczenie wielu wierszy** odsłania pasek operacji masowych: pokaż/ukryj, dostępny/niedostępny,
+  przenieś do kategorii, procentowa zmiana ceny. Zaznaczenie odfiltrowane z widoku samo z niego
+  wypada — zmiana masowa nie może objąć pozycji, których operator już nie widzi.
+- **Kategorie** — dodawanie, zmiana nazwy i adresu, kolejność, ukrywanie, usuwanie.
+  Usunięcie półki z produktami wymaga wskazania, dokąd je przenieść.
+- **Zamówienia** — statusy i notatki (przeniesione z `/admin` bez zmian).
+- **Dostawa** — metody i stawki (przeniesione z `/admin` bez zmian).
+
+#### Ceny: detal dostawcy plus narzut
+
+Ceny w sklepie powstają z **ceny detalicznej Balia Technic** (`ShopProduct.BasePriceGrosze`)
+przepuszczonej przez **jeden narzut na cały sklep** (`ShopPricing.MarginBasisPoints`).
+W panelu, w zakładce **Cennik**, wpisujesz procent (przecinek działa: `-5,5`), widzisz podgląd
+na trzech realnych pozycjach i klikasz raz.
+
+Pierwotna formuła `hurt netto × 1,10 × 1,23` nie odtwarza detalu dostawcy — na sprawdzonych
+pozycjach mieściła się w przedziale od −18% do +64% względem ich cen. Dlatego bazą jest ich cena,
+a nie nasze przeliczenie.
+
+Trzy rzeczy, które trzymają ten mechanizm w ryzach:
+
+- **Narzut jest aplikowany, nie kumulowany.** Cena liczy się zawsze od bazy, nigdy od bieżącej.
+  Kliknięcie +10% dwa razy to nadal +10%, a wpisanie `0` wraca dokładnie do cen Balii.
+  Ta sama arytmetyka jest po obu stronach (`ShopPricing.Apply` i `features/shopadmin/pricing.ts`),
+  co do grosza — inaczej podgląd kłamałby o wyniku.
+- **Punkty bazowe, nie ułamki.** Narzut siedzi w bazie jako `int` (1% = 100), z tego samego
+  powodu co pieniądze w groszach: SQLite zapisuje `decimal` jako TEXT, a `-5,5%` ma być dokładne.
+- **Pusta cena bazowa = cena ręczna.** Pozycje, których Balia nie ma, i wszystko dodane samodzielnie
+  mają `BasePriceGrosze = null` i narzut ich nie rusza. Panel pokazuje, ilu pozycji to dotyczy.
+
+Zakres narzutu to −99%…+500%; poza nim API zwraca `400`, żeby zgubione zero nie przeceniło sklepu.
+
+Pobieranie i dopasowanie cen Balii opisuje `tools/import-balia/README.md`. Dopasowanie **nie jest
+automatyczne**: slugi po obu stronach się nie zgadzają, więc narzędzie produkuje listę do akceptacji
+i osobno oznacza przypadki, w których obok stoi podobny wariant o innej cenie.
+
+#### Kategorie sklepu żyją w bazie
+
+Były enumem w kodzie C#, więc nowa półka wymagała zmiany kodu i wdrożenia. Teraz to tabela
+`ShopCategories`, a panel jest jej właścicielem. Dwa identyfikatory, oba potrzebne:
+
+- **`Key`** — niezmienny klucz główny. To po nim produkt trzyma się półki, i to on siedzi
+  w kolumnie `ShopProducts.Category` — dokładnie tam, gdzie wcześniej stała nazwa enuma
+  (`Heaters`, `TubShells`…). Dlatego przejście na tabelę **nie przepisało ani jednego ze 156
+  wierszy produktów**, a migracja jest czysto addytywna (`CreateTable` + `CreateIndex`).
+  Klucz nowej kategorii powstaje ze slugu i mieści się w 32 znakach.
+- **`Slug`** — edytowalny adres w URL (`/sklep?kategoria=piece`). Zmiana nazwy półki dla
+  odwiedzających nie może osierocić produktów, więc nazwa i adres się zmieniają, a klucz nie.
+
+Celowo **nie ma klucza obcego** z `ShopProducts`. Ograniczenie na poziomie bazy wymusiłoby
+przebudowę tabeli SQLite na żywym katalogu i wracałoby do operatora jako nieczytelny błąd
+sterownika. Spójności pilnuje `ShopAdminService`: produkt nie zapisze się na nieistniejącej półce,
+a półki z produktami nie da się skasować bez wskazania celu — po polsku, z liczbą pozycji.
 
 ### Ukryty panel zdjęć (`/admin/zdjecia`)
 
@@ -185,6 +268,9 @@ Globalny `IExceptionHandler` mapuje błędy domenowe na `400`, pozostałe na `50
   ustaw go poza repo, np. `dotnet user-secrets set "Admin:ApiKey" "<silny-losowy-klucz>" --project backend/src/AkHouse.Api`.
 - `Admin:MediaApiKey` — **osobny** klucz do ukrytego panelu zdjęć (`/admin/zdjecia`). Niezależny od
   `Admin:ApiKey`, więc dostęp do zleceń i do zdjęć nadaje się i odbiera oddzielnie. Pusty = panel wyłączony (503).
+- `Admin:ShopApiKey` — **osobny** klucz do panelu sklepu (`/sklep/panel`). Kto prowadzi asortyment,
+  nie dostaje wglądu w zapytania klientów: ich telefony, budżety i historię kontaktów. Pusty = panel wyłączony (503).
+  `dotnet user-secrets set "Admin:ShopApiKey" "<klucz>" --project backend/src/AkHouse.Api`.
 - `Shop:BankAccountNumber` / `BankAccountHolder` / `BankName` / `PaymentDueDays` — dane do przelewu
   wysyłane klientowi w potwierdzeniu zamówienia. **Numer konta jest domyślnie pusty** — dopóki go nie
   uzupełnisz, mail informuje, że dane prześlemy osobno.

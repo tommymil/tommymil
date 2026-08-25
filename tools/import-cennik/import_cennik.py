@@ -51,7 +51,12 @@ MAX_IMAGES = 4
 IMAGE_MAX_WIDTH = 1400
 IMAGE_QUALITY = 82
 
-# Sekcje cennika -> półki sklepu (ShopCategory). Nagłówki sekcji przepisane z arkusza;
+# Sekcje cennika -> półki sklepu. Wartości to ShopCategory.Key z bazy (tabela ShopCategories),
+# nie nazwy enuma — enum zniknął, gdy kategorie stały się edytowalne w /sklep/panel. Klucze
+# celowo zostały te same, więc ten słownik nie wymagał zmiany, ALE: kategoria dodana w panelu
+# ma klucz wyprowadzony ze slugu (np. "reczniki-i-tekstylia"). Chcesz importować do niej z cennika
+# — wpisz tu dokładnie ten klucz, widoczny w panelu w wierszu kategorii.
+# Nagłówki sekcji przepisane z arkusza;
 # porównanie idzie po tekście znormalizowanym (bez ogonków, bez wielokrotnych spacji).
 SECTION_CATEGORIES = {
     "akcesoria do wanien spa / basenowe": "Accessories",
