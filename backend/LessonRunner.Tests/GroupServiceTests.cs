@@ -389,6 +389,40 @@ public sealed class GroupServiceTests
         Assert.Equal(instructor.Email, details.InstructorEmail);
     }
 
+    /// <summary>
+    /// Regresja: panel wysyła pierwszy termin przez `toISOString()`, czyli z offsetem `Z`.
+    /// Generator serii pomijał wtedy przeliczenie dla zerowego przesunięcia tygodni, więc
+    /// termin nr 1 zostawał w UTC, a nr 2 i dalsze dostawały offset warszawski. W eksportach
+    /// i w treści e-maili ta sama seria miała przez to dwie różne godziny.
+    /// </summary>
+    [Fact]
+    public async Task CreateAsync_NormalizesFirstSessionToSchoolClock_EvenWhenSentAsUtc()
+    {
+        var warsaw = TryGetWarsawTimeZone();
+        if (warsaw is null)
+        {
+            return; // środowisko bez bazy stref czasowych - test nie ma czego weryfikować.
+        }
+
+        var (service, lessons, _, instructor) = await BuildAsync();
+        var l1 = ReadyLesson("L1");
+        var l2 = ReadyLesson("L2");
+        await lessons.AddAsync(l1, CancellationToken.None);
+        await lessons.AddAsync(l2, CancellationToken.None);
+
+        // 16:00 UTC w lipcu to 18:00 w Polsce - dokładnie to, co przysyła przeglądarka.
+        var first = new DateTimeOffset(2026, 7, 2, 16, 0, 0, TimeSpan.Zero);
+
+        var dto = new CreateGroupDto("Grupa", instructor.Id, [l1.Id, l2.Id], first, []);
+        var details = await service.CreateAsync(dto, CancellationToken.None);
+
+        Assert.All(details.Sessions, session => Assert.Equal(TimeSpan.FromHours(2), session.ScheduledAt.Offset));
+        Assert.All(details.Sessions, session => Assert.Equal(18, session.ScheduledAt.Hour));
+
+        // Instant pierwszego terminu ma zostać nietknięty - zmieniamy zapis, nie moment.
+        Assert.Equal(first, details.Sessions[0].ScheduledAt);
+    }
+
     [Fact]
     public async Task CreateAsync_KeepsWallClockTimeAcrossDaylightSavingChange()
     {

@@ -15,21 +15,32 @@ function roleLabel(role: string): string {
   return role;
 }
 
+const ROLES = ["admin", "instructor", "parent"] as const;
+
 type UserRowProps = {
   user: ManagedUser;
   busy: boolean;
   onToggleActive: (user: ManagedUser) => void;
   onResetPassword: (id: string, password: string) => Promise<boolean>;
   onSaveProfile: (id: string, request: UpdateUserProfileRequest) => Promise<boolean>;
+  onChangeRole: (user: ManagedUser, role: string) => Promise<boolean>;
   onInvite: (user: ManagedUser) => Promise<boolean>;
 };
 
-function UserRow({ user, busy, onToggleActive, onResetPassword, onSaveProfile, onInvite }: UserRowProps) {
-  const [mode, setMode] = useState<"none" | "password" | "profile">("none");
+function UserRow({ user, busy, onToggleActive, onResetPassword, onSaveProfile, onChangeRole, onInvite }: UserRowProps) {
+  const [mode, setMode] = useState<"none" | "password" | "profile" | "role">("none");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState(user.firstName ?? "");
   const [lastName, setLastName] = useState(user.lastName ?? "");
   const [phone, setPhone] = useState(user.phone ?? "");
+  const [role, setRole] = useState(user.role);
+
+  async function submitRole() {
+    const ok = await onChangeRole(user, role);
+    if (ok) {
+      setMode("none");
+    }
+  }
 
   async function submitPassword() {
     const ok = await onResetPassword(user.id, password);
@@ -84,9 +95,25 @@ function UserRow({ user, busy, onToggleActive, onResetPassword, onSaveProfile, o
             <Button variant="secondary" onClick={submitProfile} disabled={busy}>Zapisz profil</Button>
             <Button variant="ghost" onClick={() => setMode("none")}>Anuluj</Button>
           </div>
+        ) : mode === "role" ? (
+          <div className="session-actions">
+            <select value={role} onChange={(event) => setRole(event.target.value)} aria-label="Rola konta">
+              {ROLES.map((value) => (
+                <option key={value} value={value}>
+                  {roleLabel(value)}
+                </option>
+              ))}
+            </select>
+            <span className="cell-sub">Zmiana wylogowuje tę osobę ze wszystkich urządzeń.</span>
+            <Button variant="secondary" onClick={submitRole} disabled={busy || role === user.role}>
+              Zapisz rolę
+            </Button>
+            <Button variant="ghost" onClick={() => { setMode("none"); setRole(user.role); }}>Anuluj</Button>
+          </div>
         ) : (
           <div className="session-actions">
             <Button variant="ghost" onClick={() => setMode("profile")}>Edytuj profil</Button>
+            <Button variant="ghost" onClick={() => setMode("role")}>Zmień rolę</Button>
             <Button variant="ghost" onClick={() => onInvite(user)} disabled={busy || !user.isActive}>
               Wyślij zaproszenie
             </Button>
@@ -224,6 +251,7 @@ export function AdminUsersPage() {
                 onToggleActive={vm.toggleActive}
                 onResetPassword={vm.resetPassword}
                 onSaveProfile={vm.saveProfile}
+                onChangeRole={vm.changeRole}
                 onInvite={vm.invite}
               />
             ))}

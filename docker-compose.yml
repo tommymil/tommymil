@@ -33,6 +33,10 @@ services:
       Smtp__Username: ${SMTP_USERNAME:-}
       Smtp__Password: ${SMTP_PASSWORD:-}
       Smtp__EnableSsl: ${SMTP_ENABLE_SSL:-true}
+      # Nadawca wiadomości do rodziców. Bez tego obowiązuje adres zastępczy z domeny `.local`,
+      # której nie ma w DNS - realna wysyłka zostanie odrzucona przez dostawcę poczty.
+      Notifications__FromEmail: ${NOTIFICATIONS_FROM_EMAIL:?ustaw NOTIFICATIONS_FROM_EMAIL w .env}
+      Notifications__FromName: ${NOTIFICATIONS_FROM_NAME:-Szkoła Programowania}
       Notifications__ReminderIntervalMinutes: ${REMINDER_INTERVAL_MINUTES:-30}
     # API nie musi być wystawione publicznie - ruch idzie przez web (nginx).
     # Odkomentuj, jeśli chcesz uderzać do API bezpośrednio z hosta (np. curl).
@@ -43,6 +47,13 @@ services:
       - api-uploads:/app/wwwroot/uploads
       - api-backups:/app/backups
     restart: unless-stopped
+    # Logi idą na standardowe wyjście i zbiera je docker - to właściwe miejsce w kontenerze,
+    # ale bez rotacji plik rośnie bez końca i potrafi zapełnić dysk hosta.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   web:
     build:
@@ -52,10 +63,24 @@ services:
         # Puste = ścieżki relatywne obsługiwane przez proxy w nginx.conf.
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
     depends_on:
-      - api
+      # Nie samo „api wystartowało”, tylko „api odpowiada”: nginx rozwiązuje nazwę `api`
+      # przy wczytywaniu konfiguracji, a pierwszy start API obejmuje migracje bazy.
+      api:
+        condition: service_healthy
     ports:
       - "${WEB_PORT:-8080}:80"
     restart: unless-stopped
+    # Obraz nginxa jest oparty na Alpine, więc `wget` jest w busyboksie - bez doinstalowywania.
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   # PostgreSQL jako opcja - uruchamiany tylko z profilem: `docker compose --profile postgres up`.
   # Wymaga wcześniejszego wygenerowania migracji dla Npgsql (patrz README).

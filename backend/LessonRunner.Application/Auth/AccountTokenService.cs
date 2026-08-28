@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using LessonRunner.Application.Notifications;
+using LessonRunner.Application.Scheduling;
 using LessonRunner.Domain.Notifications;
 using LessonRunner.Domain.Users;
 
@@ -273,8 +274,12 @@ public sealed class AccountTokenService(
 
     private static string Signature() => "Szkoła Programowania";
 
+    /// <summary>
+    /// Godzina wygaśnięcia linku według zegara szkoły. `ToLocalTime()` brałoby strefę serwera,
+    /// czyli UTC w kontenerze — rodzic dostawał termin o dwie godziny wcześniejszy niż faktyczny.
+    /// </summary>
     private static string FormatDeadline(DateTimeOffset expiresAt) =>
-        expiresAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
+        SchoolTime.FormatDateTime(expiresAt);
 
     private string BuildLink(string rawToken) =>
         $"{appOptions.PublicOrigin.TrimEnd('/')}/set-password?token={Uri.EscapeDataString(rawToken)}";

@@ -100,6 +100,24 @@ internal sealed class EfUserRepository(AppDbContext dbContext) : IUserRepository
         return true;
     }
 
+    public async Task<bool> SetRoleAsync(Guid id, UserRole role, CancellationToken cancellationToken)
+    {
+        var document = await dbContext.Users.FirstOrDefaultAsync(user => user.Id == id, cancellationToken);
+
+        if (document is null)
+        {
+            return false;
+        }
+
+        document.Role = role.ToString();
+
+        // Rola jedzie w tokenie, więc zmiana musi wylogować konto natychmiast. Inaczej
+        // zdegradowany administrator zachowuje panel do wygaśnięcia tokenu.
+        document.SecurityStamp = NewSecurityStamp();
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
     private static string NewSecurityStamp() => Guid.NewGuid().ToString("N");
 
     public Task<bool> ExistsAsync(string normalizedEmail, CancellationToken cancellationToken)
@@ -125,34 +143,6 @@ internal sealed class EfUserRepository(AppDbContext dbContext) : IUserRepository
     {
         dbContext.Users.Add(ToDocument(user));
         await dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    /// <summary>
-    /// Dokłada brakujące konta startowe.
-    ///
-    /// Warunek jest per e-mail, a nie „czy w bazie jest jakikolwiek użytkownik”. Przy tym
-    /// drugim dopisanie nowego konta do seeda nie docierało do żadnego istniejącego
-    /// środowiska deweloperskiego - baza miała już admina, więc seed kończył się na pierwszej
-    /// linijce. Istniejących kont nie ruszamy: zmienione hasło ma zostać zmienione.
-    /// </summary>
-    public async Task SeedAsync(IReadOnlyList<User> users, CancellationToken cancellationToken)
-    {
-        var existingEmails = await dbContext.Users
-            .Select(user => user.Email)
-            .ToListAsync(cancellationToken);
-        var known = existingEmails.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var added = false;
-
-        foreach (var user in users.Where(user => !known.Contains(user.Email)))
-        {
-            dbContext.Users.Add(ToDocument(user));
-            added = true;
-        }
-
-        if (added)
-        {
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
     }
 
     private static UserDocument ToDocument(User user)

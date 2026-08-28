@@ -21,9 +21,13 @@ internal sealed class InMemoryGroupRepository : IGroupRepository
         return Task.FromResult(_groups.FirstOrDefault(group => group.Id == id));
     }
 
-    public Task<IReadOnlyList<Group>> ListByInstructorAsync(Guid instructorId, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<Group>> ListForInstructorAsync(Guid instructorId, CancellationToken cancellationToken)
     {
-        IReadOnlyList<Group> result = _groups.Where(group => group.InstructorId == instructorId).ToList();
+        IReadOnlyList<Group> result = _groups
+            .Where(group => group.InstructorId == instructorId
+                || group.Sessions.Any(session => session.SubstituteInstructorId == instructorId))
+            .ToList();
+
         return Task.FromResult(result);
     }
 

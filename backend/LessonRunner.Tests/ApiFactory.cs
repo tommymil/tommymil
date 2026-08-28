@@ -29,8 +29,8 @@ internal sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncDisposa
         builder.UseSetting("Jwt:Audience", "LessonRunnerClients");
         builder.UseSetting("Jwt:ExpiryMinutes", "60");
         builder.UseSetting("Smtp:Mode", "Log");
-        // Środowisko "Testing" nie jest developerskie, więc zadziała ścieżka bootstrapu admina
-        // zamiast seedu - dokładnie tak, jak na produkcji.
+        // Każde środowisko startuje bez danych demonstracyjnych. Testy podają jedynie konto
+        // pierwszego administratora wymagane do korzystania z pustego systemu.
         builder.UseSetting("BOOTSTRAP_ADMIN_EMAIL", AdminEmail);
         builder.UseSetting("BOOTSTRAP_ADMIN_PASSWORD", AdminPassword);
     }

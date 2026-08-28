@@ -1,4 +1,5 @@
 using LessonRunner.Application.Auth;
+using LessonRunner.Application.Common;
 using LessonRunner.Application.Lessons;
 using LessonRunner.Application.Parents;
 using LessonRunner.Application.Participants;
@@ -102,7 +103,9 @@ public sealed class TrialService(
 
         trial.InstructorId = dto.InstructorId;
         trial.ScheduledAt = dto.ScheduledAt;
-        trial.MeetingUrl = Clean(dto.MeetingUrl);
+        // Link trafia do atrybutu `href` na liście spotkań instruktora, więc musi być http(s):
+        // `javascript:...` wykonałby się w sesji klikającego.
+        trial.MeetingUrl = WebLink.Normalize(dto.MeetingUrl, "Link do spotkania musi być pełnym adresem http(s).");
         trial.LessonId = dto.LessonId;
 
         // Status wynika z danych, a nie z osobnego przycisku: jest termin i prowadzący,
@@ -328,8 +331,8 @@ public sealed class TrialService(
     private async Task<Dictionary<Guid, string>> InstructorNamesAsync(CancellationToken cancellationToken) =>
         (await userRepository.ListAsync(cancellationToken)).ToDictionary(user => user.Id, user => user.DisplayName);
 
-    private async Task<Dictionary<Guid, string>> LessonTitlesAsync(CancellationToken cancellationToken) =>
-        (await lessonRepository.ListAsync(cancellationToken)).ToDictionary(lesson => lesson.Id, lesson => lesson.Title);
+    private async Task<IReadOnlyDictionary<Guid, string>> LessonTitlesAsync(CancellationToken cancellationToken) =>
+        await lessonRepository.ListTitlesAsync(cancellationToken);
 
     private static TrialLessonDto ToDto(
         TrialLesson trial,

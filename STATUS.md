@@ -1,6 +1,98 @@
 # Lesson Runner — aktualny stan projektu
 
-Ostatnia aktualizacja: 14.08.2026
+Ostatnia aktualizacja: 28.08.2026
+
+## Zmiany z 28.08.2026 — przegląd przed wdrożeniem produkcyjnym
+
+Sześć punktów zamkniętych z listy blokerów. Kolejność wg tego, co najbardziej bolało.
+
+1. **Godziny w e-mailach były podawane w UTC.** Przeglądarka wysyła termin przez
+   `toISOString()`, czyli z offsetem `Z`, a `DateTimeOffset.ToString("HH:mm")` drukuje godzinę
+   w offsecie samej wartości. Rodzic dostawał termin o 1–2 h wcześniejszy niż faktyczny.
+   Niespójnie: terminy generowane cotygodniowo miały offset warszawski i drukowały się dobrze,
+   więc **pierwsze zajęcia serii miały w mailu inną godzinę niż wszystkie następne**.
+   Nowy `Application/Scheduling/SchoolTime.cs` jest teraz jedynym miejscem, przez które
+   przechodzi termin przeznaczony dla człowieka: treści e-maili, `{{previousAt}}`, podgląd
+   szablonu w panelu, eksport obecności do CSV i termin ważności linku do ustawienia hasła.
+   `GroupService` używa go zamiast własnej kopii strefy, a generator serii nie pomija już
+   przeliczenia dla pierwszego terminu. Eksport ICS zostaje w UTC — tak wymaga RFC 5545.
+2. **Domyślny nadawca `noreply@lessonrunner.local` nie mógł nic wysłać.** Ustawienia
+   powiadomień powstają dopiero przy pierwszym zapisie z panelu, więc świeża instalacja
+   z `SMTP_MODE=Smtp` wysyłała z domeny, której nie ma w DNS. Adres jest teraz częścią
+   konfiguracji wdrożenia (`NOTIFICATIONS_FROM_EMAIL`, wymagane w compose), a `SmtpEmailSender`
+   odmawia wysyłki z domen zarezerwowanych (`.local`, `.test`, `.invalid`, `.example`,
+   `example.com`) z czytelnym powodem w dzienniku wysyłek.
+3. **Literówka w roli zakładała konto instruktora.** Nierozpoznana wartość wpadała cicho na
+   `UserRole.Instructor`, więc rodzic z błędem w formularzu dostawał dostęp do konspektów,
+   grafiku, materiałów i wyszukiwarki po dzieciach. Teraz to `400`. Doszedł też
+   `PUT /api/users/{id}/role` — wcześniej roli **nie dało się poprawić w żaden sposób**,
+   bo usuwania kont nie ma. Zmiana roli unieważnia sesje (rola jedzie w tokenie) i ma te same
+   dwie blokady co dezaktywacja: nie własne konto, nie ostatni aktywny administrator.
+4. **`GET /api/safety/tickets` wydawał każdemu instruktorowi wszystkie zgłoszenia** — z imieniem
+   i nazwiskiem dziecka oraz swobodnym opisem sytuacji, także z grup, których nie uczy. Trasa
+   pozostaje `StaffOnly`, ale serwis zawęża listę do własnych zgłoszeń oraz grup i dzieci
+   prowadzonych przez daną osobę (również jako zastępstwo). `PUT /tickets/{id}` stosuje tę samą
+   regułę i zwraca `404` poza zakresem.
+5. **`react-router-dom` podbity 7.17.0 → 7.18.2** — zamyka trzy podatności o wadze *high*
+   (m.in. open redirect przez odwrotny ukośnik w `<Link>` i `useNavigate`).
+6. **Kontener API nie pracuje już jako root** (`USER app`). Katalogi `/app/data`, `/app/backups`
+   i `/app/wwwroot/uploads` powstają w obrazie z właścicielem `app`, żeby świeże wolumeny
+   nazwane odziedziczyły właściciela. Przy aktualizacji istniejącej instalacji trzeba raz
+   poprawić właściciela starych wolumenów — komenda jest w `README.md`.
+
+Druga tura, punkty 8–13 z tego samego przeglądu — utwardzenie i higiena operacyjna.
+
+7. **nginx nie wysyłał żadnych nagłówków bezpieczeństwa.** Doszły CSP, `X-Frame-Options: DENY`,
+   `nosniff`, `Referrer-Policy: same-origin`, `Permissions-Policy` i `Cross-Origin-Opener-Policy`,
+   a do tego gzip i `expires` (rok dla `/assets/`, `no-cache` dla `index.html`). Zbudowany bundel
+   sprawdzony pod CSP: zero `eval`, `new Function`, workerów i zewnętrznych zasobów.
+   Cache'owaniem steruje `expires`, a **nie** `add_header Cache-Control` — jeden `add_header`
+   w bloku `location` odciąłby dziedziczenie wszystkich nagłówków z bloku `server`.
+8. **Dwa pola z adresem nie sprawdzały schematu**: link do spotkania lekcji próbnej
+   (`TrialService`) i link do projektu dziecka (`ProgressService`), a ten drugi klika rodzic
+   w swoim portalu. Reguła miała już trzy niezależne kopie w kodzie; jest teraz jedna —
+   `Application/Common/WebLink.cs` — i używają jej wszystkie pięć miejsc.
+9. **Wpis audytu ginął, gdy klient rozłączył się w trakcie żądania.** `AuditEndpointFilter`
+   zapisywał go z `http.RequestAborted`, więc zapis leciał w `OperationCanceledException`
+   i cichł w `catch`. Dziura powstawała akurat przy żądaniach przerwanych — tam, gdzie ślad
+   jest najbardziej potrzebny. Teraz `CancellationToken.None`.
+10. **Trzy zapytania o skali całej bazy.** `/download/lesson-files/{token}` — trasa anonimowa —
+    wczytywała i deserializowała **wszystkie** konspekty, żeby znaleźć jeden plik; ma teraz
+    celowane zapytanie (`LIKE` z wygaszeniem `_`, bo klucze są w base64url, plus porównanie
+    dokładne po deserializacji garstki kandydatów). Zakres grup instruktora liczy baza
+    (`ListForInstructorAsync`), a nie filtr w pamięci po pełnej liście — dotyczyło to każdego
+    zapisu postępu w kokpicie. Mapy tytułów konspektów (kokpit, kalendarz, przypomnienia,
+    lekcje próbne) idą przez `ListTitlesAsync`, które nie rusza kolumny z dokumentem JSON.
+11. **Brak logu żądań i globalnej obsługi wyjątków.** Doszły `UseSerilogRequestLogging`
+    (z adresem klienta i identyfikatorem użytkownika, bez ciągu zapytania — żeby frazy
+    z wyszukiwarki po dzieciach nie trafiały do logu) oraz `UseExceptionHandler`
+    z `AddProblemDetails`. Nieobsłużony wyjątek wraca jako RFC 7807 zamiast pustego 500.
+12. **Compose bez healthchecków.** `api` ma `HEALTHCHECK` na `/health`, `web` czeka na
+    `condition: service_healthy`, obie usługi mają rotację logów (`10m` × 5). Obraz API
+    dostał `curl` — `aspnet` jest oparty na Debianie slim i nie ma żadnego klienta HTTP.
+
+Testy: backend **312 przypadków** (było 256), frontend 234 (było 232). Nowe strażniki:
+`SchoolTimeTests`, `NotificationSenderTests`, `WebLinkTests`, regresja terminu
+w `NotificationServiceTests` i `GroupServiceTests`, uprawnienia roli i zgłoszeń
+w `ApiAuthorizationTests`, wyszukiwanie pliku po kluczu w `EfLessonRepositoryTests`.
+
+**Niezweryfikowane:** na maszynie, na której powstawały te zmiany, nie ma ani Dockera, ani
+nginxa. Niesprawdzone zostają: `docker compose build`, praca aplikacji bez uprawnień roota,
+składnia `nginx.conf` (`nginx -t`), działanie healthchecków i nagłówki CSP w locie.
+**Do przejścia na maszynie docelowej** — to ten sam brak, co w punkcie 1 długu technicznego.
+
+## Zmiany z 14.08.2026 — biblioteka materiałów personelu
+
+- Wspólna zakładka `/materials` jest dostępna dla administracji i instruktorów. Obsługuje
+  wyszukiwanie, pliki przesyłane do systemu oraz linki zewnętrzne.
+- Administrator dodaje, edytuje i usuwa materiały oraz wybiera widoczność: „Tylko administracja”
+  albo „Administracja i instruktorzy”. Instruktor korzysta z widoku tylko do odczytu.
+- `GET /api/materials` ma politykę `StaffOnly`, ale przed odpowiedzią filtruje rekordy o
+  widoczności `admin`. `POST`, `PUT` i `DELETE` wymagają dodatkowo `AdminOnly`, a zapis jest
+  objęty filtrem audytu. Rola `Parent` dostaje `403`.
+- Dane przechowuje tabela `Materials` (migracja `AddMaterialsLibrary`). Test integracyjny HTTP
+  sprawdza filtrowanie obu poziomów widoczności i odmowę zapisu dla instruktora; test frontendu
+  sprawdza osobny wariant interfejsu obu ról.
 
 ## Zmiany z 14.08.2026 — dwa formaty lekcji
 
@@ -19,6 +111,10 @@ Ostatnia aktualizacja: 14.08.2026
 - Lekcje z seedu doprowadzone do 95 minut (były 53, 28, 25 i 22) i uzupełnione o przerwę,
   żeby dane demonstracyjne spełniały regułę, którą egzekwujemy.
 - Rodzaj widać w bibliotece i edytorze. Eksporty ICS używają czasu właściwego dla konspektu.
+- Filtr technologii w bibliotece i zakładce instruktora powstaje z faktycznych konspektów
+  i domyślnie pokazuje wszystkie; `Scratch` pozostaje stałą opcją również przy pustej bibliotece
+  tej technologii. Wcześniejsze zamknięcie listy do `Scratch` / `Minecraft` ukrywało m.in.
+  poprawnie opublikowany konspekt z przedmiotem `Minecraft Education`.
 - Do lekcji próbnej można przypisać wyłącznie opublikowany konspekt pokazowy; instruktor
   otwiera go bezpośrednio ze swojej listy spotkań.
 
@@ -47,6 +143,8 @@ Aplikacja do prowadzenia zajęć programowania dla dzieci — online i stacjonar
 **Obszary funkcjonalne**
 
 - Konspekty: edytor, import z Markdown, upload obrazów/PDF/paczek projektów, cykl Draft → Review → Ready.
+- Materiały personelu: wspólna biblioteka plików i linków z widocznością tylko dla administracji
+  albo dla administracji i instruktorów.
 - Prowadzenie: kokpit nauczyciela (instrukcje, wskazówki, materiały, screeny), timery, tryb ciemny,
   okno przerwy, stan prowadzenia zapisywany per termin.
 - Grupy i grafik: kursy jako szablony, cotygodniowe terminy z pomijaniem dni wolnych, lokalizacje,
@@ -1216,10 +1314,13 @@ rodziny. Kolejność wg tego, co najszybciej zaboli.
 7. **`ParentPortalService.GetPortalAsync` czyta wszystkie grupy i filtruje w pamięci.**
    Wymaga nowej metody repozytorium (`ListByParticipantsAsync`). Niewidoczne przy kilkunastu
    grupach, odczuwalne przy pięćdziesięciu — a to jest ekran klienta szkoły.
+   Ta sama klasa błędu w postępach, zgłoszeniach technicznych i pobieraniu plików lekcji
+   została zamknięta 28.08; ten punkt jest ostatnim, który został.
 8. **Trzy z czterech miejsc z `DateTimeOffset` w zapytaniach nadal bez testu.** Wykryło je
    przeszukanie kodu, nie zestaw testowy — czyli ta sama klasa błędu może wrócić niezauważona.
-9. **Frontend to jeden chunk 617 kB** (171 kB gzip), bez podziału kodu. Rodzic na telefonie
-   pobiera całą aplikację administracyjną, żeby zobaczyć godzinę zajęć.
+9. **Frontend to jeden chunk 633 kB** (176 kB gzip), bez podziału kodu. Rodzic na telefonie
+   pobiera całą aplikację administracyjną, żeby zobaczyć godzinę zajęć. Od 28.08 nginx
+   kompresuje i cache'uje ten plik na rok, co łagodzi skutki, ale nie usuwa przyczyny.
 10. **`CS8602` w `ProgressServiceTests.cs:161`** — jedyne ostrzeżenie kompilatora.
 
 ### Decyzje odłożone, nie długi
@@ -1232,7 +1333,15 @@ rodziny. Kolejność wg tego, co najszybciej zaboli.
 ## Przed uruchomieniem produkcyjnym
 
 - [ ] `docker compose build` na maszynie docelowej — jedyna warstwa, której nie pokrywa
-      ani CI, ani test świeżego klonu z 13.08.
+      ani CI, ani test świeżego klonu z 13.08. Od 28.08 obejmuje też sprawdzenie, czy
+      aplikacja bez uprawnień roota (`USER app`) zapisuje bazę, uploady i kopie zapasowe,
+      czy healthchecki przechodzą w stan `healthy` i czy `nginx -t` przyjmuje konfigurację.
+- [ ] Otwarcie aplikacji w przeglądarce z **pustą konsolą** — CSP potrafi zablokować zasób
+      po cichu. Zbudowany bundel jest czysty (brak `eval`, workerów i zewnętrznych zasobów),
+      ale w locie tego nie sprawdzono.
+- [ ] `NOTIFICATIONS_FROM_EMAIL` ustawiony na realny adres w domenie, którą kontrolujesz.
+      Compose bez tej zmiennej nie wstanie, ale adres z domeny zarezerwowanej zostanie
+      odrzucony dopiero przy wysyłce.
 - [ ] `Security:TrustedProxyNetworks` zawężone, jeśli reverse proxy stoi pod adresem
       publicznym. Przy proxy spoza listy wszyscy użytkownicy dzielą jeden limit logowania.
 - [ ] `JWT_SIGNING_KEY` z generatora (`openssl rand -base64 48`), nie z przykładu.

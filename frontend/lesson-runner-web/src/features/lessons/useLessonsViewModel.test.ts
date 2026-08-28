@@ -59,6 +59,19 @@ const lessons: LessonSummary[] = [
     durationMinutes: 30,
     kind: "standard", kindLabel: "Standardowa grupowa", scheduledDurationMinutes: 95, earlyLeaveAfterMinutes: null,
   },
+  {
+    id: "5",
+    title: "Pierwszy świat",
+    subject: "Minecraft Education",
+    level: "Poziom 1",
+    description: "Lekcja pokazowa w Minecraft Education",
+    order: 5,
+    status: "ready",
+    statusLabel: "Gotowa",
+    stepCount: 6,
+    durationMinutes: 60,
+    kind: "showcase", kindLabel: "Pokazowa", scheduledDurationMinutes: 60, earlyLeaveAfterMinutes: 55,
+  },
 ];
 
 describe("useLessonsViewModel", () => {
@@ -67,13 +80,14 @@ describe("useLessonsViewModel", () => {
     vi.mocked(lessonsApi.deleteLesson).mockResolvedValue(undefined);
   });
 
-  it("loads Scratch lessons by default", async () => {
+  it("loads lessons from every technology by default", async () => {
     const { result } = renderHook(() => useLessonsViewModel());
 
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.subjectFilter).toBe("Scratch");
-    expect(result.current.lessonCount).toBe(1);
-    expect(result.current.lessons.map((lesson) => lesson.id)).toEqual(["1"]);
+    expect(result.current.subjectFilter).toBe("all");
+    expect(result.current.lessonCount).toBe(5);
+    expect(result.current.lessons.map((lesson) => lesson.id)).toEqual(["1", "2", "3", "4", "5"]);
+    expect(result.current.subjectOptions).toEqual(["Minecraft", "Minecraft Education", "Python", "Scratch"]);
     expect(result.current.showStatusFilter).toBe(true);
   });
 
@@ -83,6 +97,17 @@ describe("useLessonsViewModel", () => {
 
     act(() => result.current.setSubjectFilter("Minecraft"));
     expect(result.current.lessons.map((lesson) => lesson.id)).toEqual(["2"]);
+  });
+
+  it("keeps Scratch in the technology filter even when there are no Scratch lessons", async () => {
+    vi.mocked(lessonsApi.getLessons).mockResolvedValueOnce(
+      lessons.filter((lesson) => lesson.subject !== "Scratch"),
+    );
+    const { result } = renderHook(() => useLessonsViewModel());
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.subjectOptions).toContain("Scratch");
+    expect(result.current.subjectOptions).toContain("Minecraft Education");
   });
 
   it("filters by free-text query across title, subject and description", async () => {
@@ -103,7 +128,21 @@ describe("useLessonsViewModel", () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     act(() => result.current.setStatusFilter("ready"));
-    expect(result.current.lessons.map((lesson) => lesson.id)).toEqual(["1"]);
+    expect(result.current.lessons.map((lesson) => lesson.id)).toEqual(["1", "2", "5"]);
+  });
+
+  it("separates standard lessons from showcase lessons", async () => {
+    const { result } = renderHook(() => useLessonsViewModel({ onlyReady: true }));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    act(() => result.current.setKindFilter("standard"));
+    expect(result.current.lessons.map((lesson) => lesson.id)).toEqual(["1", "2"]);
+
+    act(() => result.current.setKindFilter("showcase"));
+    expect(result.current.lessons.map((lesson) => lesson.id)).toEqual(["5"]);
+
+    act(() => result.current.setKindFilter("all"));
+    expect(result.current.lessons.map((lesson) => lesson.id)).toEqual(["1", "2", "5"]);
   });
 
   it("removes a lesson from the list after delete", async () => {
@@ -113,7 +152,7 @@ describe("useLessonsViewModel", () => {
     await act(async () => result.current.removeLesson("1"));
 
     expect(lessonsApi.deleteLesson).toHaveBeenCalledWith("1");
-    expect(result.current.lessons.map((lesson) => lesson.id)).toEqual([]);
+    expect(result.current.lessons.map((lesson) => lesson.id)).toEqual(["2", "3", "4", "5"]);
   });
 
   it("restricts to ready lessons and hides the status filter when onlyReady is set", async () => {
@@ -121,7 +160,7 @@ describe("useLessonsViewModel", () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     expect(result.current.showStatusFilter).toBe(false);
-    expect(result.current.lessons.map((lesson) => lesson.id)).toEqual(["1"]);
+    expect(result.current.lessons.map((lesson) => lesson.id)).toEqual(["1", "2", "5"]);
   });
 
   it("reports an error when the API call fails", async () => {

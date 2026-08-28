@@ -32,16 +32,20 @@ public sealed class AuthServiceTests
         Assert.NotEqual("supersecret", stored!.PasswordHash);
     }
 
+    /// <summary>
+    /// Nierozpoznana rola musi być odmową. Wcześniej wpadała cicho na `Instructor`, więc
+    /// literówka w polu roli nadawała uprawnienia personelu zamiast zgłosić błąd.
+    /// </summary>
     [Fact]
-    public async Task RegisterAsync_DefaultsToInstructor_ForUnknownRole()
+    public async Task RegisterAsync_Throws_ForUnknownRole()
     {
         var service = BuildService(out _);
 
-        var result = await service.RegisterAsync(
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => service.RegisterAsync(
             new RegisterUserDto("teacher@example.com", "supersecret", "wizard"),
-            CancellationToken.None);
+            CancellationToken.None));
 
-        Assert.Equal("instructor", result.User.Role);
+        Assert.Contains("wizard", exception.Message);
     }
 
     [Theory]

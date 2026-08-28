@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { ApiError } from "../../api/client";
-import { createUser, getUsers, inviteUser, setUserActive, setUserPassword, updateUserProfile } from "../../api/usersApi";
+import {
+  createUser,
+  getUsers,
+  inviteUser,
+  setUserActive,
+  setUserPassword,
+  setUserRole,
+  updateUserProfile,
+} from "../../api/usersApi";
 import type { ManagedUser, UpdateUserProfileRequest } from "../../types/user";
 
 export function useUsersViewModel() {
@@ -166,6 +174,34 @@ export function useUsersViewModel() {
     }
   }
 
+  /**
+   * Poprawia rolę istniejącego konta.
+   *
+   * Do niedawna roli nie dało się zmienić w żaden sposób, więc konto założone przez pomyłkę
+   * jako instruktor zostawało nim na stałe — z dostępem do konspektów, grafiku i materiałów.
+   * Serwer przy okazji wylogowuje zmienianą osobę, bo rola jedzie w tokenie.
+   */
+  async function changeRole(user: ManagedUser, nextRole: string): Promise<boolean> {
+    if (user.role === nextRole) {
+      return true;
+    }
+
+    try {
+      setBusy(true);
+      setError(null);
+      setNotice(null);
+      await setUserRole(user.id, nextRole);
+      setUsers((current) => current.map((item) => (item.id === user.id ? { ...item, role: nextRole } : item)));
+      setNotice(`Rola konta ${user.email} zmieniona. Ta osoba musi zalogować się ponownie.`);
+      return true;
+    } catch (caught) {
+      setError(caught instanceof ApiError ? caught.message : "Nie udało się zmienić roli konta.");
+      return false;
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function toggleActive(user: ManagedUser) {
     try {
       setBusy(true);
@@ -200,6 +236,7 @@ export function useUsersViewModel() {
     addUser,
     saveProfile,
     toggleActive,
+    changeRole,
     resetPassword,
     invite,
   };

@@ -20,6 +20,7 @@ import { InstructorTrialsPage } from "../pages/InstructorTrialsPage";
 import { LessonEditorPage } from "../pages/LessonEditorPage";
 import { LessonImportPage } from "../pages/LessonImportPage";
 import { LoginPage } from "../pages/LoginPage";
+import { MaterialsPage } from "../pages/MaterialsPage";
 import { ParentPortalPage } from "../pages/ParentPortalPage";
 import { PresenterPage } from "../pages/PresenterPage";
 import { ProfilePage } from "../pages/ProfilePage";
@@ -80,6 +81,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "calendar", element: <CalendarPage /> },
           { path: "instructor/lessons", element: <InstructorLessonsPage /> },
+          { path: "materials", element: <MaterialsPage /> },
           { path: "instructor/schedule", element: <InstructorSchedulePage /> },
           { path: "instructor/trials", element: <InstructorTrialsPage /> },
           { path: "instructor/sessions/:sessionId", element: <SessionCockpitPage /> },

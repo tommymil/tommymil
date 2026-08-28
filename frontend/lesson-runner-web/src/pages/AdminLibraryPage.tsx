@@ -43,13 +43,17 @@ export function AdminLibraryPage() {
       </div>
       {!viewModel.loading && !viewModel.error ? (
         <LessonsToolbar
+          kindFilter={viewModel.kindFilter}
           query={viewModel.query}
+          setKindFilter={viewModel.setKindFilter}
           setQuery={viewModel.setQuery}
           setStatusFilter={viewModel.setStatusFilter}
           setSubjectFilter={viewModel.setSubjectFilter}
           showStatusFilter={viewModel.showStatusFilter}
+          showKindFilter={false}
           statusFilter={viewModel.statusFilter}
           subjectFilter={viewModel.subjectFilter}
+          subjectOptions={viewModel.subjectOptions}
         />
       ) : null}
       {viewModel.loading ? <LessonsState message="Ładowanie lekcji…" /> : null}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { PropsWithChildren } from "react";
-import { LogOut, Menu, Moon, Sun, X } from "lucide-react";
+import { LogOut, Menu, Moon, PanelLeftClose, PanelLeftOpen, Sun, X } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/AuthContext";
 import { useTheme } from "../../features/theme/useTheme";
@@ -10,12 +10,17 @@ import { ParentShell } from "./ParentShell";
 import { crumbsForPath, sidebarSections } from "./navigation";
 import type { SidebarItem } from "./navigation";
 
+const SIDEBAR_COLLAPSED_KEY = "lesson-runner:sidebar-collapsed";
+
 export function AppShell({ children }: PropsWithChildren) {
   const { user, status, isAdmin, isParent, isStaff, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true",
+  );
 
   const isAuthenticated = status === "authenticated" && Boolean(user);
 
@@ -28,6 +33,16 @@ export function AppShell({ children }: PropsWithChildren) {
   function handleSignOut() {
     signOut();
     navigate("/", { replace: true });
+  }
+
+  function collapseSidebar() {
+    setSidebarCollapsed(true);
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, "true");
+  }
+
+  function expandSidebar() {
+    setSidebarCollapsed(false);
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, "false");
   }
 
   const themeToggle = (
@@ -92,7 +107,11 @@ export function AppShell({ children }: PropsWithChildren) {
   const crumbs = crumbsForPath(location.pathname);
 
   return (
-    <div className={`app-shell${menuOpen ? " app-shell-menu-open" : ""}`}>
+    <div
+      className={`app-shell${menuOpen ? " app-shell-menu-open" : ""}${
+        sidebarCollapsed ? " app-shell-sidebar-collapsed" : ""
+      }`}
+    >
       <a className="skip-link" href="#main-content">
         Przejdź do treści
       </a>
@@ -113,6 +132,16 @@ export function AppShell({ children }: PropsWithChildren) {
             aria-label="Zamknij menu"
           >
             <X size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="sidebar-collapse"
+            onClick={collapseSidebar}
+            aria-label="Ukryj boczny pasek nawigacji"
+            aria-controls="nawigacja"
+            title="Ukryj pasek nawigacji"
+          >
+            <PanelLeftClose size={19} aria-hidden="true" />
           </button>
         </div>
 
@@ -141,6 +170,16 @@ export function AppShell({ children }: PropsWithChildren) {
 
       <div className="app-main">
         <header className="top-bar">
+          <button
+            type="button"
+            className="sidebar-open"
+            aria-label="Pokaż boczny pasek nawigacji"
+            aria-controls="nawigacja"
+            onClick={expandSidebar}
+            title="Pokaż pasek nawigacji"
+          >
+            <PanelLeftOpen size={20} aria-hidden="true" />
+          </button>
           <button
             type="button"
             className="menu-toggle"

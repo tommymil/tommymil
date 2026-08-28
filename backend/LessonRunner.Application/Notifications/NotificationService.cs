@@ -3,6 +3,7 @@ using LessonRunner.Application.Groups;
 using LessonRunner.Application.Lessons;
 using LessonRunner.Application.Parents;
 using LessonRunner.Application.Participants;
+using LessonRunner.Application.Scheduling;
 using LessonRunner.Domain.Billing;
 using LessonRunner.Domain.Groups;
 using LessonRunner.Domain.Notifications;
@@ -56,7 +57,9 @@ public sealed class NotificationService(
             "Jan Kowalski",
             "Scratch A",
             "Pierwsze kroki w Scratch",
-            DateTimeOffset.Now.AddDays(1).ToString("yyyy-MM-dd HH:mm"),
+            // Podgląd musi używać tego samego formatera co wysyłka. Wcześniej brał czas lokalny
+            // serwera, więc w panelu wyglądał poprawnie także wtedy, gdy realny e-mail podawał UTC.
+            SchoolTime.FormatDateTime(DateTimeOffset.UtcNow.AddDays(1)),
             "Opiekun",
             "https://meet.google.com/przyklad-linku");
 
@@ -129,7 +132,7 @@ public sealed class NotificationService(
         var now = DateTimeOffset.UtcNow;
         var until = now.AddHours(settings.ReminderLeadHours);
         var groups = await groupRepository.ListAsync(cancellationToken);
-        var lessonTitles = (await lessonRepository.ListAsync(cancellationToken)).ToDictionary(lesson => lesson.Id, lesson => lesson.Title);
+        var lessonTitles = await lessonRepository.ListTitlesAsync(cancellationToken);
 
         foreach (var group in groups)
         {
@@ -237,7 +240,9 @@ public sealed class NotificationService(
             var context = CreateContext(participantsById[contact.ParticipantId], group, session, lessonTitle, contact.Name)
                 with
             {
-                PreviousAt = previousScheduledAt?.ToString("yyyy-MM-dd HH:mm") ?? "poprzedni termin",
+                PreviousAt = previousScheduledAt is DateTimeOffset previous
+                    ? SchoolTime.FormatDateTime(previous)
+                    : "poprzedni termin",
                 Reason = string.IsNullOrWhiteSpace(reason) ? "nie podano" : reason.Trim(),
             };
 
@@ -509,7 +514,7 @@ public sealed class NotificationService(
             $"{participant.FirstName} {participant.LastName}",
             group.Name,
             lessonTitle,
-            session.ScheduledAt.ToString("yyyy-MM-dd HH:mm"),
+            SchoolTime.FormatDateTime(session.ScheduledAt),
             guardianName,
             // Link terminu wygrywa z linkiem grupy - tak samo jak w portalu rodzica.
             string.IsNullOrWhiteSpace(session.MeetingUrl) ? group.MeetingUrl ?? "" : session.MeetingUrl);

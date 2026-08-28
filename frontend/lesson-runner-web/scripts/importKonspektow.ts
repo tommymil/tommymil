@@ -94,8 +94,13 @@ function znajdzPliki(katalog: string): string[] {
         return znajdzPliki(sciezka);
       }
 
-      // PROGRAM.md to mapa treści całego kursu, nie konspekt.
-      return wpis.name.endsWith(".md") && wpis.name !== "PROGRAM.md" ? [sciezka] : [];
+      // PROGRAM.md to mapa treści całego kursu, a *.przygotowanie.md to instrukcje
+      // techniczne dla autora projektu startowego — żaden z tych plików nie jest konspektem.
+      return wpis.name.endsWith(".md")
+        && wpis.name !== "PROGRAM.md"
+        && !wpis.name.endsWith(".przygotowanie.md")
+        ? [sciezka]
+        : [];
     })
     .sort((a, b) => a.localeCompare(b, "pl"));
 }

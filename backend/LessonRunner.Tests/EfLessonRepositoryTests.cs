@@ -30,6 +30,62 @@ public sealed class EfLessonRepositoryTests : IDisposable
 
     private AppDbContext CreateContext() => new(_options);
 
+    /// <summary>
+    /// Trasa `/download/lesson-files/{token}` jest anonimowa i dotąd wczytywała wszystkie
+    /// konspekty, żeby znaleźć w nich jeden plik. Zawężenie idzie teraz do bazy, ale klucze
+    /// pobierania są w base64url — zawierają `_`, czyli znak wieloznaczny w `LIKE`.
+    /// Bez wygaszenia go jeden klucz pasowałby do cudzych dokumentów.
+    /// </summary>
+    [Fact]
+    public async Task FindProjectFileByDownloadToken_MatchesExactly_EvenWithLikeWildcardsInToken()
+    {
+        var wanted = TestData.ValidLesson().ToTestLesson();
+        wanted.Title = "Z plikiem";
+        wanted.ProjectFiles.Starter = new LessonRunner.Domain.Lessons.LessonProjectFile
+        {
+            Label = "Materiał startowy",
+            Url = "/uploads/aaa.sb3",
+            FileName = "start.sb3",
+            ContentType = "application/octet-stream",
+            SizeBytes = 10,
+            DownloadToken = "a_b-cDEF1234567890abcdefGH"
+        };
+
+        var other = TestData.ValidLesson().ToTestLesson();
+        other.Title = "Inna lekcja";
+        other.ProjectFiles.Final = new LessonRunner.Domain.Lessons.LessonProjectFile
+        {
+            Label = "Wersja końcowa",
+            Url = "/uploads/bbb.sb3",
+            FileName = "koniec.sb3",
+            ContentType = "application/octet-stream",
+            SizeBytes = 20,
+            DownloadToken = "aXb-cDEF1234567890abcdefGH"
+        };
+
+        await using (var context = CreateContext())
+        {
+            var repository = new EfLessonRepository(context);
+            await repository.AddAsync(wanted, CancellationToken.None);
+            await repository.AddAsync(other, CancellationToken.None);
+        }
+
+        await using (var context = CreateContext())
+        {
+            var repository = new EfLessonRepository(context);
+
+            var found = await repository.FindProjectFileByDownloadTokenAsync(
+                "a_b-cDEF1234567890abcdefGH", CancellationToken.None);
+
+            // `_` w kluczu nie może zadziałać jak wieloznacznik i trafić w drugą lekcję.
+            Assert.NotNull(found);
+            Assert.Equal("start.sb3", found!.FileName);
+
+            Assert.Null(await repository.FindProjectFileByDownloadTokenAsync(
+                "nieistniejacy-klucz-000000", CancellationToken.None));
+        }
+    }
+
     [Fact]
     public async Task AddThenGetById_RoundTripsFullLesson()
     {
@@ -100,28 +156,6 @@ public sealed class EfLessonRepositoryTests : IDisposable
         {
             var loaded = await new EfLessonRepository(context).GetByIdAsync(lesson.Id, CancellationToken.None);
             Assert.Null(loaded);
-        }
-    }
-
-    [Fact]
-    public async Task Seed_IsIdempotent()
-    {
-        var seed = new[] { TestData.ValidLesson().ToTestLesson() };
-
-        await using (var context = CreateContext())
-        {
-            await new EfLessonRepository(context).SeedAsync(seed, CancellationToken.None);
-        }
-
-        await using (var context = CreateContext())
-        {
-            await new EfLessonRepository(context).SeedAsync(seed, CancellationToken.None);
-        }
-
-        await using (var context = CreateContext())
-        {
-            var all = await new EfLessonRepository(context).ListAsync(CancellationToken.None);
-            Assert.Single(all);
         }
     }
 

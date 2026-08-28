@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test *)",
+      "Bash(npm run *)",
+      "Bash(python -c ' *)",
+      "Bash(python *)",
+      "PowerShell(dotnet test *)",
+      "PowerShell(dotnet list package *)"
+    ]
+  }
+}

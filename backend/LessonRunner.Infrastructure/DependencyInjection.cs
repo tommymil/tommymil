@@ -6,6 +6,7 @@ using LessonRunner.Application.Files;
 using LessonRunner.Application.Groups;
 using LessonRunner.Application.LessonRuns;
 using LessonRunner.Application.Lessons;
+using LessonRunner.Application.Materials;
 using LessonRunner.Application.Operations;
 using LessonRunner.Application.Notifications;
 using LessonRunner.Application.Participants;
@@ -22,6 +23,7 @@ using LessonRunner.Infrastructure.Files;
 using LessonRunner.Infrastructure.Groups;
 using LessonRunner.Infrastructure.LessonRuns;
 using LessonRunner.Infrastructure.Lessons;
+using LessonRunner.Infrastructure.Materials;
 using LessonRunner.Infrastructure.Notifications;
 using LessonRunner.Infrastructure.Operations;
 using LessonRunner.Infrastructure.Participants;
@@ -31,7 +33,7 @@ using LessonRunner.Infrastructure.Progress;
 using LessonRunner.Infrastructure.Safety;
 using LessonRunner.Infrastructure.Scheduling;
 using LessonRunner.Infrastructure.Trials;
-using LessonRunner.Domain.Parents;
+using LessonRunner.Domain.Notifications;
 using LessonRunner.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -60,6 +62,7 @@ public static class DependencyInjection
         });
         services.AddScoped<ILessonRepository, EfLessonRepository>();
         services.AddScoped<ILessonRunSessionRepository, EfLessonRunSessionRepository>();
+        services.AddScoped<IMaterialRepository, EfMaterialRepository>();
         services.AddScoped<IUserRepository, EfUserRepository>();
         services.AddScoped<IAccountTokenRepository, EfAccountTokenRepository>();
         services.AddScoped<IGroupRepository, EfGroupRepository>();
@@ -86,6 +89,19 @@ public static class DependencyInjection
         services.Configure<NotificationWorkerOptions>(options =>
         {
             options.IntervalMinutes = int.TryParse(configuration["Notifications:ReminderIntervalMinutes"], out var minutes) ? minutes : 30;
+        });
+
+        // Nadawca dla instalacji, w której nikt jeszcze nie zapisał ustawień powiadomień.
+        // Bez tego obowiązywał adres z domeny `.local`, której nie ma w DNS - patrz NotificationDefaults.
+        var settingsDefaults = new NotificationSettings();
+        services.AddSingleton(new NotificationDefaults
+        {
+            FromName = configuration["Notifications:FromName"] is { Length: > 0 } fromName
+                ? fromName
+                : settingsDefaults.FromName,
+            FromEmail = configuration["Notifications:FromEmail"] is { Length: > 0 } fromEmail
+                ? fromEmail
+                : settingsDefaults.FromEmail
         });
         services.AddScoped<IEmailSender>(provider =>
         {
@@ -131,7 +147,6 @@ public static class DependencyInjection
     public static async Task InitializeDatabaseAsync(
         this IServiceProvider serviceProvider,
         IConfiguration configuration,
-        bool seedDevelopmentData,
         CancellationToken cancellationToken)
     {
         using var scope = serviceProvider.CreateScope();
@@ -143,21 +158,7 @@ public static class DependencyInjection
             await LegacyParticipantBackfill.RunAsync(dbContext, cancellationToken);
         }
 
-        if (!seedDevelopmentData)
-        {
-            await BootstrapAdminAsync(scope.ServiceProvider, configuration, cancellationToken);
-            return;
-        }
-
-        var lessonRepository = scope.ServiceProvider.GetRequiredService<ILessonRepository>();
-        await lessonRepository.SeedAsync(LessonSeedData.Create(), cancellationToken);
-
-        var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
-        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
-        await userRepository.SeedAsync(UserSeedData.Create(passwordHasher), cancellationToken);
-
-        await SeedDemoGroupAsync(scope.ServiceProvider, cancellationToken);
-        await SeedParentLinksAsync(scope.ServiceProvider, cancellationToken);
+        await BootstrapAdminAsync(scope.ServiceProvider, configuration, cancellationToken);
     }
 
     private static bool ShouldUseSqlite(string connectionString)
@@ -209,91 +210,4 @@ public static class DependencyInjection
             cancellationToken);
     }
 
-    /// <summary>
-    /// Wiąże demonstracyjne konto rodzica z jego dziećmi.
-    ///
-    /// Osobny krok, a nie fragment <see cref="SeedDemoGroupAsync"/>, bo tamten wychodzi od razu,
-    /// gdy w bazie jest już jakakolwiek grupa - a konto rodzica dochodzi do środowisk, które
-    /// grupy mają od dawna. Bez powiązania portal rodzica jest pusty: to ono, a nie rola,
-    /// decyduje o tym, czyje dane widzi opiekun.
-    /// </summary>
-    private static async Task SeedParentLinksAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken)
-    {
-        var userRepository = serviceProvider.GetRequiredService<IUserRepository>();
-        var parent = await userRepository.GetByEmailAsync("parent@lessonrunner.local", cancellationToken);
-
-        if (parent is null || parent.Role != UserRole.Parent)
-        {
-            return;
-        }
-
-        var parentRepository = serviceProvider.GetRequiredService<IParentPortalRepository>();
-
-        if ((await parentRepository.ListByParentAsync(parent.Id, cancellationToken)).Count > 0)
-        {
-            return;
-        }
-
-        var participantRepository = serviceProvider.GetRequiredService<IParticipantRepository>();
-
-        foreach (var participantId in ParticipantSeedData.ChildrenOfSeedParent)
-        {
-            if (await participantRepository.GetByIdAsync(participantId, cancellationToken) is null)
-            {
-                continue;
-            }
-
-            await parentRepository.AddAsync(
-                new ParentParticipantLink
-                {
-                    ParentUserId = parent.Id,
-                    ParticipantId = participantId,
-                    Relation = "mama",
-                    // Flaga jest per dziecko, nie per opiekun - przy obojgu dzieci to ta sama
-                    // osoba jest kontaktem pierwszego wyboru.
-                    IsPrimaryContact = true,
-                    ReceivesNotifications = true
-                },
-                cancellationToken);
-        }
-    }
-
-    private static async Task SeedDemoGroupAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken)
-    {
-        var groupRepository = serviceProvider.GetRequiredService<IGroupRepository>();
-
-        if ((await groupRepository.ListAsync(cancellationToken)).Count > 0)
-        {
-            return;
-        }
-
-        var userRepository = serviceProvider.GetRequiredService<IUserRepository>();
-        var instructor = await userRepository.GetByEmailAsync("instructor@lessonrunner.local", cancellationToken);
-
-        var lessonRepository = serviceProvider.GetRequiredService<ILessonRepository>();
-        var readyLessonIds = (await lessonRepository.ListAsync(cancellationToken))
-            .Where(lesson => lesson.Status == Domain.Lessons.LessonStatus.Ready)
-            .Take(2)
-            .Select(lesson => lesson.Id)
-            .ToList();
-
-        if (instructor is null || readyLessonIds.Count == 0)
-        {
-            return;
-        }
-
-        var participantRepository = serviceProvider.GetRequiredService<IParticipantRepository>();
-        var participants = ParticipantSeedData.Create();
-
-        foreach (var participant in participants)
-        {
-            if (await participantRepository.GetByIdAsync(participant.Id, cancellationToken) is null)
-            {
-                await participantRepository.AddAsync(participant, cancellationToken);
-            }
-        }
-
-        var participantIds = participants.Select(participant => participant.Id).ToList();
-        await groupRepository.AddAsync(GroupSeedData.Create(instructor.Id, readyLessonIds, participantIds), cancellationToken);
-    }
 }

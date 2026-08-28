@@ -28,10 +28,11 @@ internal sealed class EfGroupRepository(AppDbContext dbContext) : IGroupReposito
         return document is null ? null : ToDomain(document);
     }
 
-    public async Task<IReadOnlyList<Group>> ListByInstructorAsync(Guid instructorId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Group>> ListForInstructorAsync(Guid instructorId, CancellationToken cancellationToken)
     {
         var documents = await QueryAggregate()
-            .Where(group => group.InstructorId == instructorId)
+            .Where(group => group.InstructorId == instructorId
+                || group.Sessions.Any(session => session.SubstituteInstructorId == instructorId))
             .ToListAsync(cancellationToken);
 
         return documents.Select(ToDomain).ToList();

@@ -1,16 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { deleteLesson, getLessons } from "../../api/lessonsApi";
 import { ApiError } from "../../api/client";
-import type { LessonStatus, LessonSummary } from "../../types/lesson";
+import type { LessonKind, LessonStatus, LessonSummary } from "../../types/lesson";
 
 type UseLessonsViewModelOptions = {
   onlyReady?: boolean;
 };
 
 type StatusFilter = LessonStatus | "all";
-export type LessonSubjectFilter = "Scratch" | "Minecraft";
-
-export const lessonSubjectFilters: LessonSubjectFilter[] = ["Scratch", "Minecraft"];
+export type LessonSubjectFilter = string;
+export type LessonKindFilter = LessonKind | "all";
+const defaultSubjectOptions = ["Scratch"];
 
 export function useLessonsViewModel(options: UseLessonsViewModelOptions = {}) {
   const [lessons, setLessons] = useState<LessonSummary[]>([]);
@@ -18,7 +18,8 @@ export function useLessonsViewModel(options: UseLessonsViewModelOptions = {}) {
   const [error, setError] = useState<string | null>(null);
   const [deletingLessonId, setDeletingLessonId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [subjectFilter, setSubjectFilter] = useState<LessonSubjectFilter>("Scratch");
+  const [subjectFilter, setSubjectFilter] = useState<LessonSubjectFilter>("all");
+  const [kindFilter, setKindFilter] = useState<LessonKindFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(options.onlyReady ? "ready" : "all");
 
   useEffect(() => {
@@ -57,16 +58,27 @@ export function useLessonsViewModel(options: UseLessonsViewModelOptions = {}) {
     return lessons.filter((lesson) => {
       const matchesStatus = statusFilter === "all" || lesson.status === statusFilter;
       const matchesReadyConstraint = !options.onlyReady || lesson.status === "ready";
-      const matchesSubject = lesson.subject.toLowerCase() === subjectFilter.toLowerCase();
+      const matchesKind = kindFilter === "all" || lesson.kind === kindFilter;
+      const matchesSubject = subjectFilter === "all"
+        || lesson.subject.toLocaleLowerCase("pl-PL") === subjectFilter.toLocaleLowerCase("pl-PL");
       const matchesQuery = normalizedQuery.length === 0
         || lesson.title.toLowerCase().includes(normalizedQuery)
         || lesson.subject.toLowerCase().includes(normalizedQuery)
         || lesson.description.toLowerCase().includes(normalizedQuery)
         || lesson.level.toLowerCase().includes(normalizedQuery);
 
-      return matchesSubject && matchesStatus && matchesReadyConstraint && matchesQuery;
+      return matchesSubject && matchesStatus && matchesReadyConstraint && matchesKind && matchesQuery;
     });
-  }, [lessons, options.onlyReady, query, statusFilter, subjectFilter]);
+  }, [kindFilter, lessons, options.onlyReady, query, statusFilter, subjectFilter]);
+
+  const subjectOptions = useMemo(
+    () => Array.from(new Set([
+      ...defaultSubjectOptions,
+      ...lessons.map((lesson) => lesson.subject.trim()).filter(Boolean),
+    ]))
+      .sort((left, right) => left.localeCompare(right, "pl-PL")),
+    [lessons],
+  );
 
   async function removeLesson(id: string) {
     try {
@@ -84,6 +96,7 @@ export function useLessonsViewModel(options: UseLessonsViewModelOptions = {}) {
   return {
     deletingLessonId,
     error,
+    kindFilter,
     lessons: filteredLessons,
     lessonCount: filteredLessons.length,
     loading,
@@ -91,10 +104,12 @@ export function useLessonsViewModel(options: UseLessonsViewModelOptions = {}) {
     rawLessonCount: lessons.length,
     removeLesson,
     setQuery,
+    setKindFilter,
     setStatusFilter,
     setSubjectFilter,
     showStatusFilter: !options.onlyReady,
     statusFilter,
     subjectFilter,
+    subjectOptions,
   };
 }

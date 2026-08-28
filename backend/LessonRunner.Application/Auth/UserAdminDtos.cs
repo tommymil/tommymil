@@ -24,3 +24,5 @@ public sealed record CreateUserDto(
 public sealed record UpdateUserProfileDto(string? FirstName, string? LastName, string? Phone);
 
 public sealed record SetPasswordDto(string Password);
+
+public sealed record SetUserRoleDto(string Role);

@@ -70,6 +70,20 @@ internal sealed class InMemoryUserRepository : IUserRepository
         return Task.FromResult(true);
     }
 
+    public Task<bool> SetRoleAsync(Guid id, UserRole role, CancellationToken cancellationToken)
+    {
+        var user = _users.FirstOrDefault(item => item.Id == id);
+
+        if (user is null)
+        {
+            return Task.FromResult(false);
+        }
+
+        user.Role = role;
+        user.SecurityStamp = Guid.NewGuid().ToString("N");
+        return Task.FromResult(true);
+    }
+
     public Task<bool> ExistsAsync(string normalizedEmail, CancellationToken cancellationToken)
     {
         return Task.FromResult(_users.Any(user => user.Email == normalizedEmail));
@@ -91,13 +105,4 @@ internal sealed class InMemoryUserRepository : IUserRepository
         return Task.CompletedTask;
     }
 
-    public Task SeedAsync(IReadOnlyList<User> users, CancellationToken cancellationToken)
-    {
-        if (_users.Count == 0)
-        {
-            _users.AddRange(users);
-        }
-
-        return Task.CompletedTask;
-    }
 }

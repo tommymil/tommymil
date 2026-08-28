@@ -2,11 +2,42 @@ namespace LessonRunner.Domain.Notifications;
 
 public sealed class NotificationSettings
 {
+    /// <summary>
+    /// Adres, który zostaje, gdy nikt nie podał własnego. Domena `.local` jest zarezerwowana
+    /// (RFC 6762) i nie istnieje w DNS, więc **każda realna wysyłka z tego adresu zostanie
+    /// odrzucona** przez dostawcę poczty albo trafi do spamu. To jest zamierzone: lepiej
+    /// czytelny błąd na starcie niż wiadomości, które po cichu nie docierają do rodziców.
+    /// Wartość podmienia się przez `Notifications:FromEmail` albo w panelu powiadomień.
+    /// </summary>
+    public const string PlaceholderFromEmail = "noreply@lessonrunner.local";
+
+    /// <summary>
+    /// Czy adres nadawcy prowadzi do domeny, która z definicji nie istnieje w DNS:
+    /// domeny zarezerwowane RFC 2606 (`.test`, `.example`, `.invalid`, `.localhost`)
+    /// oraz `.local` z RFC 6762. Wysyłka z takiego adresu nie ma prawa dojść.
+    /// </summary>
+    public static bool IsUnroutableSenderAddress(string? address)
+    {
+        var domain = address?.Split('@') is [_, var value] ? value.Trim().ToLowerInvariant() : null;
+
+        if (string.IsNullOrEmpty(domain))
+        {
+            return true;
+        }
+
+        return domain is "example.com" or "example.net" or "example.org"
+            || domain.EndsWith(".local", StringComparison.Ordinal)
+            || domain.EndsWith(".localhost", StringComparison.Ordinal)
+            || domain.EndsWith(".test", StringComparison.Ordinal)
+            || domain.EndsWith(".example", StringComparison.Ordinal)
+            || domain.EndsWith(".invalid", StringComparison.Ordinal);
+    }
+
     public bool RemindersEnabled { get; set; } = true;
     public bool AbsenceEnabled { get; set; } = true;
     public int ReminderLeadHours { get; set; } = 24;
     public string FromName { get; set; } = "Szkoła Programowania";
-    public string FromEmail { get; set; } = "noreply@lessonrunner.local";
+    public string FromEmail { get; set; } = PlaceholderFromEmail;
     public string ReminderSubject { get; set; } = "Przypomnienie o zajęciach: {{group}}";
     public string ReminderBody { get; set; } =
         "Dzień dobry,\n\nprzypominamy o zajęciach {{group}}: {{sessionAt}}.\nLekcja: {{lesson}}.\nLink do spotkania: {{link}}\n\nSzkoła Programowania";

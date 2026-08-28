@@ -90,7 +90,12 @@ internal sealed class AuditEndpointFilter : IEndpointFilter
                 failureDetails is null
                     ? $"{method} {http.Request.Path} → {statusCode}"
                     : $"{method} {http.Request.Path} → {statusCode} ({failureDetails})",
-                http.RequestAborted);
+                // Świadomie NIE `http.RequestAborted`. Operacja zdążyła zmienić dane, więc wpis
+                // ma powstać także wtedy, gdy klient w międzyczasie zamknął połączenie. Z tokenem
+                // żądania zapis leciał w `OperationCanceledException`, ginął w `catch` niżej
+                // i w dzienniku zostawała dziura - akurat przy żądaniach przerwanych, czyli tam,
+                // gdzie ślad jest najbardziej potrzebny.
+                CancellationToken.None);
         }
         catch
         {

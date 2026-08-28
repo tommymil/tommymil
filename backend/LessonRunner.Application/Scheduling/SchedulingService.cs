@@ -103,7 +103,7 @@ public sealed class SchedulingService(
                     || group.Sessions.Any(session => session.SubstituteInstructorId == userId))
                 .ToList()
             : allGroups;
-        var lessons = (await lessonRepository.ListAsync(cancellationToken)).ToDictionary(lesson => lesson.Id, lesson => lesson.Title);
+        var lessons = await lessonRepository.ListTitlesAsync(cancellationToken);
         var users = await userRepository.ListAsync(cancellationToken);
         var instructorNames = users.ToDictionary(user => user.Id, user => user.DisplayName);
         var locations = await schedulingRepository.ListLocationsAsync(cancellationToken);

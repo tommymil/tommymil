@@ -10,6 +10,7 @@ import {
   GraduationCap,
   LayoutDashboard,
   Library,
+  FolderKanban,
   ShieldAlert,
   ShieldCheck,
   Upload,
@@ -80,6 +81,13 @@ export const sidebarSections: SidebarSection[] = [
         label: "Konspekty",
         description: "Podgląd scenariuszy poza terminem",
         icon: BookOpenText,
+        staffOnly: true,
+      },
+      {
+        to: "/materials",
+        label: "Materiały",
+        description: "Pliki i linki dla zespołu",
+        icon: FolderKanban,
         staffOnly: true,
       },
     ],
@@ -220,6 +228,7 @@ const staticCrumbs: Record<string, Crumb[]> = {
   "/instructor/schedule": [{ label: "Grafik" }],
   "/instructor/trials": [{ label: "Lekcje próbne" }],
   "/instructor/lessons": [{ label: "Konspekty" }],
+  "/materials": [{ label: "Materiały" }],
   "/profile": [{ label: "Mój profil" }],
 };
 

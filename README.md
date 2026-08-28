@@ -23,6 +23,8 @@ Dwa terminale.
 ```bash
 # terminal 1 - backend
 cd backend
+export BOOTSTRAP_ADMIN_EMAIL='admin@example.com'
+export BOOTSTRAP_ADMIN_PASSWORD='ustaw-bezpieczne-haslo'
 dotnet run --project LessonRunner.Api
 ```
 
@@ -35,16 +37,13 @@ npm run dev
 
 - API: `http://localhost:5000`, aplikacja: `http://localhost:5173`.
 - Baza SQLite (`lesson-runner.db`) tworzy się automatycznie przez migracje przy starcie
-  i zostaje zasilona danymi demonstracyjnymi.
+  i pozostaje pusta poza pierwszym kontem administratora.
 - Swagger/OpenAPI (tylko Development): `http://localhost:5000/openapi/v1.json`.
 - Adres API konfiguruje `VITE_API_BASE_URL` (patrz `.env.development` / `.env.example`).
 
-Konta startowe — **tylko w środowisku Development**, na produkcji nie powstają:
-
-- `admin@lessonrunner.local` / `admin12345` (Admin)
-- `instructor@lessonrunner.local` / `teacher12345` (Instructor)
-- `parent@lessonrunner.local` / `parent12345` (Parent) — powiązany z Zofią Kowalską i Janem
-  Kowalskim, więc portal rodzica ma co pokazać (w tym przełącznik dziecka)
+Przy pierwszym uruchomieniu trzeba podać `BOOTSTRAP_ADMIN_EMAIL` i
+`BOOTSTRAP_ADMIN_PASSWORD`. System nie tworzy lekcji, grup, uczestników ani kont demonstracyjnych.
+W PowerShell odpowiednik `export` to `$env:NAZWA='wartość'`.
 
 ## Uruchomienie przez Docker
 
@@ -61,6 +60,51 @@ docker compose up --build
 
 HTTPS zapewnia reverse proxy przed aplikacją. Jeżeli API ma samo obsługiwać TLS, ustaw
 `Security__ForceHttps=true` — domyślnie wyłączone, bo za proxy powodowałoby pętlę przekierowań.
+
+### Kolejność startu i healthchecki
+
+Kontener API ma `HEALTHCHECK` odpytujący `/health` (sprawdza połączenie z bazą), a `web` czeka
+na `condition: service_healthy`. Bez tego nginx potrafił wystartować, zanim API odpowiedziało —
+a nazwę `api` rozwiązuje przy wczytywaniu konfiguracji, więc pierwszy start z migracjami bazy
+bywał wyścigiem. Stan widać w `docker compose ps`.
+
+Healthcheck potrzebuje `curl`, którego obraz `aspnet` nie zawiera — Dockerfile go doinstalowuje.
+Obraz `web` korzysta z `wget` wbudowanego w busybox Alpine.
+
+Logi obu usług idą na standardowe wyjście i zbiera je docker, z rotacją ustawioną w compose
+(`max-size: 10m`, `max-file: 5`). Bez niej plik logu rośnie bez końca i zapełnia dysk hosta.
+
+### Nagłówki bezpieczeństwa i cache (nginx)
+
+`frontend/lesson-runner-web/nginx.conf` ustawia CSP, `X-Frame-Options: DENY`, `nosniff`,
+`Referrer-Policy: same-origin` oraz `Permissions-Policy`. Token JWT leży w `localStorage`,
+więc CSP jest drugą linią obrony po samym Reakcie (w kodzie nie ma `dangerouslySetInnerHTML`).
+
+Dwie rzeczy, o które łatwo się potknąć przy edycji tego pliku:
+
+- **`connect-src 'self'` zakłada, że API stoi pod tym samym originem** (nginx proxuje `/api`).
+  Przy `VITE_API_BASE_URL` wskazującym inną domenę trzeba ją dopisać do `connect-src`,
+  inaczej przeglądarka zablokuje wszystkie żądania do API.
+- **Jeden `add_header` w bloku `location` odcina dziedziczenie wszystkich nagłówków
+  z bloku `server`.** Dlatego cache'owaniem steruje dyrektywa `expires`, a nie
+  `add_header Cache-Control` — przepisana lista nagłówków prędzej czy później rozjechałaby się
+  z oryginałem i nagłówki bezpieczeństwa zniknęłyby po cichu.
+
+Zasoby z `/assets/` mają skrót treści w nazwie, więc dostają `expires 1y`; `index.html` dostaje
+`no-cache`, bo wskazuje na aktualne nazwy tych plików.
+
+### Kontener API pracuje bez uprawnień roota
+
+Obraz backendu przełącza się na wbudowane konto `app` (`USER app`). Katalogi `/app/data`,
+`/app/backups` i `/app/wwwroot/uploads` powstają w obrazie z właścicielem `app`, a Docker
+przenosi tego właściciela na **świeżo tworzony** wolumen nazwany.
+
+Wolumen utworzony wcześniej zachowuje starego właściciela, więc przy aktualizacji istniejącej
+instalacji trzeba go raz poprawić — inaczej aplikacja nie zapisze bazy ani plików:
+
+```bash
+docker compose run --rm --user root api chown -R app:app /app/data /app/backups /app/wwwroot/uploads
+```
 
 ### Zaufane proxy (`Security:TrustedProxyNetworks`)
 
@@ -111,8 +155,20 @@ dotnet ef database update --project LessonRunner.Infrastructure --startup-projec
 - Bieżący użytkownik: `GET /api/auth/me` (nagłówek `Authorization: Bearer <token>`).
 - **Publicznej rejestracji nie ma** — konta zakłada wyłącznie administrator.
 - Logowanie jest limitowane: 10 prób na 5 minut z jednego adresu IP (`429`).
-- Token zawiera znacznik sesji. Dezaktywacja konta oraz zmiana lub reset hasła unieważniają
-  wszystkie aktywne sesje **natychmiast**, bez czekania na wygaśnięcie tokenu.
+- Token zawiera znacznik sesji. Dezaktywacja konta, zmiana roli oraz zmiana lub reset hasła
+  unieważniają wszystkie aktywne sesje **natychmiast**, bez czekania na wygaśnięcie tokenu.
+- Rola konta musi zostać rozpoznana (`admin`, `instructor`, `parent`). Nieznana wartość to
+  błąd `400`, a nie ciche wpadnięcie na `instructor` — literówka w formularzu nadawałaby
+  wtedy uprawnienia personelu.
+
+### Zmiana roli konta
+
+`PUT /api/users/{id}/role` z `{ "role": "parent" }` (`AdminOnly`). Rola jedzie w tokenie,
+więc operacja **wylogowuje zmienianą osobę ze wszystkich urządzeń** — bez tego zdegradowany
+administrator zachowywałby panel nawet przez dwanaście godzin.
+
+Dwie blokady, te same co przy dezaktywacji: nie można zmienić roli własnego konta ani odebrać
+roli ostatniemu aktywnemu administratorowi (`409`). Obu przypadków system nie ma jak cofnąć.
 
 ### Reset hasła i zaproszenia
 
@@ -139,17 +195,56 @@ adresu frontendu, a zgadywanie go z nagłówka `Host` dałoby się podmienić z 
 Przy `SMTP_MODE=Log` wiadomości nie wychodzą na świat, tylko trafiają do logu aplikacji —
 wygodne przy pierwszym uruchomieniu, ale rodzic nic nie dostanie.
 
+### Nadawca wiadomości
+
+Adres nadawcy podaje `NOTIFICATIONS_FROM_EMAIL` (`Notifications:FromEmail`); compose bez tej
+zmiennej celowo nie wstanie. Wartość można później zmienić w panelu: **Powiadomienia → nadawca**.
+
+Adresy z domen, których z definicji nie ma w DNS — `.local`, `.localhost`, `.test`, `.invalid`,
+`.example` oraz `example.com` — są **odrzucane przy wysyłce** z czytelnym błędem w dzienniku
+wysyłek. Wcześniej świeża instalacja używała wpisanego w kodzie `noreply@lessonrunner.local`,
+więc po przełączeniu na `SMTP_MODE=Smtp` wiadomości nie miały prawa dojść, a jedynym śladem
+był status `failed` z komunikatem cudzego serwera.
+
+### Strefa czasowa terminów
+
+Terminy trzymamy jako moment (`DateTimeOffset`), ale **każdy tekst dla człowieka** — treść
+e-maili, eksport obecności do CSV, termin ważności linku — przechodzi przez `SchoolTime`
+i pokazuje godzinę według zegara `Europe/Warsaw`. Przeglądarka wysyła termin z offsetem `Z`,
+więc drukowanie go wprost dawało godzinę UTC, czyli o 1–2 h wcześniejszą niż faktyczna.
+Eksport ICS pozostaje w UTC — tak wymaga RFC 5545, a aplikacja kalendarza przelicza go sama.
+
 Uprawnienia:
 
 | Zakres | Admin | Instructor | Parent |
 |---|:--:|:--:|:--:|
 | Konspekty (`/api/lessons`) — odczyt | tak | tak | **nie** |
 | Konspekty — zapis, publikacja | tak | nie | nie |
+| Materiały personelu (`/api/materials`) — odczyt | wszystkie | tylko oznaczone „Administracja i instruktorzy” | **nie** |
+| Materiały personelu — dodawanie, edycja, usuwanie | tak | nie | nie |
 | Grafik, kalendarz | tak | tylko swoje | **nie** |
 | Grupy, uczestnicy, konta, płatności, operacje | tak | nie | nie |
 | Portal rodzica (`/api/parent/portal`) | nie | nie | tak |
 | Postępy i projekty (`/api/progress`) — zapis | tak | tylko swoje grupy | **nie** |
 | Postępy i projekty — odczyt dorobku dziecka | wszystkie | tylko swoje grupy | w portalu, tylko swoje dzieci |
+| Incydenty (`/api/safety/incidents`) — odczyt | wszystkie | tylko własne zgłoszenia | **nie** |
+| Zgłoszenia techniczne (`/api/safety/tickets`) — odczyt i prowadzenie | wszystkie | własne zgłoszenia oraz swoje grupy i dzieci | **nie** |
+| Zmiana roli konta (`/api/users/{id}/role`) | tak | nie | nie |
+
+Zawężenia dla instruktora są robione **w serwisie**, a nie polityką autoryzacji: trasa jest
+`StaffOnly`, ale odpowiedź zawiera wyłącznie to, co dana osoba ma prawo zobaczyć. Poza zakresem
+zwracamy `404`, nie `403` — instruktor nie ma prawa wiedzieć, że cudza sprawa lub cudze dziecko
+w ogóle istnieje.
+
+### Adresy wpisywane przez personel
+
+Każdy adres, który trafi do atrybutu `href` w przeglądarce — link do spotkania (grupa, termin,
+lekcja próbna), link do nagrania, link do projektu dziecka, materiał w bibliotece — musi być
+**bezwzględnym adresem `http` albo `https`**. Pilnuje tego `Application/Common/WebLink.cs`.
+
+Powód: `javascript:...` w takim polu wykonuje się w sesji osoby, która kliknie. Przy linku do
+projektu jest to sesja rodzica w portalu. Dokładając nowe pole z adresem, przepuść je przez
+`WebLink.Normalize` — inaczej powstaje czwarta kopia tej samej reguły albo, jak dotąd, jej brak.
 
 Klucz podpisu (`Jwt:SigningKey`, min. 32 bajty) jest wymagany — bez niego aplikacja celowo nie
 wystartuje. Lokalnie bierze się z `appsettings.Development.json`, na produkcji ze zmiennej
@@ -205,6 +300,24 @@ Zamiast loginu można podać gotowy `LESSON_RUNNER_TOKEN`.
 Pliki w `docs/program/` są pilnowane testem `programLessons.test.ts`: każdy musi się
 parsować bez błędów i mieć cel, wprowadzenie, przerwę, podsumowanie oraz dokładnie
 95 minut w krokach.
+
+## Logi i diagnostyka
+
+Poza trybem deweloperskim aplikacja loguje **każde żądanie** (metoda, ścieżka, status, czas,
+adres klienta, identyfikator zalogowanego użytkownika). `AuditLogs` zapisuje wyłącznie operacje
+zmieniające dane, więc sam nie odpowie na pytanie, kto co czytał — a przy danych dzieci to
+pierwsze pytanie po incydencie.
+
+Serilog loguje `RequestPath` **bez ciągu zapytania**, więc frazy z wyszukiwarki po dzieciach
+nie trafiają do logu. Odpytania `/health` idą na poziomie `Verbose`, żeby healthcheck co pół
+minuty nie zasypał dziennika.
+
+Nieobsłużony wyjątek wraca jako RFC 7807 (`application/problem+json`); ślad stosu zostaje
+w logu i nie wychodzi na zewnątrz. W trybie deweloperskim obowiązuje zwykła strona diagnostyczna.
+
+```bash
+docker compose logs -f api
+```
 
 ## Testy
 

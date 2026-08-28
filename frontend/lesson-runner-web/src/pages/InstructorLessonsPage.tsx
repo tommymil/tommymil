@@ -17,13 +17,17 @@ export function InstructorLessonsPage() {
       </div>
       {!viewModel.loading && !viewModel.error ? (
         <LessonsToolbar
+          kindFilter={viewModel.kindFilter}
           query={viewModel.query}
+          setKindFilter={viewModel.setKindFilter}
           setQuery={viewModel.setQuery}
           setStatusFilter={viewModel.setStatusFilter}
           setSubjectFilter={viewModel.setSubjectFilter}
           showStatusFilter={viewModel.showStatusFilter}
+          showKindFilter
           statusFilter={viewModel.statusFilter}
           subjectFilter={viewModel.subjectFilter}
+          subjectOptions={viewModel.subjectOptions}
         />
       ) : null}
       {viewModel.loading ? <LessonsState message="Ładowanie lekcji…" /> : null}
@@ -32,7 +36,7 @@ export function InstructorLessonsPage() {
         <LessonsState message="Brak lekcji w bibliotece." />
       ) : null}
       {!viewModel.loading && !viewModel.error && viewModel.rawLessonCount > 0 && viewModel.lessons.length === 0 ? (
-        <LessonsState message="Brak gotowych lekcji pasujących do wyszukiwania." />
+        <LessonsState message="Brak gotowych lekcji pasujących do wybranych filtrów." />
       ) : null}
       {!viewModel.loading && !viewModel.error && viewModel.lessons.length > 0 ? (
         <div className="lesson-grid">

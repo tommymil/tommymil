@@ -1,5 +1,6 @@
 using LessonRunner.Infrastructure.Groups;
 using LessonRunner.Infrastructure.Courses;
+using LessonRunner.Infrastructure.Materials;
 using LessonRunner.Infrastructure.Audit;
 using LessonRunner.Infrastructure.Billing;
 using LessonRunner.Infrastructure.Notifications;
@@ -44,6 +45,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     internal DbSet<IncidentDocument> Incidents => Set<IncidentDocument>();
     internal DbSet<SupportTicketDocument> SupportTickets => Set<SupportTicketDocument>();
     internal DbSet<TrialLessonDocument> TrialLessons => Set<TrialLessonDocument>();
+    internal DbSet<MaterialDocument> Materials => Set<MaterialDocument>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -55,6 +57,20 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             builder.Property(lesson => lesson.Subject).HasMaxLength(80).IsRequired();
             builder.Property(lesson => lesson.Status).HasMaxLength(40).IsRequired();
             builder.Property(lesson => lesson.DocumentJson).IsRequired();
+        });
+
+        modelBuilder.Entity<MaterialDocument>(builder =>
+        {
+            builder.ToTable("Materials");
+            builder.HasKey(material => material.Id);
+            builder.Property(material => material.Title).HasMaxLength(200).IsRequired();
+            builder.Property(material => material.Description).HasMaxLength(2000).IsRequired();
+            builder.Property(material => material.ResourceUrl).HasMaxLength(1000).IsRequired();
+            builder.Property(material => material.FileName).HasMaxLength(260);
+            builder.Property(material => material.ContentType).HasMaxLength(160);
+            builder.Property(material => material.Visibility).HasMaxLength(20).IsRequired();
+            builder.HasIndex(material => material.Visibility);
+            builder.HasIndex(material => material.UpdatedAt);
         });
 
         modelBuilder.Entity<UserDocument>(builder =>

@@ -24,6 +24,48 @@ internal sealed class EfLessonRepository(AppDbContext dbContext) : ILessonReposi
             .ToList();
     }
 
+    public async Task<IReadOnlyDictionary<Guid, string>> ListTitlesAsync(CancellationToken cancellationToken)
+    {
+        // Projekcja na dwie kolumny - kolumna z dokumentem JSON nie jest w ogóle czytana.
+        var titles = await dbContext.Lessons
+            .AsNoTracking()
+            .Select(lesson => new { lesson.Id, lesson.Title })
+            .ToListAsync(cancellationToken);
+
+        return titles.ToDictionary(lesson => lesson.Id, lesson => lesson.Title);
+    }
+
+    public async Task<LessonProjectFile?> FindProjectFileByDownloadTokenAsync(
+        string token,
+        CancellationToken cancellationToken)
+    {
+        // Klucz siedzi wewnątrz dokumentu JSON, więc bazie zlecamy zawężenie po treści,
+        // a deserializujemy dopiero garstkę kandydatów. `LIKE` służy wyłącznie do zawężenia -
+        // rozstrzyga porównanie dokładne niżej, więc ewentualne trafienie przypadkowe
+        // niczego nie otwiera.
+        var pattern = $"%{EscapeForLike(token)}%";
+        var documents = await dbContext.Lessons
+            .AsNoTracking()
+            .Where(lesson => EF.Functions.Like(lesson.DocumentJson, pattern, LikeEscapeCharacter))
+            .ToListAsync(cancellationToken);
+
+        return documents
+            .Select(document => JsonSerializer.Deserialize<Lesson>(document.DocumentJson, JsonOptions))
+            .OfType<Lesson>()
+            .SelectMany(lesson => new[] { lesson.ProjectFiles.Starter, lesson.ProjectFiles.Final })
+            .OfType<LessonProjectFile>()
+            .FirstOrDefault(file => string.Equals(file.DownloadToken, token, StringComparison.Ordinal));
+    }
+
+    private const string LikeEscapeCharacter = "\\";
+
+    /// <summary>Klucze pobierania są w base64url, więc zawierają `_` — a to znak wieloznaczny
+    /// w `LIKE`. Bez wygaszenia jeden klucz pasowałby do wielu dokumentów.</summary>
+    private static string EscapeForLike(string value) => value
+        .Replace("\\", "\\\\", StringComparison.Ordinal)
+        .Replace("%", "\\%", StringComparison.Ordinal)
+        .Replace("_", "\\_", StringComparison.Ordinal);
+
     public async Task<Lesson?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var document = await dbContext.Lessons
@@ -74,21 +116,6 @@ internal sealed class EfLessonRepository(AppDbContext dbContext) : ILessonReposi
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return true;
-    }
-
-    public async Task SeedAsync(IReadOnlyList<Lesson> lessons, CancellationToken cancellationToken)
-    {
-        if (await dbContext.Lessons.AnyAsync(cancellationToken))
-        {
-            return;
-        }
-
-        foreach (var lesson in lessons)
-        {
-            dbContext.Lessons.Add(ToDocument(lesson));
-        }
-
-        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     private static LessonDocument ToDocument(Lesson lesson)

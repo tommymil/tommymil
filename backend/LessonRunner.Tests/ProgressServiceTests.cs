@@ -165,6 +165,25 @@ public sealed class ProgressServiceTests
             CancellationToken.None));
     }
 
+    /// <summary>
+    /// Link do projektu widzi i klika rodzic w swoim portalu, więc musi być http(s).
+    /// Wcześniej pole nie było sprawdzane wcale.
+    /// </summary>
+    [Fact]
+    public async Task Submission_WithANonHttpLink_IsRejected()
+    {
+        var (service, _, _) = Build();
+        var project = await service.CreateProjectAsync(
+            new CreateProjectDto(Child, "Kotek"), Instructor, isAdmin: false, CancellationToken.None);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => service.AddSubmissionAsync(
+            project!.Id,
+            new AddSubmissionDto(Url: "javascript:alert(document.cookie)"),
+            Instructor,
+            isAdmin: false,
+            CancellationToken.None));
+    }
+
     [Fact]
     public async Task Project_ForAChildFromAnotherGroup_IsNotCreated()
     {

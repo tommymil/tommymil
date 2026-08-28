@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LessonRunner.Infrastructure.Notifications;
 
-internal sealed class EfNotificationRepository(AppDbContext dbContext) : INotificationRepository
+internal sealed class EfNotificationRepository(AppDbContext dbContext, NotificationDefaults defaults)
+    : INotificationRepository
 {
     private const int SettingsId = 1;
 
@@ -15,7 +16,9 @@ internal sealed class EfNotificationRepository(AppDbContext dbContext) : INotifi
             .AsNoTracking()
             .FirstOrDefaultAsync(settings => settings.Id == SettingsId, cancellationToken);
 
-        return document is null ? new NotificationSettings() : ToDomain(document);
+        // Brak wiersza = nikt jeszcze nie zapisał ustawień w panelu. Nadawcę bierzemy wtedy
+        // z konfiguracji wdrożenia, a nie z wartości wpisanej w kodzie.
+        return document is null ? defaults.CreateSettings() : ToDomain(document);
     }
 
     public async Task SaveSettingsAsync(NotificationSettings settings, CancellationToken cancellationToken)

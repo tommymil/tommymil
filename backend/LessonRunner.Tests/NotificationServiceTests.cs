@@ -1,5 +1,6 @@
 using LessonRunner.Application.Groups;
 using LessonRunner.Application.Notifications;
+using LessonRunner.Application.Scheduling;
 using LessonRunner.Domain.Groups;
 using LessonRunner.Domain.Lessons;
 using LessonRunner.Domain.Participants;
@@ -9,6 +10,78 @@ namespace LessonRunner.Tests;
 
 public sealed class NotificationServiceTests
 {
+    /// <summary>
+    /// Regresja: przeglądarka wysyła termin przez `toISOString()`, więc w bazie leży offset `Z`.
+    /// Wcześniej treść przypomnienia powstawała z `ScheduledAt.ToString("HH:mm")`, czyli
+    /// drukowała godzinę UTC — rodzic dostawał termin o dwie godziny wcześniejszy niż faktyczny,
+    /// a w panelu i w kalendarzu widniała godzina poprawna.
+    /// </summary>
+    [Fact]
+    public async Task SendUpcomingSessionRemindersAsync_UsesSchoolClock_NotTheStoredOffset()
+    {
+        if (SchoolTime.Zone.BaseUtcOffset == TimeSpan.Zero)
+        {
+            return; // środowisko bez bazy stref czasowych - test nie ma czego weryfikować.
+        }
+
+        var notifications = new InMemoryNotificationRepository();
+        var sender = new FakeEmailSender();
+        var groups = new InMemoryGroupRepository();
+        var participants = new InMemoryParticipantRepository();
+        var lessons = new InMemoryLessonRepository();
+
+        var lesson = new Lesson
+        {
+            Title = "Scratch",
+            Subject = "Scratch",
+            Level = "P1",
+            Description = "Opis",
+            Status = LessonStatus.Ready
+        };
+        await lessons.AddAsync(lesson, CancellationToken.None);
+
+        var participant = new Participant
+        {
+            FirstName = "Jan",
+            LastName = "Kowalski",
+            GuardianEmail = "rodzic@example.com",
+            DataProcessingConsentAt = DateTimeOffset.UtcNow
+        };
+        await participants.AddAsync(participant, CancellationToken.None);
+
+        // Dokładnie tak, jak zapisuje to panel: moment w przyszłości z offsetem zerowym.
+        // Dwie godziny naprzód mieszczą się w domyślnym oknie przypomnień (24 h).
+        var scheduledAt = new DateTimeOffset(DateTime.UtcNow.AddHours(2), TimeSpan.Zero);
+
+        var group = new Group
+        {
+            Name = "Grupa A",
+            InstructorId = Guid.NewGuid(),
+            Enrollments =
+            [
+                new GroupEnrollment { ParticipantId = participant.Id, Status = EnrollmentStatus.Enrolled }
+            ],
+            Sessions =
+            [
+                new ScheduledSession { LessonId = lesson.Id, ScheduledAt = scheduledAt, SequenceNumber = 1 }
+            ]
+        };
+        group.Enrollments[0].GroupId = group.Id;
+        group.Sessions[0].GroupId = group.Id;
+        await groups.AddAsync(group, CancellationToken.None);
+
+        var service = new NotificationService(notifications, sender, groups, participants, lessons);
+        await service.SendUpcomingSessionRemindersAsync(CancellationToken.None);
+
+        var body = Assert.Single(sender.Messages).Body;
+        var schoolClock = SchoolTime.FormatDateTime(scheduledAt);
+        var storedOffsetClock = scheduledAt.ToString("yyyy-MM-dd HH:mm");
+
+        Assert.NotEqual(storedOffsetClock, schoolClock);
+        Assert.Contains(schoolClock, body);
+        Assert.DoesNotContain(storedOffsetClock, body);
+    }
+
     [Fact]
     public async Task NotifyAbsencesAsync_SendsOnlyWithGuardianEmailAndConsent_AndDeduplicates()
     {

@@ -79,11 +79,18 @@ public sealed class AuthService(
         return await userRepository.SetPasswordHashAsync(userId, passwordHasher.Hash(dto.NewPassword), cancellationToken);
     }
 
+    /// <summary>
+    /// Rola musi zostać rozpoznana — nierozpoznana wartość jest błędem, a nie okazją
+    /// do domyślenia się intencji. Wcześniej wpadała cicho na `Instructor`, czyli literówka
+    /// nadawała uprawnienia personelu. Ta sama reguła obowiązuje w `UserAdminService`,
+    /// przez który idzie zakładanie kont z panelu.
+    /// </summary>
     private static UserRole ParseRole(string role)
     {
-        return Enum.TryParse<UserRole>(role, ignoreCase: true, out var parsed)
+        return Enum.TryParse<UserRole>(role, ignoreCase: true, out var parsed) && Enum.IsDefined(parsed)
             ? parsed
-            : UserRole.Instructor;
+            : throw new ArgumentException(
+                $"Nieznana rola '{role}'. Dozwolone: {string.Join(", ", Enum.GetNames<UserRole>())}.");
     }
 
     private AuthResponseDto ToResponse(User user)

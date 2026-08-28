@@ -13,6 +13,7 @@ using LessonRunner.Application.Files;
 using LessonRunner.Application.Groups;
 using LessonRunner.Application.LessonRuns;
 using LessonRunner.Application.Lessons;
+using LessonRunner.Application.Materials;
 using LessonRunner.Application.Notifications;
 using LessonRunner.Application.Operations;
 using LessonRunner.Application.Participants;
@@ -34,6 +35,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -183,6 +185,11 @@ builder.Services.Configure<FileStorageOptions>(options =>
 });
 
 builder.Services.AddOpenApi();
+
+// Nieobsłużony wyjątek ma wracać jako RFC 7807, a nie jako puste 500 bez treści.
+// Klient widział dotąd wyłącznie „API request failed: 500” i nie miał czego zgłosić.
+builder.Services.AddProblemDetails();
+
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -193,10 +200,43 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-await app.Services.InitializeDatabaseAsync(app.Configuration, app.Environment.IsDevelopment(), app.Lifetime.ApplicationStopping);
+await app.Services.InitializeDatabaseAsync(app.Configuration, app.Lifetime.ApplicationStopping);
 
 if (!app.Environment.IsDevelopment())
 {
+    // Poza trybem deweloperskim nieobsłużony wyjątek nie może wyjść na zewnątrz ze śladem
+    // stosu ani jako pusta odpowiedź. `AddProblemDetails` zamienia go w RFC 7807, a szczegóły
+    // zostają w logu. W Development WebApplication sam włącza stronę diagnostyczną.
+    app.UseExceptionHandler();
+
+    // Dziennik żądań: metoda, ścieżka, status i czas. Przy danych dzieci to podstawa
+    // odtworzenia przebiegu zdarzeń po incydencie - `AuditLogs` zapisuje wyłącznie operacje
+    // zmieniające dane, więc sam nie odpowie na pytanie, kto co czytał i kiedy.
+    //
+    // Serilog loguje `RequestPath` **bez ciągu zapytania**, więc do logu nie trafiają frazy
+    // z wyszukiwarki po dzieciach.
+    app.UseSerilogRequestLogging(options =>
+    {
+        options.GetLevel = (context, _, exception) => exception is not null || context.Response.StatusCode >= 500
+            ? LogEventLevel.Error
+            // `/health` odpytuje docker co pół minuty. Bez tego dziennik składa się głównie z niego.
+            : context.Request.Path.StartsWithSegments("/health")
+                ? LogEventLevel.Verbose
+                : LogEventLevel.Information;
+
+        options.EnrichDiagnosticContext = (diagnosticContext, context) =>
+        {
+            diagnosticContext.Set("ClientIp", context.Connection.RemoteIpAddress?.ToString());
+
+            // Wzbogacanie działa po przejściu potoku, więc tożsamość jest już ustalona
+            // mimo że middleware stoi przed uwierzytelnieniem.
+            if (context.User.FindFirstValue(ClaimTypes.NameIdentifier) is { Length: > 0 } userId)
+            {
+                diagnosticContext.Set("UserId", userId);
+            }
+        };
+    });
+
     // Za reverse proxy (nginx w docker compose) prawdziwy adres klienta i schemat przychodzą
     // w nagłówkach X-Forwarded-*. Bez tego rate limiter widziałby jeden adres IP proxy
     // dla wszystkich użytkowników i blokowałby całą szkołę po kilku próbach logowania.
@@ -297,10 +337,7 @@ app.MapGet("/download/lesson-files/{token}", async (
         return Results.NotFound();
     }
 
-    var lessons = await lessonRepository.ListAsync(cancellationToken);
-    var file = lessons
-        .SelectMany(GetProjectFiles)
-        .FirstOrDefault(item => string.Equals(item.DownloadToken, token, StringComparison.Ordinal));
+    var file = await lessonRepository.FindProjectFileByDownloadTokenAsync(token, cancellationToken);
 
     if (file is null)
     {
@@ -473,6 +510,66 @@ lessons.MapPut("/{id:guid}/run-session", async (
     return session is null ? Results.NotFound() : Results.Ok(session);
 })
 .WithName("UpdateLessonRunSession");
+
+// --- Wspólna biblioteka materiałów personelu ---
+// Odczyt jest dla całego personelu, ale serwis filtruje pozycje `admin` zanim odpowiedź trafi
+// do instruktora. Zapis pozostaje wyłącznie po stronie administracji.
+var materials = app.MapGroup("/api/materials")
+    .WithTags("Materials")
+    .RequireAuthorization("StaffOnly")
+    .AddEndpointFilter<AuditEndpointFilter>();
+
+materials.MapGet("/", async (
+    ClaimsPrincipal principal,
+    IMaterialService materialService,
+    CancellationToken cancellationToken) =>
+    Results.Ok(await materialService.ListAsync(IsAdmin(principal), cancellationToken)))
+.WithName("GetMaterials");
+
+materials.MapPost("/", async (
+    UpsertMaterialDto dto,
+    IMaterialService materialService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var material = await materialService.CreateAsync(dto, cancellationToken);
+        return Results.Created($"/api/materials/{material.Id}", material);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.RequireAuthorization("AdminOnly")
+.WithName("CreateMaterial");
+
+materials.MapPut("/{id:guid}", async (
+    Guid id,
+    UpsertMaterialDto dto,
+    IMaterialService materialService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var material = await materialService.UpdateAsync(id, dto, cancellationToken);
+        return material is null ? Results.NotFound() : Results.Ok(material);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.RequireAuthorization("AdminOnly")
+.WithName("UpdateMaterial");
+
+materials.MapDelete("/{id:guid}", async (
+    Guid id,
+    IMaterialService materialService,
+    CancellationToken cancellationToken) =>
+    await materialService.DeleteAsync(id, cancellationToken) ? Results.NoContent() : Results.NotFound())
+.RequireAuthorization("AdminOnly")
+.WithName("DeleteMaterial");
 
 // --- Grupy (administracja) ---
 var groups = app.MapGroup("/api/groups").WithTags("Groups").RequireAuthorization("AdminOnly").AddEndpointFilter<AuditEndpointFilter>();
@@ -984,6 +1081,56 @@ users.MapPost("/{id:guid}/deactivate", async (
 .SelfAudited()
 .WithName("DeactivateUser");
 
+// Poprawienie roli konta. Bez tego konto założone z błędną rolą zostawało z nią na stałe:
+// usuwania kont nie ma, a zmiany roli nie było. Operacja unieważnia sesje tego konta,
+// bo rola jedzie w tokenie - inaczej zdegradowany administrator zachowywałby panel
+// do wygaśnięcia tokenu, czyli nawet przez dwanaście godzin.
+users.MapPut("/{id:guid}/role", async (
+    Guid id,
+    SetUserRoleDto dto,
+    ClaimsPrincipal principal,
+    IUserAdminService userAdminService,
+    IAuditService auditService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var updated = await userAdminService.SetRoleAsync(id, dto.Role, GetCurrentUserId(principal), cancellationToken);
+
+        if (updated)
+        {
+            await auditService.RecordAsync(
+                GetCurrentUserId(principal),
+                "user.role.set",
+                "users",
+                id.ToString(),
+                true,
+                dto.Role,
+                cancellationToken);
+        }
+
+        return updated ? Results.NoContent() : Results.NotFound();
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+    catch (InvalidOperationException ex)
+    {
+        await auditService.RecordAsync(
+            GetCurrentUserId(principal),
+            "user.role.set",
+            "users",
+            id.ToString(),
+            false,
+            ex.Message,
+            cancellationToken);
+        return Results.Conflict(new { error = ex.Message });
+    }
+})
+.SelfAudited()
+.WithName("SetUserRole");
+
 users.MapPost("/{id:guid}/password", async (
     Guid id,
     SetPasswordDto dto,
@@ -1434,11 +1581,25 @@ safety.MapPut("/incidents/{id:guid}", async (
 .RequireAuthorization("AdminOnly")
 .WithName("UpdateIncident");
 
+// Zawężenie po stronie serwisu, nie polityki: instruktor ma widzieć swoje sprawy i swoje
+// grupy, a nie wszystkie zgłoszenia w systemie. Bez tego lista wydawała każdemu prowadzącemu
+// imiona i nazwiska dzieci wraz z opisem sytuacji z grup, których nie uczy.
 safety.MapGet("/tickets", async (
     Guid? participantId,
+    ClaimsPrincipal principal,
     ISafetyService safetyService,
     CancellationToken cancellationToken) =>
-    Results.Ok(await safetyService.GetSupportTicketsAsync(participantId, cancellationToken)))
+{
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    return Results.Ok(await safetyService.GetSupportTicketsAsync(
+        participantId, userId.Value, IsAdmin(principal), cancellationToken));
+})
 .WithName("GetSupportTickets");
 
 safety.MapPost("/tickets", async (
@@ -1470,12 +1631,23 @@ safety.MapPost("/tickets", async (
 safety.MapPut("/tickets/{id:guid}", async (
     Guid id,
     UpdateSupportTicketDto dto,
+    ClaimsPrincipal principal,
     ISafetyService safetyService,
     CancellationToken cancellationToken) =>
 {
+    var userId = GetCurrentUserId(principal);
+
+    if (userId is null)
+    {
+        return Results.Unauthorized();
+    }
+
     try
     {
-        var updated = await safetyService.UpdateSupportTicketAsync(id, dto, cancellationToken);
+        var updated = await safetyService.UpdateSupportTicketAsync(
+            id, dto, userId.Value, IsAdmin(principal), cancellationToken);
+
+        // 404 także dla cudzej sprawy: instruktor nie ma prawa wiedzieć, że ona istnieje.
         return updated is null ? Results.NotFound() : Results.Ok(updated);
     }
     catch (ArgumentException ex)
@@ -2315,19 +2487,6 @@ static Guid? GetCurrentUserId(ClaimsPrincipal principal)
 /// i instruktora, a część odczytów ma dla admina szerszy zakres.</summary>
 static bool IsAdmin(ClaimsPrincipal principal) =>
     principal.IsInRole(nameof(LessonRunner.Domain.Users.UserRole.Admin));
-
-static IEnumerable<LessonRunner.Domain.Lessons.LessonProjectFile> GetProjectFiles(LessonRunner.Domain.Lessons.Lesson lesson)
-{
-    if (lesson.ProjectFiles.Starter is not null)
-    {
-        yield return lesson.ProjectFiles.Starter;
-    }
-
-    if (lesson.ProjectFiles.Final is not null)
-    {
-        yield return lesson.ProjectFiles.Final;
-    }
-}
 
 static bool IsDownloadToken(string token)
 {

@@ -1,5 +1,6 @@
 using LessonRunner.Application.Auth;
 using LessonRunner.Application.Billing;
+using LessonRunner.Application.Common;
 using LessonRunner.Application.Courses;
 using LessonRunner.Application.Lessons;
 using LessonRunner.Application.Notifications;
@@ -731,7 +732,7 @@ public sealed class GroupService(
         var lines = new List<IReadOnlyList<string>>
         {
             new[] { "Grupa", group.Name },
-            new[] { "Termin", session.ScheduledAt.ToString("yyyy-MM-dd HH:mm zzz") },
+            new[] { "Termin", SchoolTime.FormatDateTimeWithZone(session.ScheduledAt) },
             new[] { "Lekcja", lessonTitle },
             new[] { "Status", GroupMapping.StatusLabel(session.Status) },
             Array.Empty<string>(),
@@ -848,23 +849,8 @@ public sealed class GroupService(
 
     private static bool IsWithinCapacity(int index, int? capacity) => capacity is null || index < capacity;
 
-    private static string? NormalizeMeetingUrl(string? meetingUrl)
-    {
-        var trimmed = meetingUrl?.Trim();
-
-        if (string.IsNullOrEmpty(trimmed))
-        {
-            return null;
-        }
-
-        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out var uri)
-            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
-        {
-            throw new ArgumentException("Link do spotkania musi być pełnym adresem http(s).");
-        }
-
-        return trimmed;
-    }
+    private static string? NormalizeMeetingUrl(string? meetingUrl) =>
+        WebLink.Normalize(meetingUrl, "Link do spotkania musi być pełnym adresem http(s).");
 
     public async Task<ScheduledSessionDto?> SetSessionStatusAsync(
         Guid groupId,
@@ -1029,23 +1015,8 @@ public sealed class GroupService(
         _ => changeType.ToString()
     };
 
-    private static string? NormalizeRecordingUrl(string? recordingUrl)
-    {
-        var trimmed = recordingUrl?.Trim();
-
-        if (string.IsNullOrEmpty(trimmed))
-        {
-            return null;
-        }
-
-        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out var uri)
-            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
-        {
-            throw new ArgumentException("Link do nagrania musi być pełnym adresem http(s).");
-        }
-
-        return trimmed;
-    }
+    private static string? NormalizeRecordingUrl(string? recordingUrl) =>
+        WebLink.Normalize(recordingUrl, "Link do nagrania musi być pełnym adresem http(s).");
 
     private static void NormalizeEnrollmentStatuses(Group group)
     {
@@ -1078,7 +1049,7 @@ public sealed class GroupService(
     private async Task EnsureNotHolidayAsync(DateTimeOffset scheduledAt, CancellationToken cancellationToken)
     {
         var holidays = await HolidayDatesAsync(cancellationToken);
-        var date = LocalDate(scheduledAt);
+        var date = SchoolTime.LocalDate(scheduledAt);
 
         if (holidays.Contains(date))
         {
@@ -1166,46 +1137,22 @@ public sealed class GroupService(
             .ToList();
     }
 
-    // Strefa zajęć: cotygodniowe terminy trzymają stałą godzinę ścienną (np. wtorki 18:00),
-    // a nie stały moment UTC - dzięki temu zmiana czasu nie przesuwa godziny zajęć.
-    private static readonly TimeZoneInfo ScheduleTimeZone = ResolveScheduleTimeZone();
-
-    private static TimeZoneInfo ResolveScheduleTimeZone()
-    {
-        foreach (var id in new[] { "Europe/Warsaw", "Central European Standard Time" })
-        {
-            try
-            {
-                return TimeZoneInfo.FindSystemTimeZoneById(id);
-            }
-            catch (TimeZoneNotFoundException)
-            {
-            }
-            catch (InvalidTimeZoneException)
-            {
-            }
-        }
-
-        return TimeZoneInfo.Local;
-    }
-
-    private static DateTimeOffset AddWeeksPreservingLocalTime(DateTimeOffset start, int weeks)
-    {
-        if (weeks == 0)
-        {
-            return start;
-        }
-
-        var localWallClock = TimeZoneInfo.ConvertTime(start, ScheduleTimeZone).DateTime.AddDays(7 * weeks);
-        var offset = ScheduleTimeZone.GetUtcOffset(localWallClock);
-        return new DateTimeOffset(localWallClock, offset);
-    }
+    /// <summary>
+    /// Termin przesunięty o pełne tygodnie z zachowaniem godziny ściennej.
+    ///
+    /// Zero tygodni **nie jest skrótem do zwrócenia wejścia**: przeglądarka przysyła termin
+    /// z offsetem `Z`, więc bez przeliczenia pierwsze zajęcia serii zostawały w UTC, a każde
+    /// następne dostawały offset warszawski. Ta sama seria miała wtedy dwie różne godziny
+    /// w tekście e-maila i w eksportach.
+    /// </summary>
+    private static DateTimeOffset AddWeeksPreservingLocalTime(DateTimeOffset start, int weeks) =>
+        AddDaysPreservingLocalTime(start, 7 * weeks);
 
     private static DateTimeOffset MovePastHoliday(DateTimeOffset scheduledAt, IReadOnlySet<DateOnly> holidays)
     {
         var current = scheduledAt;
 
-        while (holidays.Contains(LocalDate(current)))
+        while (holidays.Contains(SchoolTime.LocalDate(current)))
         {
             current = AddDaysPreservingLocalTime(current, 1);
         }
@@ -1213,15 +1160,8 @@ public sealed class GroupService(
         return current;
     }
 
-    private static DateTimeOffset AddDaysPreservingLocalTime(DateTimeOffset start, int days)
-    {
-        var localWallClock = TimeZoneInfo.ConvertTime(start, ScheduleTimeZone).DateTime.AddDays(days);
-        var offset = ScheduleTimeZone.GetUtcOffset(localWallClock);
-        return new DateTimeOffset(localWallClock, offset);
-    }
-
-    private static DateOnly LocalDate(DateTimeOffset value) =>
-        DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(value, ScheduleTimeZone).DateTime);
+    private static DateTimeOffset AddDaysPreservingLocalTime(DateTimeOffset start, int days) =>
+        SchoolTime.FromWallClock(SchoolTime.ToSchoolTime(start).DateTime.AddDays(days));
 
     private static void EnsureCsvFormat(string? format)
     {

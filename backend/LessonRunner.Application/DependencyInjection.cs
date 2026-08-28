@@ -6,6 +6,7 @@ using LessonRunner.Application.Dashboard;
 using LessonRunner.Application.Groups;
 using LessonRunner.Application.LessonRuns;
 using LessonRunner.Application.Lessons;
+using LessonRunner.Application.Materials;
 using LessonRunner.Application.Notifications;
 using LessonRunner.Application.Participants;
 using LessonRunner.Application.Parents;
@@ -26,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<ILessonCommands, LessonCommands>();
         services.AddScoped<ILessonQueries, LessonQueries>();
         services.AddScoped<ILessonRunSessionService, LessonRunSessionService>();
+        services.AddScoped<IMaterialService, MaterialService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<IBillingService, BillingService>();

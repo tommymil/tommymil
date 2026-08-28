@@ -58,6 +58,59 @@ public sealed class ApiAuthorizationTests
     }
 
     [Fact]
+    public async Task Materials_FilterVisibility_AndAdministrationIsAdminOnly()
+    {
+        await using var factory = new ApiFactory();
+        var anonymous = factory.CreateClient();
+        var admin = await factory.CreateAdminClientAsync();
+        var instructor = await factory.CreateClientForAsync(UserRole.Instructor, "materialy-instruktor@test.local");
+        var parent = await factory.CreateClientForAsync(UserRole.Parent, "materialy-rodzic@test.local");
+
+        var staffMaterial = await admin.PostAsJsonAsync(
+            "/api/materials",
+            new
+            {
+                title = "Dla całego zespołu",
+                description = "Instrukcja organizacyjna",
+                resourceUrl = "https://example.com/zespol",
+                visibility = "staff"
+            });
+        var adminMaterial = await admin.PostAsJsonAsync(
+            "/api/materials",
+            new
+            {
+                title = "Tylko administracja",
+                description = "Dokument wewnętrzny",
+                resourceUrl = "https://example.com/administracja",
+                visibility = "admin"
+            });
+
+        Assert.Equal(HttpStatusCode.Created, staffMaterial.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, adminMaterial.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.GetAsync("/api/materials")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await parent.GetAsync("/api/materials")).StatusCode);
+
+        var instructorResponse = await instructor.GetAsync("/api/materials");
+        var instructorMaterials = await instructorResponse.Content.ReadFromJsonAsync<List<MaterialResponse>>();
+        Assert.Equal(HttpStatusCode.OK, instructorResponse.StatusCode);
+        Assert.Collection(
+            instructorMaterials!,
+            material =>
+            {
+                Assert.Equal("Dla całego zespołu", material.Title);
+                Assert.Equal("staff", material.Visibility);
+            });
+
+        var adminMaterials = await admin.GetFromJsonAsync<List<MaterialResponse>>("/api/materials");
+        Assert.Equal(2, adminMaterials!.Count);
+
+        var forbiddenCreate = await instructor.PostAsJsonAsync(
+            "/api/materials",
+            new { title = "Bez prawa", resourceUrl = "https://example.com", visibility = "staff" });
+        Assert.Equal(HttpStatusCode.Forbidden, forbiddenCreate.StatusCode);
+    }
+
+    [Fact]
     public async Task Instructor_CannotOpenParentPortal()
     {
         await using var factory = new ApiFactory();
@@ -126,6 +179,122 @@ public sealed class ApiAuthorizationTests
             HttpStatusCode.Unauthorized,
             (await factory.CreateClient().PostAsync($"/api/users/{target}/invite", null)).StatusCode);
     }
+
+    [Fact]
+    public async Task SetRole_IsAdminOnly()
+    {
+        await using var factory = new ApiFactory();
+        var instructor = await factory.CreateClientForAsync(UserRole.Instructor, "trener7@test.local");
+        var parent = await factory.CreateClientForAsync(UserRole.Parent, "rodzic7@test.local");
+        var target = Guid.NewGuid();
+        var body = new { role = "admin" };
+
+        // Gdyby ta trasa przepuszczała personel, instruktor nadałby sobie rolę administratora.
+        Assert.Equal(
+            HttpStatusCode.Forbidden,
+            (await instructor.PutAsJsonAsync($"/api/users/{target}/role", body)).StatusCode);
+        Assert.Equal(
+            HttpStatusCode.Forbidden,
+            (await parent.PutAsJsonAsync($"/api/users/{target}/role", body)).StatusCode);
+        Assert.Equal(
+            HttpStatusCode.Unauthorized,
+            (await factory.CreateClient().PutAsJsonAsync($"/api/users/{target}/role", body)).StatusCode);
+    }
+
+    /// <summary>
+    /// Rola jedzie w tokenie, więc jej zmiana musi wylogować konto natychmiast. Bez tego
+    /// zdegradowany instruktor czytałby konspekty do wygaśnięcia tokenu, czyli nawet 12 h.
+    /// </summary>
+    [Fact]
+    public async Task SetRole_InvalidatesTokenOfTheChangedAccount()
+    {
+        await using var factory = new ApiFactory();
+        var admin = await factory.CreateAdminClientAsync();
+        var instructor = await factory.CreateClientForAsync(UserRole.Instructor, "trener8@test.local");
+
+        Assert.Equal(HttpStatusCode.OK, (await instructor.GetAsync("/api/lessons")).StatusCode);
+
+        var users = await admin.GetFromJsonAsync<List<UserListItemResponse>>("/api/users");
+        var target = users!.Single(user => user.Email == "trener8@test.local");
+
+        var changed = await admin.PutAsJsonAsync($"/api/users/{target.Id}/role", new { role = "parent" });
+        Assert.Equal(HttpStatusCode.NoContent, changed.StatusCode);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, (await instructor.GetAsync("/api/lessons")).StatusCode);
+    }
+
+    [Fact]
+    public async Task SetRole_RejectsUnknownRole()
+    {
+        await using var factory = new ApiFactory();
+        var admin = await factory.CreateAdminClientAsync();
+        await factory.CreateClientForAsync(UserRole.Parent, "rodzic8@test.local");
+
+        var users = await admin.GetFromJsonAsync<List<UserListItemResponse>>("/api/users");
+        var target = users!.Single(user => user.Email == "rodzic8@test.local");
+
+        var response = await admin.PutAsJsonAsync($"/api/users/{target.Id}/role", new { role = "wizard" });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    private sealed record UserListItemResponse(Guid Id, string Email, string Role);
+
+    /// <summary>
+    /// Regresja: `GET /api/safety/tickets` była `StaffOnly` bez żadnego zawężenia, więc każdy
+    /// instruktor czytał wszystkie zgłoszenia w systemie — wraz z imieniem i nazwiskiem dziecka
+    /// oraz swobodnym opisem sytuacji z grup, których nie uczy.
+    /// </summary>
+    [Fact]
+    public async Task SupportTickets_AreScopedToTheReportingInstructor()
+    {
+        await using var factory = new ApiFactory();
+        var admin = await factory.CreateAdminClientAsync();
+        var author = await factory.CreateClientForAsync(UserRole.Instructor, "zglaszajacy@test.local");
+        var stranger = await factory.CreateClientForAsync(UserRole.Instructor, "obcy@test.local");
+
+        var created = await author.PostAsJsonAsync(
+            "/api/safety/tickets",
+            new { category = "hardware", description = "Mikrofon nie działa u Zosi." });
+        Assert.Equal(HttpStatusCode.OK, created.StatusCode);
+        var ticket = await created.Content.ReadFromJsonAsync<SupportTicketResponse>();
+
+        var mine = await author.GetFromJsonAsync<SupportBoardResponse>("/api/safety/tickets");
+        Assert.Contains(mine!.Tickets, item => item.Id == ticket!.Id);
+
+        var theirs = await stranger.GetFromJsonAsync<SupportBoardResponse>("/api/safety/tickets");
+        Assert.DoesNotContain(theirs!.Tickets, item => item.Id == ticket!.Id);
+
+        // Administracja prowadzi wszystkie sprawy - jej zakres pozostaje pełny.
+        var all = await admin.GetFromJsonAsync<SupportBoardResponse>("/api/safety/tickets");
+        Assert.Contains(all!.Tickets, item => item.Id == ticket!.Id);
+    }
+
+    [Fact]
+    public async Task SupportTicket_CannotBeUpdatedByAnUnrelatedInstructor()
+    {
+        await using var factory = new ApiFactory();
+        var author = await factory.CreateClientForAsync(UserRole.Instructor, "zglaszajacy2@test.local");
+        var stranger = await factory.CreateClientForAsync(UserRole.Instructor, "obcy2@test.local");
+
+        var created = await author.PostAsJsonAsync(
+            "/api/safety/tickets",
+            new { category = "hardware", description = "Kamerka gaśnie po kilku minutach." });
+        var ticket = await created.Content.ReadFromJsonAsync<SupportTicketResponse>();
+
+        var body = new { status = "resolved", resolution = "Podmieniono kabel." };
+
+        // 404, nie 403: obcy instruktor nie ma prawa wiedzieć, że taka sprawa istnieje.
+        var foreign = await stranger.PutAsJsonAsync($"/api/safety/tickets/{ticket!.Id}", body);
+        Assert.Equal(HttpStatusCode.NotFound, foreign.StatusCode);
+
+        var own = await author.PutAsJsonAsync($"/api/safety/tickets/{ticket.Id}", body);
+        Assert.Equal(HttpStatusCode.OK, own.StatusCode);
+    }
+
+    private sealed record SupportTicketResponse(Guid Id);
+
+    private sealed record SupportBoardResponse(List<SupportTicketResponse> Tickets);
 
     [Fact]
     public async Task AccountWithoutPassword_CannotLogIn_UntilInvitationIsUsed()
@@ -329,6 +498,7 @@ public sealed class ApiAuthorizationTests
     }
 
     private sealed record TrialResponse(Guid Id);
+    private sealed record MaterialResponse(Guid Id, string Title, string Visibility);
 
     [Fact]
     public async Task Health_IsAnonymous_AndHidesInternals()

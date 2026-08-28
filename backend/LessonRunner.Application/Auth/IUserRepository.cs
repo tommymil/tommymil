@@ -18,5 +18,11 @@ public interface IUserRepository
     Task<bool> SetActiveAsync(Guid id, bool isActive, CancellationToken cancellationToken);
     Task<bool> SetProfileAsync(Guid id, string? firstName, string? lastName, string? phone, CancellationToken cancellationToken);
     Task<bool> SetPasswordHashAsync(Guid id, string passwordHash, CancellationToken cancellationToken);
-    Task SeedAsync(IReadOnlyList<User> users, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Zmiana roli konta. Musi **unieważnić aktywne sesje**: rola jedzie w tokenie, więc bez
+    /// odświeżenia znacznika zdegradowany administrator zostaje administratorem do wygaśnięcia
+    /// tokenu, czyli nawet przez dwanaście godzin.
+    /// </summary>
+    Task<bool> SetRoleAsync(Guid id, UserRole role, CancellationToken cancellationToken);
 }

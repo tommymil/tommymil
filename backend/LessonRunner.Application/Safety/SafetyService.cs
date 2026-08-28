@@ -19,9 +19,26 @@ public interface ISafetyService
     /// <summary>Prowadzenie sprawy — wyłącznie administrator. Zwraca `null` dla nieznanego id.</summary>
     Task<IncidentDto?> UpdateIncidentAsync(Guid id, UpdateIncidentDto dto, CancellationToken cancellationToken);
 
-    Task<SupportBoardDto> GetSupportTicketsAsync(Guid? participantId, CancellationToken cancellationToken);
+    /// <summary>
+    /// Zgłoszenia techniczne. Administrator widzi wszystko; instruktor **wyłącznie swoje
+    /// sprawy i swoje grupy** — patrz komentarz przy implementacji.
+    /// </summary>
+    Task<SupportBoardDto> GetSupportTicketsAsync(
+        Guid? participantId,
+        Guid userId,
+        bool isAdmin,
+        CancellationToken cancellationToken);
+
     Task<SupportTicketDto> ReportSupportTicketAsync(Guid userId, CreateSupportTicketDto dto, CancellationToken cancellationToken);
-    Task<SupportTicketDto?> UpdateSupportTicketAsync(Guid id, UpdateSupportTicketDto dto, CancellationToken cancellationToken);
+
+    /// <summary>Prowadzenie zgłoszenia. Instruktor domyka wyłącznie sprawy, które widzi;
+    /// dla pozostałych zwracamy `null`, czyli 404 — tak samo jak przy cudzych dzieciach.</summary>
+    Task<SupportTicketDto?> UpdateSupportTicketAsync(
+        Guid id,
+        UpdateSupportTicketDto dto,
+        Guid userId,
+        bool isAdmin,
+        CancellationToken cancellationToken);
 }
 
 public sealed class SafetyService(
@@ -119,14 +136,19 @@ public sealed class SafetyService(
 
     public async Task<SupportBoardDto> GetSupportTicketsAsync(
         Guid? participantId,
+        Guid userId,
+        bool isAdmin,
         CancellationToken cancellationToken)
     {
         var tickets = participantId is Guid id
             ? await ticketRepository.ListByParticipantAsync(id, cancellationToken)
             : await ticketRepository.ListAsync(cancellationToken);
 
+        var canSee = await TicketVisibilityAsync(userId, isAdmin, cancellationToken);
+        var visible = tickets.Where(canSee).ToList();
+
         return new SupportBoardDto(
-            await ToTicketDtosAsync(tickets, cancellationToken),
+            await ToTicketDtosAsync(visible, cancellationToken),
             Options<SupportCategory>(category => category.Name(), category => category.Label()),
             Options<SupportTicketStatus>(status => status.Name(), status => status.Label()));
     }
@@ -155,11 +177,21 @@ public sealed class SafetyService(
     public async Task<SupportTicketDto?> UpdateSupportTicketAsync(
         Guid id,
         UpdateSupportTicketDto dto,
+        Guid userId,
+        bool isAdmin,
         CancellationToken cancellationToken)
     {
         var ticket = await ticketRepository.GetByIdAsync(id, cancellationToken);
 
         if (ticket is null)
+        {
+            return null;
+        }
+
+        // 404, a nie 403: instruktor spoza sprawy nie ma prawa wiedzieć, że ona istnieje.
+        var canSee = await TicketVisibilityAsync(userId, isAdmin, cancellationToken);
+
+        if (!canSee(ticket))
         {
             return null;
         }
@@ -183,6 +215,41 @@ public sealed class SafetyService(
 
         await ticketRepository.UpdateAsync(ticket, cancellationToken);
         return (await ToTicketDtosAsync([ticket], cancellationToken))[0];
+    }
+
+    /// <summary>
+    /// Kto widzi które zgłoszenie techniczne.
+    ///
+    /// Trasa jest `StaffOnly`, ale to nie znaczy „każdy pracownik widzi wszystko”. Zgłoszenie
+    /// niesie imię i nazwisko dziecka oraz swobodny opis sytuacji, więc lista bez zawężenia
+    /// dawała każdemu instruktorowi kartotekę wszystkich rodzin, jakie kiedykolwiek zgłosiły
+    /// problem — dokładnie to, czemu zapobiega rozdział `/api/trials` od `/api/my-trials`
+    /// i zawężenie rejestru incydentów.
+    ///
+    /// Instruktor widzi zgłoszenie, gdy: sam je złożył, dotyczy grupy, którą prowadzi
+    /// (także jako zastępstwo), albo dotyczy dziecka zapisanego do takiej grupy. Reszta
+    /// jest sprawą administracji.
+    /// </summary>
+    private async Task<Func<SupportTicket, bool>> TicketVisibilityAsync(
+        Guid userId,
+        bool isAdmin,
+        CancellationToken cancellationToken)
+    {
+        if (isAdmin)
+        {
+            return _ => true;
+        }
+
+        var groups = await groupRepository.ListForInstructorAsync(userId, cancellationToken);
+
+        var groupIds = groups.Select(group => group.Id).ToHashSet();
+        var participantIds = groups
+            .SelectMany(group => group.Enrollments.Select(enrollment => enrollment.ParticipantId))
+            .ToHashSet();
+
+        return ticket => ticket.ReportedByUserId == userId
+            || (ticket.GroupId is Guid groupId && groupIds.Contains(groupId))
+            || (ticket.ParticipantId is Guid participantId && participantIds.Contains(participantId));
     }
 
     /// <summary>Nazwy ludzi i grup dociągamy raz na listę, nie po jednym na wiersz.</summary>

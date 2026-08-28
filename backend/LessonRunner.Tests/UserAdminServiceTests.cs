@@ -13,6 +13,103 @@ public sealed class UserAdminServiceTests
         return new UserAdminService(repository, new Pbkdf2PasswordHasher());
     }
 
+    /// <summary>
+    /// Regresja: nierozpoznana rola wpadała cicho na `Instructor`. Literówka w formularzu
+    /// zakładała więc rodzicowi konto personelu - z dostępem do konspektów, grafiku,
+    /// materiałów i wyszukiwarki po dzieciach.
+    /// </summary>
+    [Theory]
+    [InlineData("wizard")]
+    [InlineData("")]
+    [InlineData(null)]
+    // `Enum.TryParse` przyjmuje też liczby, a dla wartości spoza zakresu zwraca `true`
+    // z nieistniejącym elementem. Stąd dodatkowe `Enum.IsDefined` w walidacji.
+    [InlineData("99")]
+    public async Task CreateAsync_Throws_ForUnknownRole(string? role)
+    {
+        var service = BuildService(out var repository);
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => service.CreateAsync(new CreateUserDto("kto@x.pl", "password123", role!), CancellationToken.None));
+
+        Assert.Empty(await repository.ListAsync(CancellationToken.None));
+    }
+
+    [Theory]
+    [InlineData("admin")]
+    [InlineData("Instructor")]
+    [InlineData("PARENT")]
+    public async Task CreateAsync_AcceptsKnownRoles_RegardlessOfCasing(string role)
+    {
+        var service = BuildService(out _);
+
+        var user = await service.CreateAsync(new CreateUserDto("kto@x.pl", "password123", role), CancellationToken.None);
+
+        Assert.Equal(role.ToLowerInvariant(), user.Role);
+    }
+
+    [Fact]
+    public async Task SetRoleAsync_ChangesRole_AndInvalidatesActiveSessions()
+    {
+        var service = BuildService(out var repository);
+        var admin = await service.CreateAsync(new CreateUserDto("admin@x.pl", "password123", "admin"), CancellationToken.None);
+        var wrong = await service.CreateAsync(new CreateUserDto("rodzic@x.pl", "password123", "instructor"), CancellationToken.None);
+        var stampBefore = (await repository.GetByIdAsync(wrong.Id, CancellationToken.None))!.SecurityStamp;
+
+        Assert.True(await service.SetRoleAsync(wrong.Id, "parent", admin.Id, CancellationToken.None));
+
+        var updated = (await repository.GetByIdAsync(wrong.Id, CancellationToken.None))!;
+        Assert.Equal(LessonRunner.Domain.Users.UserRole.Parent, updated.Role);
+
+        // Rola jedzie w tokenie - bez nowego znacznika konto zostałoby personelem do 12 h.
+        Assert.NotEqual(stampBefore, updated.SecurityStamp);
+    }
+
+    [Fact]
+    public async Task SetRoleAsync_Throws_ForUnknownRole()
+    {
+        var service = BuildService(out _);
+        var admin = await service.CreateAsync(new CreateUserDto("admin@x.pl", "password123", "admin"), CancellationToken.None);
+        var other = await service.CreateAsync(new CreateUserDto("kto@x.pl", "password123", "parent"), CancellationToken.None);
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => service.SetRoleAsync(other.Id, "wizard", admin.Id, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task SetRoleAsync_RefusesToDemoteOwnAccount()
+    {
+        var service = BuildService(out _);
+        await service.CreateAsync(new CreateUserDto("admin1@x.pl", "password123", "admin"), CancellationToken.None);
+        var second = await service.CreateAsync(new CreateUserDto("admin2@x.pl", "password123", "admin"), CancellationToken.None);
+
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => service.SetRoleAsync(second.Id, "instructor", second.Id, CancellationToken.None));
+
+        Assert.Contains("własnego konta", error.Message);
+    }
+
+    [Fact]
+    public async Task SetRoleAsync_RefusesToDemoteLastActiveAdmin()
+    {
+        var service = BuildService(out var repository);
+        var admin = await service.CreateAsync(new CreateUserDto("admin@x.pl", "password123", "admin"), CancellationToken.None);
+
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => service.SetRoleAsync(admin.Id, "instructor", Guid.NewGuid(), CancellationToken.None));
+
+        Assert.Contains("jedyne aktywne konto administratora", error.Message);
+        Assert.True(await repository.HasAnyAdminAsync(CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task SetRoleAsync_ReturnsFalse_ForUnknownAccount()
+    {
+        var service = BuildService(out _);
+
+        Assert.False(await service.SetRoleAsync(Guid.NewGuid(), "parent", Guid.NewGuid(), CancellationToken.None));
+    }
+
     [Fact]
     public async Task SetActiveAsync_RefusesToDeactivateLastActiveAdmin()
     {

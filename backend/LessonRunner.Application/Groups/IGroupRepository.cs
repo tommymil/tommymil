@@ -6,7 +6,14 @@ public interface IGroupRepository
 {
     Task<IReadOnlyList<Group>> ListAsync(CancellationToken cancellationToken);
     Task<Group?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
-    Task<IReadOnlyList<Group>> ListByInstructorAsync(Guid instructorId, CancellationToken cancellationToken);
+    /// <summary>
+    /// Grupy, za które odpowiada dana osoba: prowadzi je albo ma w nich zastępstwo.
+    ///
+    /// To jest zakres widoczności instruktora i **zawężenie robi baza**. Wcześniej serwisy
+    /// (postępy, zgłoszenia techniczne) wczytywały wszystkie grupy z terminami, obecnością
+    /// i zapisami, po czym odsiewały je w pamięci — przy każdym zapisie postępu w kokpicie.
+    /// </summary>
+    Task<IReadOnlyList<Group>> ListForInstructorAsync(Guid instructorId, CancellationToken cancellationToken);
 
     /// <summary>Zwraca pełny agregat grupy zawierającej dany termin (uczestnicy + terminy + obecność).</summary>
     Task<Group?> GetBySessionIdAsync(Guid sessionId, CancellationToken cancellationToken);

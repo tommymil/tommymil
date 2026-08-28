@@ -14,9 +14,13 @@ const users: ManagedUser[] = [
 
 describe("useUsersViewModel", () => {
   beforeEach(() => {
+    // Bez tego licznik wywołań przecieka między przypadkami, a asercje „nie zawołano”
+    // przechodzą albo nie w zależności od kolejności testów.
+    vi.clearAllMocks();
     vi.mocked(usersApi.getUsers).mockResolvedValue(users);
     vi.mocked(usersApi.createUser).mockResolvedValue({ id: "u3", email: "nowy@x.pl", role: "instructor", isActive: true, ...profileBase, displayName: "nowy@x.pl" });
     vi.mocked(usersApi.setUserActive).mockResolvedValue(undefined);
+    vi.mocked(usersApi.setUserRole).mockResolvedValue(undefined);
     vi.mocked(usersApi.inviteUser).mockResolvedValue({
       sent: true,
       expiresAt: new Date().toISOString(),
@@ -56,6 +60,31 @@ describe("useUsersViewModel", () => {
     );
     expect(usersApi.inviteUser).toHaveBeenCalledWith("u3");
     expect(result.current.error).toBeNull();
+  });
+
+  it("changes the role of an account and says the session ends", async () => {
+    const { result } = renderHook(() => useUsersViewModel());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.changeRole(users[1], "parent");
+    });
+
+    expect(usersApi.setUserRole).toHaveBeenCalledWith("u2", "parent");
+    expect(result.current.users.find((user) => user.id === "u2")?.role).toBe("parent");
+    // Rola jedzie w tokenie, więc serwer wylogowuje tę osobę - admin musi o tym wiedzieć.
+    expect(result.current.notice).toContain("zalogować się ponownie");
+  });
+
+  it("skips the call when the role has not changed", async () => {
+    const { result } = renderHook(() => useUsersViewModel());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.changeRole(users[1], "instructor");
+    });
+
+    expect(usersApi.setUserRole).not.toHaveBeenCalled();
   });
 
   it("toggles active state", async () => {

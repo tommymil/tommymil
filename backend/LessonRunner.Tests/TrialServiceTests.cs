@@ -53,6 +53,22 @@ public sealed class TrialServiceTests
         Assert.Equal("requested", cleared!.Status);
     }
 
+    /// <summary>
+    /// Link do spotkania renderuje się jako `href` na liście instruktora. Wcześniej pole
+    /// przechodziło tylko przez przycięcie białych znaków, bez sprawdzenia schematu.
+    /// </summary>
+    [Fact]
+    public async Task ScheduleAsync_RejectsMeetingLinkThatIsNotHttp()
+    {
+        var fixture = new Fixture();
+        var trial = await fixture.CreateAsync();
+
+        await Assert.ThrowsAsync<ArgumentException>(() => fixture.Service.ScheduleAsync(
+            trial.Id,
+            new ScheduleTrialDto(fixture.Instructor.Id, DateTimeOffset.UtcNow.AddDays(2), "javascript:alert(1)"),
+            CancellationToken.None));
+    }
+
     [Fact]
     public async Task ScheduleAsync_AcceptsOnlyShowcaseLessonPlans()
     {

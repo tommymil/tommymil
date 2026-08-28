@@ -23,7 +23,7 @@ public sealed class DashboardService(
     {
         var groups = await groupRepository.ListAsync(cancellationToken);
         var participants = await participantRepository.ListAsync(cancellationToken);
-        var lessons = (await lessonRepository.ListAsync(cancellationToken)).ToDictionary(lesson => lesson.Id, lesson => lesson.Title);
+        var lessons = await lessonRepository.ListTitlesAsync(cancellationToken);
         var users = await userRepository.ListAsync(cancellationToken);
         var instructorNames = users.ToDictionary(user => user.Id, user => user.DisplayName);
         var locationNames = schedulingRepository is null

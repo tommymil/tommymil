@@ -25,3 +25,11 @@ export function inviteUser(id: string): Promise<InvitationResult> {
 export function setUserPassword(id: string, password: string): Promise<void> {
   return apiPost<{ password: string }, void>(`/api/users/${id}/password`, { password });
 }
+
+/**
+ * Zmiana roli konta. Serwer unieważnia przy tym sesje tego użytkownika, bo rola jedzie
+ * w tokenie — zmieniona osoba musi zalogować się ponownie.
+ */
+export function setUserRole(id: string, role: string): Promise<void> {
+  return apiPut<{ role: string }, void>(`/api/users/${id}/role`, { role });
+}

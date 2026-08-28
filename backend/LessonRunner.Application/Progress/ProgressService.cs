@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using LessonRunner.Application.Common;
 using LessonRunner.Application.Groups;
 using LessonRunner.Domain.Groups;
 using LessonRunner.Domain.Progress;
@@ -126,7 +127,9 @@ public sealed class ProgressService(
         bool isAdmin,
         CancellationToken cancellationToken)
     {
-        var url = Trimmed(dto.Url);
+        // Link do projektu widzi rodzic w swoim portalu i klika go tam wprost, więc musi być
+        // http(s). Bez tego `javascript:...` wykonałby się w sesji rodzica.
+        var url = WebLink.Normalize(dto.Url, "Link do projektu musi być pełnym adresem http(s).");
         var fileUrl = Trimmed(dto.FileUrl);
 
         if (url is null && fileUrl is null)
@@ -230,12 +233,9 @@ public sealed class ProgressService(
             return true;
         }
 
-        var groups = await groupRepository.ListAsync(cancellationToken);
+        var groups = await groupRepository.ListForInstructorAsync(userId, cancellationToken);
 
-        return groups
-            .Where(group => group.InstructorId == userId
-                || group.Sessions.Any(session => session.SubstituteInstructorId == userId))
-            .Any(group => group.Enrollments.Any(enrollment => enrollment.ParticipantId == participantId));
+        return groups.Any(group => group.Enrollments.Any(enrollment => enrollment.ParticipantId == participantId));
     }
 
     private static IReadOnlyList<AutonomyOptionDto> AutonomyOptions() =>
