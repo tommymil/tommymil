@@ -73,12 +73,25 @@ Te decyzje kosztowały czas i mają uzasadnienie w `README.md`. Nie odwracaj ich
   ale zostaje widoczna. `IsAvailable` jest osobnym, ręcznym przełącznikiem i licznik go nie
   przepisuje. Limitu pilnuje **`ShopOrder.Place`**, nie pole „Ilość" w przeglądarce ani przycinanie
   koszyka — jedno i drugie jest uprzejmością wobec klienta, nie zabezpieczeniem.
+- **Sklep jest schowany przed klientem** do odwołania. Widoczność steruje jedna stała —
+  `frontend/src/app/siteFeatures.ts` → `isShopVisible`. Dokładając cokolwiek, co prowadzi klienta
+  do sklepu (link, przycisk, wpis w mapie strony), przepuść to przez tę stałą zamiast usuwać kod.
+  Trasy sklepu **zostają sprawne** — obsługa pracuje na katalogu przed premierą.
+- **Dziecko z kluczem nadanym w kodzie dokładasz do agregatu jawnie przez `DbSet`.** `Entity` nadaje
+  `Id` w konstruktorze, więc EF widzi nowy wiersz dołożony do **już wczytanego** agregatu jako edycję
+  istniejącego — `UPDATE` trafia w zero wierszy i leci `DbUpdateConcurrencyException`. Tak robi
+  `LeadService.MutateAsync` z notatkami i `PromotionCampaignService.UpdateAsync` z krokami kampanii.
+  Kasowanie działa samo (osierocone kaskadą) — problem dotyczy wyłącznie dokładania.
+- **Kampanię reklamową widać wyłącznie na stronie głównej** (`/` i `/en`). `CampaignPopup` ma listę
+  dozwolonych tras, nie listę wykluczeń: dokładając podstronę, nie musisz pamiętać o wypisaniu jej
+  z popupu. Zamknięcie popupu jest pamiętane do końca sesji przeglądarki.
 - **Publiczne formularze**: zgoda RODO + honeypot + rate-limit per IP. Dokładając nowy publiczny
   endpoint przyjmujący dane, dołóż wszystkie trzy.
 - **Endpoint administracyjny musi mieć `.RequireOperator(OperatorPermissions.X)`.** Brak bramy
   = publiczny dostęp do danych klientów. Uprawnienia są **cztery i mają takie zostać** — każde
-  nadaje się i odbiera niezależnie: `Leads` (CRM, `/crm`), `Media` (zdjęcia,
-  `/zdjecia`), `Shop` (sklep, `/sklep/panel`), `Operators` (konta, `/operatorzy`).
+  nadaje się i odbiera niezależnie: `Leads` (CRM, `/crm`), `Media` (panel strony —
+  zdjęcia i kampanie reklamowe, `/panel`), `Shop` (sklep, `/sklep/panel`), `Operators`
+  (konta, `/operatorzy`).
   Nie podpinaj `/api/admin/shop` pod uprawnienie od zleceń — to, że obsługa asortymentu nie
   otwiera kartoteki klientów, jest całym sensem rozdziału. Pilnują tego testy w
   `ShopAdminApiTests` i `OperatorApiTests`.
@@ -116,10 +129,10 @@ Zmiana jest gotowa dopiero, gdy przechodzi **komplet** poniższych komend:
 
 ```bash
 dotnet build backend/AkHouse.slnx
-dotnet test  backend/AkHouse.slnx        # obecnie 148 metod testowych
+dotnet test  backend/AkHouse.slnx        # obecnie 245 metod testowych
 npm --prefix frontend run lint           # 0 błędów (ostrzeżenia dopuszczalne, patrz niżej)
 npm --prefix frontend run typecheck
-npm --prefix frontend test               # obecnie 131 testów
+npm --prefix frontend test               # obecnie 188 testów
 npm --prefix frontend run build
 ```
 
@@ -135,7 +148,7 @@ Nowy view-model → test obok pliku (`*.test.ts`).
   W konfiguracji `Release` ostrzeżenia kompilatora są traktowane jak błędy.
 - `frontend/eslint.config.js` — `npm run lint`. Bramka przepuszcza ostrzeżenia
   (`react-refresh/only-export-components`, `react-hooks/set-state-in-effect`,
-  `react-hooks/exhaustive-deps` — łącznie 36 sztuk zastanych). **Nie dokładaj nowych**;
+  `react-hooks/exhaustive-deps` — łącznie 40 sztuk zastanych). **Nie dokładaj nowych**;
   istniejące są do stopniowego wygaszenia.
 
 Reguły szczegółowe warstw: `backend/CLAUDE.md` i `frontend/CLAUDE.md`.

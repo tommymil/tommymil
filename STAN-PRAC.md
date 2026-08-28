@@ -52,7 +52,7 @@ wszystkie panele, a dostęp do każdego z nich jest osobną flagą przypisywaną
 | Panel | Adres | Uprawnienie | Co daje |
 |---|---|---|---|
 | CRM (zlecenia) | `/crm` | `Leads` | Lejek leadów na domki i sauny, e-maile, historia |
-| Strona | `/zdjecia` | `Media` | Kampanie reklamowe, zdjęcia strony i galeria realizacji |
+| Strona | `/panel` | `Media` | Dwie zakładki: zdjęcia strony z galerią realizacji oraz kampanie reklamowe |
 | Sklep | `/sklep/panel` | `Shop` | Asortyment, kategorie, cennik, magazyn, dostawa, zamówienia |
 | Konta | `/operatorzy` | `Operators` | Zakładanie kont, nadawanie i odbieranie dostępów |
 
@@ -100,10 +100,10 @@ Skrypty w katalogu głównym — każdy z przełącznikiem podglądu:
 |---|---|
 | Kod produkcyjny | ~290 plików, ~31 000 linii (bez migracji, `obj/`, `bin/` i `node_modules`) |
 | Endpointy HTTP | 86 |
-| Migracje EF Core | 24, ostatnia `20260827140000_ProductStock` |
-| Testy backendu | **232 przypadki, wszystkie przechodzą** (Debug i Release) |
-| Testy frontendu | 27 plików → **164 testy, wszystkie przechodzą** |
-| Moduły frontendu | 13 (`admin`, `campaign`, `catalog`, `configurator`, `consent`, `gallery`, `landing`, `media`, `notfound`, `order`, `realizations`, `shop`, `shopadmin`) |
+| Migracje EF Core | 26, ostatnia `20260828155853_PromotionCampaignSteps` |
+| Testy backendu | **245 przypadków, wszystkie przechodzą** (Debug i Release) |
+| Testy frontendu | 30 plików → **188 testów, wszystkie przechodzą** |
+| Moduły frontendu | 14 (`admin`, `campaign`, `catalog`, `configurator`, `consent`, `gallery`, `landing`, `media`, `notfound`, `order`, `panel`, `realizations`, `shop`, `shopadmin`) |
 | Produkty w sklepie | 155 w 13 używanych kategoriach (zdefiniowanych 15) |
 | Ceny detaliczne wgrane | 68 z 155 |
 | Grupy wariantów | 6 grup obejmujących 17 produktów |
@@ -352,12 +352,14 @@ trasę najwyższego poziomu:
 | Było | Jest | Co to |
 |---|---|---|
 | `/admin` | **`/crm`** | Zlecenia na domki, sauny i meble — **nie** sklep |
-| `/admin/zdjecia` | **`/zdjecia`** | Zdjęcia strony i galeria realizacji |
+| `/admin/zdjecia` → `/zdjecia` | **`/panel`** | Zdjęcia strony, galeria realizacji i kampanie reklamowe |
 | `/admin/operatorzy` | **`/operatorzy`** | Konta i uprawnienia |
 | `/sklep/panel` | bez zmian | Sklep |
 
-Zdjęcia obsługują całą stronę, nie CRM, więc nie miały po co pod nim wisieć. **Przekierowania
-ze starych adresów celowo nie ma** — `/admin` trafia na 404, zamiast cicho działać dalej.
+Zdjęcia obsługują całą stronę, nie CRM, więc nie miały po co pod nim wisieć. Panel urósł potem
+o kampanie reklamowe i przestał być „panelem zdjęć" — stąd `/zdjecia` → `/panel` (28.08).
+**Przekierowania ze starych adresów celowo nie ma** — `/admin` i `/zdjecia` trafiają na 404,
+zamiast cicho działać dalej.
 Zakładki trzeba zaktualizować.
 
 Przy okazji: pływający dymek WhatsApp znikał dotąd tylko pod `/admin*`, więc wisiał nad panelem
@@ -541,6 +543,39 @@ Skrypt przerywa na pierwszym błędzie i mówi, który etap padł. Pojedynczy et
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File zacommituj.ps1 -NaSucho
 ```
+
+---
+
+## 28 sierpnia 2026 — sklep schowany przed premierą, panel strony na `/panel`
+
+Strona idzie na produkcję bez sklepu, a panel obsługi przestał być „panelem zdjęć":
+
+- **Sklep niewidoczny dla klienta.** Jedna stała `frontend/src/app/siteFeatures.ts` →
+  `isShopVisible = false` zdejmuje pozycję „Sklep" z menu (desktop i mobile), ikonę koszyka
+  i link do konta w nagłówku oraz pozycję „Moje konto" w menu mobilnym. `/sklep` wypisany
+  z `sitemap.xml` i zablokowany w `robots.txt`. **Trasy działają dalej** — obsługa pracuje
+  na katalogu przed premierą, a `/sklep/panel` jest nietknięty. Odsłonięcie sklepu to
+  przestawienie stałej plus przywrócenie wpisów w `sitemap.xml` i `robots.txt`.
+- **`/zdjecia` → `/panel`** z dwiema zakładkami: **Zdjęcia** (miejsca na zdjęcia + galeria
+  realizacji) i **Kampanie reklamowe**. Powłoka panelu — nagłówek, zakładki i wspólny pasek
+  komunikatów — siedzi w `features/panel/SitePanelPage.tsx`; zawartość w `features/media/MediaTab.tsx`
+  i `features/campaign/components/CampaignManager.tsx`. Stary adres `/zdjecia` **trafia na 404**,
+  zgodnie z zasadą przyjętą przy `/admin/*`.
+- **Publikacja kampanii jednym kliknięciem.** Przełącznik „Włącz publikację" w formularzu jest
+  polem roboczym — działa dopiero po „Zapisz kampanię" — i na tym łatwo się przejechać. Lista
+  kampanii ma teraz przycisk **Włącz/Wyłącz**, który zapisuje od razu, a nad formularzem stoi
+  pasek mówiący wprost, co klient widzi w tej chwili (albo że nie widzi nic i dlaczego).
+- **Kroki „jak to działa" w popupie.** Kampania może nieść do czterech kroków (nazwa + opcjonalny
+  dopisek), np. „Wybierz typ sauny" → „Dobierz elementy" → „Oczekuj na realizację". Osobna tabela
+  `PromotionCampaignSteps` (migracja `PromotionCampaignSteps`), numeracja z serwera, edycja wymienia
+  całą drabinkę. U klienta lista numerowana: rzędem od 560 px, pionowo na telefonie.
+- **Popup kampanii tylko na stronie głównej** (`/` i `/en`). `CampaignPopup` ma listę dozwolonych
+  tras zamiast listy wykluczeń, więc klient czytający ofertę, wypełniający formularz albo
+  oglądający galerię nie jest zaczepiany drugi raz. Zamknięcie nadal pamiętane do końca sesji
+  przeglądarki, a zmiana treści kampanii pokazuje ją ponownie.
+
+Uprawnienie `Media` bez zmian — kampanie i zdjęcia dzielą jedno konto i jedną bramę.
+Testy po zmianach: backend 245/245, frontend 188/188.
 
 ---
 

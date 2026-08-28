@@ -68,12 +68,12 @@ Doszło 27 metod: 13 w `OperatorTests` (domena) i 14 w `OperatorApiTests` (integ
 | PUT / DELETE | `/api/admin/operators/{id}` | uprawnienie `Operators` |
 | PUT | `/api/admin/operators/{id}/password` | uprawnienie `Operators` |
 
-Uprawnienia: **Leads** (`/admin`), **Media** (`/admin/zdjecia`), **Shop** (`/sklep/panel`),
+Uprawnienia: **Leads** (`/crm`), **Media** (`/panel`), **Shop** (`/sklep/panel`),
 **Operators** (zarządzanie kontami). Jedno konto może mieć dowolną kombinację.
 
 ## Jak to wygląda w przeglądarce
 
-Wszystkie trzy panele — `/admin`, `/admin/zdjecia`, `/sklep/panel` — mają teraz **jeden formularz
+Wszystkie trzy panele — `/crm`, `/panel`, `/sklep/panel` — mają teraz **jeden formularz
 logowania** zamiast trzech okienek na klucz. Po zalogowaniu:
 
 - konto z hasłem nadanym przez kogoś innego (albo z konfiguracji) **musi je najpierw zmienić** —

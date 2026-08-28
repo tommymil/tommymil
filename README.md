@@ -90,21 +90,23 @@ CPQ i panel CMS bez przepisywania rdzenia.
 - `PATCH /api/leads/{id}/read` — **chronione** — oznaczenie leada jako (nie)przeczytany.
 - `GET  /api/site-images` — publiczna mapa `slot → { url, caption }`; SPA używa jej do podmiany zdjęć
   i nazw w konkretnych miejscach. Brak wpisu = zdjęcie i tekst wkompilowane w build.
-- `GET/POST/DELETE /api/admin/site-images[/{slot}]` — **chronione `Admin:MediaApiKey`** — lista, wgranie
+- `GET/POST/DELETE /api/admin/site-images[/{slot}]` — **chronione uprawnieniem `Media`** — lista, wgranie
   (multipart, pole `file`) i przywrócenie oryginału. Dozwolone JPG/PNG/WEBP/AVIF do 8 MB; SVG jest
   odrzucany, bo wykonuje JavaScript po otwarciu bezpośrednio.
 - `PUT /api/admin/site-images/{slot}/caption` — **chronione** — zmiana nazwy/podpisu miejsca
   (maks. 200 znaków). Pusta wartość przywraca tekst z builda; gdy slot nie ma też wgranego zdjęcia,
   nadpisanie znika w całości (`204`).
 - `GET  /api/gallery-photos` — publiczna lista dodatkowych zdjęć galerii (bez slotów), od najnowszych.
-- `GET/POST/PUT/DELETE /api/admin/gallery-photos[/{id}]` — **chronione `Admin:MediaApiKey`** — dodanie
+- `GET/POST/PUT/DELETE /api/admin/gallery-photos[/{id}]` — **chronione uprawnieniem `Media`** — dodanie
   (multipart: `file`, `caption`, `category`), zmiana podpisu i kategorii, usunięcie. Kategoria musi być
   jedną z `domki`/`sauny`/`meble`/`wnetrza`.
 - `GET /api/promotion-campaign` — publiczna kampania obowiązująca w bieżącej chwili albo `204`.
   Gdy harmonogramy się nakładają, wygrywa włączona kampania z najpóźniejszym startem.
 - `GET/POST/PUT/DELETE /api/admin/promotion-campaigns[/{id}]` — **chronione uprawnieniem `Media`** —
   lista, tworzenie, edycja i usuwanie kampanii popup. Kampania zawiera wyróżnik, tytuł, opis,
-  przycisk z bezpiecznym adresem, datę startu, opcjonalny koniec i przełącznik publikacji.
+  przycisk z bezpiecznym adresem, datę startu, opcjonalny koniec, przełącznik publikacji oraz
+  **do czterech kroków „jak to działa"** (`PromotionCampaignSteps`, nazwa + opcjonalny dopisek).
+  Edycja **wymienia całą drabinkę kroków**, nie dopisuje do niej.
 - `GET  /health` — status.
 
 ### Sklep (`/api/shop`, `/api/account`, `/api/admin/shop`)
@@ -190,10 +192,10 @@ Osobne wejście do zarządzania sklepem: asortyment, kategorie, zamówienia i do
 Nie prowadzi tam żaden odnośnik, trasa jest wyłączona w `robots.txt` i nie ma jej w `sitemap.xml`.
 
 **Dlaczego osobno, a nie zakładka w `/crm`:** wcześniej sklepem zarządzało się piątą zakładką
-panelu zleceń, chronioną tym samym `Admin:ApiKey`. Kto miał prowadzić asortyment, dostawał wgląd
-we wszystkie zapytania klientów. Teraz panel ma własny `Admin:ShopApiKey` — obie role nadaje się
-i odbiera niezależnie. Klucz jest sprawdzany przy wejściu (nie dopiero przy pierwszym zapisie)
-i leży w `sessionStorage`, więc znika po zamknięciu karty.
+panelu zleceń, chronioną tym samym kluczem co zlecenia. Kto miał prowadzić asortyment, dostawał
+wgląd we wszystkie zapytania klientów. Teraz panel stoi za własnym uprawnieniem `Shop` — obie role
+nadaje się i odbiera niezależnie. Dostęp jest sprawdzany przy wejściu (nie dopiero przy pierwszym
+zapisie), a uprawnienia czyta się z bazy przy każdym żądaniu, więc odebranie działa natychmiast.
 
 Pięć zakładek:
 
@@ -264,9 +266,15 @@ przebudowę tabeli SQLite na żywym katalogu i wracałoby do operatora jako niec
 sterownika. Spójności pilnuje `ShopAdminService`: produkt nie zapisze się na nieistniejącej półce,
 a półki z produktami nie da się skasować bez wskazania celu — po polsku, z liczbą pozycji.
 
-### Ukryty panel zarządzania stroną (`/zdjecia`)
+### Ukryty panel zarządzania stroną (`/panel`)
 
-Wspólny panel kampanii reklamowych oraz podmiany zdjęć **i ich nazw** w konkretnych punktach strony:
+Panel ma dwie zakładki — **Zdjęcia** i **Kampanie reklamowe**. Dzielą jedno uprawnienie `Media`
+i jedno konto, ale to dwie różne prace: podmiana zdjęcia jest poprawką, a kampania ma termin
+i sama się włącza. Powłoka panelu (`features/panel/SitePanelPage.tsx`) trzyma nagłówek, zakładki
+i jeden wspólny pasek komunikatów; zawartość zakładek żyje w `features/media/MediaTab.tsx`
+i `features/campaign/components/CampaignManager.tsx`.
+
+Zakładka **Zdjęcia** obsługuje podmianę zdjęć **i ich nazw** w konkretnych punktach strony:
 kafelki sekcji powitalnej,
 galeria, realizacje, nagłówki i kafelki kategorii, zdjęcia produktów oraz galerie produktowe. Każde
 miejsce ma edytowalną nazwę, informację gdzie występuje, podgląd aktualnego zdjęcia i przyciski
@@ -279,8 +287,11 @@ Nazwa działa dwojako i panel to rozróżnia (`nameOnSite` w rejestrze):
   na atrybut `alt` (dostępność i SEO).
 
 - Nie prowadzi tam żaden odnośnik; trasa jest wyłączona w `robots.txt` i nie ma jej w `sitemap.xml`.
-- Wejście chroni `Admin:MediaApiKey` (nagłówek `X-Api-Key`), trzymany w `sessionStorage` — znika po
-  zamknięciu karty. Klucz jest weryfikowany przy wejściu, nie dopiero przy pierwszym wgraniu.
+- Wejście chroni **konto operatora z uprawnieniem `Media`** (ciasteczko `HttpOnly` `akhouse.operator`),
+  a nie klucz w nagłówku — klucze API zostały zastąpione kontami 27.08. Dostęp jest weryfikowany przy
+  wejściu, nie dopiero przy pierwszym wgraniu, i czytany z bazy przy każdym żądaniu.
+  `Operators:MachineKeys:Media` (nagłówek `X-Api-Key`) zostaje wyłącznie jako poświadczenie maszynowe
+  dla skryptów i domyślnie jest wyłączone.
 - Wgrane pliki leżą poza `wwwroot` (`Media:UploadRoot`) i są serwowane spod `/uploads`. Dzięki temu
   publikacja z Visual Studio ich nie kasuje.
 - „Przywróć" usuwa nadpisanie, więc miejsce wraca do zdjęcia z builda — nic nie jest tracone
@@ -288,10 +299,26 @@ Nazwa działa dwojako i panel to rozróżnia (`nameOnSite` w rejestrze):
 
 #### Sekcja „Kampanie reklamowe"
 
+Nad formularzem stoi pasek mówiący wprost, co klient widzi w tej chwili — nazwę aktywnej kampanii
+albo informację, że nie pokazuje się żaden popup. Bez tego jedyną odpowiedzią na „włączyłem, a nic
+nie widać" było wejście na stronę główną i zgadywanie, czy winna jest publikacja, czy termin.
+
+Przełącznik **„Włącz publikację"** w formularzu jest **polem roboczym** — jak każde inne, wchodzi
+w życie dopiero po „Zapisz kampanię". Gotową kampanię włącza się i wyłącza jednym kliknięciem
+przyciskiem **Włącz/Wyłącz** na jej wierszu listy; ten zapisuje od razu.
+
 Operator ustawia treść popupu (opcjonalny wyróżnik, np. „-10%”, tytuł, opis i przycisk), jego cel,
-datę rozpoczęcia, opcjonalną datę zakończenia oraz publikację. Można przygotować wiele kampanii z
+datę rozpoczęcia, opcjonalną datę zakończenia oraz publikację.
+
+Pod treścią można dołożyć **kroki „jak to działa"** — do czterech, każdy z nazwą i opcjonalnym
+dopiskiem, np. „Wybierz typ sauny” / „Fińska albo z panoramą”. Kolejny pusty wiersz pojawia się
+sam po wypełnieniu poprzedniego, a numerację nadaje serwer, więc skasowanie kroku ze środka nie
+zostawia dziury. Kroki są opcjonalne: popup bez nich wygląda jak wcześniej. U klienta rysują się
+jako lista numerowana — w jednym rzędzie na ekranie od 560 px, jeden pod drugim na telefonie. Można przygotować wiele kampanii z
 wyprzedzeniem; panel pokazuje stan „aktywna”, „zaplanowana”, „zakończona” albo „wyłączona”. Aktywna
-kampania pojawia się jako modal po wejściu klienta na publiczną część strony. Klient przechodzi do
+kampania pojawia się jako modal po wejściu klienta **wyłącznie na stronę główną** (`/` i `/en`) —
+lista dozwolonych tras siedzi w `CampaignPopup.tsx`. Klient, który już czyta ofertę, wypełnia
+formularz albo przegląda galerię, nie jest zaczepiany drugi raz. Klient przechodzi do
 wskazanego miejsca albo zamyka popup przyciskiem **X**; zamknięcie jest pamiętane do końca bieżącej
 sesji przeglądarki. Zmiana treści kampanii powoduje pokazanie jej ponownie.
 
@@ -355,7 +382,7 @@ SEO: `robots.txt`, `sitemap.xml`, Open Graph/Twitter meta, favicon marki. Dostę
 | **View** | Komponenty prezentacyjne (czysty JSX + style z tokenów) | `features/landing/components/`, `features/admin/components/` |
 | **ViewModel** | Hooki ze stanem i logiką (`useContactForm`, `useGalleryFilter`, `useConfigurator`, `useSiteContent`, `useLeads`, `useLeadDetail`, `useAdminAuth`…) | `features/*/viewmodels/` |
 | **Model / usługi** | Klient HTTP, API treści i leadów, typy DTO | `api/`, `types/` |
-| **Routing** | `react-router-dom`: landing, katalog, kategorie, produkty, realizacje, zamówienie oraz narzędzia wewnętrzne `/crm`, `/zdjecia`, `/operatorzy`, `/sklep/panel` (konfigurator 3D bez trasy — zawieszony) | `App.tsx` |
+| **Routing** | `react-router-dom`: landing, katalog, kategorie, produkty, realizacje, zamówienie oraz narzędzia wewnętrzne `/crm`, `/panel`, `/operatorzy`, `/sklep/panel` (konfigurator 3D bez trasy — zawieszony) | `App.tsx` |
 | **Design tokens** | Kolory, typografia, kształt hex — jedno źródło prawdy | `app/theme.ts`, `app/global.css` |
 
 Komponenty nie wołają `fetch` bezpośrednio — robią to view-modele przez warstwę `api/`,
@@ -372,7 +399,16 @@ co ułatwia testy i przyszłą rozbudowę (np. React Query, kolejne strony).
 - Katalog jest ładowany jako osobne chunki, więc jego rozbudowana treść nie zwiększa istotnie
   początkowego pakietu strony głównej.
 
-### Sklep (`/sklep`) — osobna zakładka
+### Sklep (`/sklep`) — osobna zakładka, obecnie schowana
+
+> **Sklep jest niewidoczny dla klienta.** `frontend/src/app/siteFeatures.ts` trzyma stałą
+> `isShopVisible = false`: znika pozycja „Sklep" w menu (`visibleNavItems()` w
+> `features/landing/navigation.ts`), ikona koszyka i link do konta w nagłówku oraz pozycja
+> „Moje konto" w menu mobilnym. `/sklep` jest wypisany z `sitemap.xml` i zablokowany
+> w `robots.txt`. **Trasy działają dalej** pod bezpośrednim adresem, więc obsługa może pracować
+> na katalogu przed premierą, a panel `/sklep/panel` jest nietknięty. Odsłonięcie sklepu:
+> `isShopVisible = true`, przywrócenie wpisu w `public/sitemap.xml` i zdjęcie `Disallow: /sklep`
+> z `public/robots.txt`.
 
 Polskojęzyczna część sklepowa, bez lustra `/en` (przełącznik języka jest na tych trasach ukrywany,
 bo nie ma dokąd prowadzić). Trasy: `/sklep`, `/sklep/:slug`, `/koszyk`, `/zamowienie-sklep`,
