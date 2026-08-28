@@ -1,0 +1,8 @@
+[submodule "backend"]
+	path = backend
+	url = https://github.com/tommymil/szk-prg.git
+	branch = master
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/tommymil/szk-prg-front.git
+	branch = main

@@ -1,6 +1,0 @@
-@LessonRunner.Api_HostAddress = http://localhost:5007
-
-GET {{LessonRunner.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
