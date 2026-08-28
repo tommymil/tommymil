@@ -19,7 +19,7 @@ Wyjście (katalog --out)
   dopasowania-pewne.csv     — do zaakceptowania hurtem
   dopasowania-watpliwe.csv  — do przejrzenia wiersz po wierszu
   bez-dopasowania.csv       — nasze pozycje, których u nich nie ma
-  base-prices.json          — ładunek dla POST /api/admin/shop/pricing/base-prices
+  base-prices.json          — ładunek dla POST /api/admin/shop/suppliers/{id}/base-prices
                               (domyślnie tylko pewne; --uwzglednij-watpliwe dokłada resztę)
 
 Użycie
@@ -98,6 +98,7 @@ def podobienstwo(a: str, b: str) -> float:
 class Pozycja:
     slug: str
     nazwa: str
+    kod_dostawcy: str
 
 
 @dataclass
@@ -124,7 +125,11 @@ def wczytaj_nasze(sciezka: Path) -> list[Pozycja]:
     dane = json.loads(sciezka.read_text(encoding="utf-8"))
     lista = dane.get("products", dane) if isinstance(dane, dict) else dane
     pozycje = [
-        Pozycja(slug=str(p["slug"]), nazwa=str(p["name"]))
+        Pozycja(
+            slug=str(p["slug"]),
+            nazwa=str(p["name"]),
+            kod_dostawcy=str(p.get("supplierProductCode") or p["slug"]),
+        )
         for p in lista
         if p.get("slug") and p.get("name")
     ]
@@ -230,7 +235,15 @@ def main() -> int:
     zapisz_csv(args.out / "bez-dopasowania.csv", brak)
 
     do_wgrania = pewne + (watpliwe if args.uwzglednij_watpliwe else [])
-    ladunek = {"prices": [{"slug": d.nasza.slug, "basePriceGrosze": d.ich.grosze} for d in do_wgrania]}
+    ladunek = {
+        "prices": [
+            {
+                "supplierProductCode": d.nasza.kod_dostawcy,
+                "basePriceGrosze": d.ich.grosze,
+            }
+            for d in do_wgrania
+        ]
+    }
     (args.out / "base-prices.json").write_text(
         json.dumps(ladunek, ensure_ascii=False, indent=2), encoding="utf-8"
     )

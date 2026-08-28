@@ -154,16 +154,19 @@ try {
 
 try {
     $naglowki = @{ "X-Api-Key" = $Klucz; "Content-Type" = "application/json" }
+    $dostawcy = Invoke-RestMethod "$api/api/admin/shop/suppliers" -Headers @{ "X-Api-Key" = $Klucz }
+    $balia = $dostawcy | Where-Object { $_.code -eq "balia-technic" } | Select-Object -First 1
+    if (-not $balia) { throw "Nie znaleziono dostawcy o kodzie balia-technic." }
 
     # --- 5. Import cen bazowych ------------------------------------------------
     Krok "Wgrywam ceny detaliczne Balii"
     $tresc = [System.Text.Encoding]::UTF8.GetBytes((Get-Content $Ceny -Raw))
-    $wynik = Invoke-RestMethod "$api/api/admin/shop/pricing/base-prices" -Method Post -Headers $naglowki -Body $tresc
+    $wynik = Invoke-RestMethod "$api/api/admin/shop/suppliers/$($balia.id)/base-prices" -Method Post -Headers $naglowki -Body $tresc
 
     Ok "Zaktualizowano pozycji: $($wynik.updated)"
-    if ($wynik.unknownSlugs.Count -gt 0) {
-        Uwaga "UWAGA - $($wynik.unknownSlugs.Count) slugow nie istnieje w sklepie:"
-        $wynik.unknownSlugs | ForEach-Object { Uwaga "  $_" }
+    if ($wynik.unknownIdentifiers.Count -gt 0) {
+        Uwaga "UWAGA - $($wynik.unknownIdentifiers.Count) identyfikatorow nie istnieje u tego dostawcy:"
+        $wynik.unknownIdentifiers | ForEach-Object { Uwaga "  $_" }
         Uwaga "To znaczy, ze dopasowanie sie rozjechalo. Przeslij mi te liste."
     }
 
@@ -171,19 +174,20 @@ try {
     if ($Narzut) {
         Krok "Ustawiam narzut"
         $procent = [decimal]($Narzut -replace ',', '.')
-        $odp = Invoke-RestMethod "$api/api/admin/shop/pricing/margin" -Method Put -Headers $naglowki `
+        $odp = Invoke-RestMethod "$api/api/admin/shop/suppliers/$($balia.id)/margin" -Method Put -Headers $naglowki `
                -Body (@{ marginPercent = $procent } | ConvertTo-Json)
         Ok "Narzut $($odp.marginPercent)% objal $($odp.productsWithBasePrice) pozycji"
         Ok "$($odp.productsPricedManually) pozycji zostaje z cena reczna"
     } else {
         Krok "Narzut"
         Uwaga "Nie podano - ceny weszly 1:1 jak u Balii."
-        Uwaga "Ustaw go w /sklep/panel -> Cennik, albo uruchom skrypt z -Narzut 8,5"
+        Uwaga "Ustaw go w /sklep/panel -> Dostawcy i cennik -> Balia Technic, albo uruchom skrypt z -Narzut 8,5"
     }
 
     # --- 7. Kontrola -----------------------------------------------------------
     Krok "Stan cennika"
-    $stan = Invoke-RestMethod "$api/api/admin/shop/pricing" -Headers @{ "X-Api-Key" = $Klucz }
+    $stan = (Invoke-RestMethod "$api/api/admin/shop/suppliers" -Headers @{ "X-Api-Key" = $Klucz }) `
+        | Where-Object { $_.id -eq $balia.id } | Select-Object -First 1
     Write-Host "    narzut               : $($stan.marginPercent)%"
     Write-Host "    z cena detaliczna    : $($stan.productsWithBasePrice)"
     Write-Host "    wyceniane recznie    : $($stan.productsPricedManually)"

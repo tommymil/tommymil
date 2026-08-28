@@ -60,22 +60,35 @@ Te decyzje kosztowały czas i mają uzasadnienie w `README.md`. Nie odwracaj ich
   po cenie dawałyby złe wyniki. W panelu wpisuje się złotówki, do bazy idą grosze.
 - **Cenę liczy serwer.** Z przeglądarki przychodzą wyłącznie `productId` i `quantity`.
   Cena w koszyku w `localStorage` służy tylko do podglądu.
-- **Narzut jest aplikowany, nie kumulowany.** Cena sklepowa = `BasePriceGrosze` (detal Balii)
-  przepuszczona przez `ShopPricing`. Liczy się **zawsze od bazy**, nigdy od bieżącej ceny —
+- **Narzut jest aplikowany, nie kumulowany.** Cena sklepowa = `BasePriceGrosze` przypisanego
+  dostawcy przepuszczona przez jego `ShopSupplier.MarginBasisPoints`. Liczy się **zawsze od bazy**, nigdy od bieżącej ceny —
   inaczej dwa kliknięcia dawałyby +21% zamiast +10%, a powrót do cen dostawcy byłby niemożliwy.
   Narzut trzymamy w punktach bazowych jako `int` (1% = 100). Arytmetyka jest zdublowana w panelu
   (`features/shopadmin/pricing.ts`) i **musi zgadzać się z `ShopPricing.Apply` co do grosza**;
   obie strony mają na to testy.
 - **Pozycja zamówienia trzyma własną kopię nazwy i ceny.** Zmiana cennika nie przepisuje historii.
+- **`ShopProduct.StockQuantity` jest opcjonalny i `null` znaczy co innego niż `0`.** `null` to
+  pozycja bez prowadzonego magazynu — sprowadzana od dostawcy albo sprzedawana na metry — z limitem
+  `DefaultMaxOrderQuantity` (99 szt.) na zamówienie. `0` to wyprzedane: pozycja znika ze sprzedaży,
+  ale zostaje widoczna. `IsAvailable` jest osobnym, ręcznym przełącznikiem i licznik go nie
+  przepisuje. Limitu pilnuje **`ShopOrder.Place`**, nie pole „Ilość" w przeglądarce ani przycinanie
+  koszyka — jedno i drugie jest uprzejmością wobec klienta, nie zabezpieczeniem.
 - **Publiczne formularze**: zgoda RODO + honeypot + rate-limit per IP. Dokładając nowy publiczny
   endpoint przyjmujący dane, dołóż wszystkie trzy.
-- **Endpoint administracyjny musi mieć filtr klucza.** Brak filtra = publiczny dostęp do danych
-  klientów. Klucze są **trzy i mają takie zostać** — każdy nadaje się i odbiera niezależnie:
-  `Admin:ApiKey` → `ApiKeyEndpointFilter` (zlecenia, `/admin`),
-  `Admin:MediaApiKey` → `MediaApiKeyEndpointFilter` (zdjęcia, `/admin/zdjecia`),
-  `Admin:ShopApiKey` → `ShopApiKeyEndpointFilter` (sklep, `/sklep/panel`).
-  Nie podpinaj `/api/admin/shop` pod klucz od zleceń — to, że obsługa asortymentu nie otwiera
-  kartoteki klientów, jest całym sensem rozdziału. Pilnują tego testy w `ShopAdminApiTests`.
+- **Endpoint administracyjny musi mieć `.RequireOperator(OperatorPermissions.X)`.** Brak bramy
+  = publiczny dostęp do danych klientów. Uprawnienia są **cztery i mają takie zostać** — każde
+  nadaje się i odbiera niezależnie: `Leads` (CRM, `/crm`), `Media` (zdjęcia,
+  `/zdjecia`), `Shop` (sklep, `/sklep/panel`), `Operators` (konta, `/operatorzy`).
+  Nie podpinaj `/api/admin/shop` pod uprawnienie od zleceń — to, że obsługa asortymentu nie
+  otwiera kartoteki klientów, jest całym sensem rozdziału. Pilnują tego testy w
+  `ShopAdminApiTests` i `OperatorApiTests`.
+- **Uprawnienia czyta się z bazy przy każdym żądaniu**, nigdy z ciasteczka. Odebranie dostępu ma
+  działać natychmiast, a nie dopiero po wygaśnięciu sesji.
+- **Klucz w nagłówku to poświadczenie maszynowe** (`Operators:MachineKeys`), domyślnie wyłączone
+  i osobne dla każdego obszaru. Żaden klucz nie zarządza operatorami — mógłby nadać sobie każde
+  inne uprawnienie.
+- **Konta personelu to `Operator`, nie Identity.** Identity trzyma klientów sklepu. Jedna tabela
+  na oba rodzaje postawiłaby publiczną rejestrację i uprawnienia do panelu za tymi samymi drzwiami.
 - **Kategorie sklepu są w bazie**, nie w enumie. `ShopProducts.Category` trzyma `ShopCategory.Key`
   bez klucza obcego — spójności pilnuje `ShopAdminService`. Nie dodawaj tam FK ani nie zmieniaj
   szerokości tej kolumny: jedno i drugie wymusza przebudowę tabeli SQLite na żywym katalogu.
@@ -92,8 +105,9 @@ zawieszonych plików jest w `README.md`. Wybór wariantu odbywa się bez 3D, w
 
 ## Sekrety
 
-Nigdy nie wpisuj do repo: `Admin:ApiKey`, `Admin:MediaApiKey`, `Email:SmtpPassword`,
-`Shop:BankAccountNumber`. Lokalnie idą przez `dotnet user-secrets`, na produkcji przez
+Nigdy nie wpisuj do repo: `Operators:Bootstrap:Password`, `Operators:MachineKeys:*`,
+`Email:SmtpPassword`, `Shop:BankAccountNumber`, `Payments:Stripe:SecretKey`,
+`Payments:Stripe:WebhookSecret`. Lokalnie idą przez `dotnet user-secrets`, na produkcji przez
 zmienne środowiskowe. Baza `akhouse.db` i `*.db-wal` są w `.gitignore` — tak zostaje.
 
 ## Weryfikacja zmian
@@ -110,7 +124,7 @@ npm --prefix frontend run build
 ```
 
 Nowa logika domenowa → test w `backend/tests/AkHouse.Tests/Domain`.
-Nowy endpoint → test w `.../Integration` (włącznie z ochroną `X-Api-Key`).
+Nowy endpoint → test w `.../Integration` (włącznie z bramą uprawnień).
 Nowy view-model → test obok pliku (`*.test.ts`).
 
 ## Narzędzia wymuszające styl

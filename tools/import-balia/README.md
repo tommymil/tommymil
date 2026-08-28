@@ -3,7 +3,8 @@
 Wasze ceny powstały jako `hurt netto × 1,10 × 1,23` (patrz `tools/import-cennik`). Ta formuła
 rozjeżdża się z detalem dostawcy w obie strony — na czterech sprawdzonych pozycjach było
 od −18% do +64% — więc jednym mnożnikiem się tego nie załatwi. Trzeba wziąć ich ceny
-pozycja po pozycji, a potem ustawić własny narzut w panelu (`/sklep/panel` → **Cennik**).
+pozycja po pozycji, a potem ustawić własny narzut w panelu
+(`/sklep/panel` → **Dostawcy i cennik** → **Balia Technic**).
 
 To narzędzie robi wyłącznie **dopasowanie**. Do sklepu nic nie zapisuje.
 
@@ -56,7 +57,8 @@ Gdy CSV się zgadza, dołóż wątpliwe do importu:
 python tools/import-balia/import_balia.py ... --uwzglednij-watpliwe
 ```
 
-Albo popraw `base-prices.json` ręcznie — to zwykły JSON `{"prices": [{"slug", "basePriceGrosze"}]}`.
+Albo popraw `base-prices.json` ręcznie — to zwykły JSON
+`{"prices": [{"supplierProductCode", "basePriceGrosze"}]}`.
 
 ## 4. Wgraj do sklepu
 
@@ -97,20 +99,21 @@ Skrypt zatrzymuje się na pierwszym błędzie i mówi, co poszło nie tak.
 Ręcznie, gdyby skrypt zawiódł:
 
 ```bash
-curl -X POST http://localhost:5033/api/admin/shop/pricing/base-prices \
+curl -X POST http://localhost:5033/api/admin/shop/suppliers/<SUPPLIER_ID>/base-prices \
   -H "X-Api-Key: <Admin:ShopApiKey>" \
   -H "Content-Type: application/json" \
   --data-binary @tools/import-balia/wynik/base-prices.json
 ```
 
-Odpowiedź podaje `updated` i `unknownSlugs`. **Niepusta lista `unknownSlugs` znaczy, że
-dopasowanie się rozjechało** — te slugi nie istnieją w sklepie. Import od razu przepuszcza nowe
-ceny bazowe przez obowiązujący narzut, więc sklep nie zostaje ze starymi cenami.
+Identyfikator Balii odczytasz z `GET /api/admin/shop/suppliers` (rekord o kodzie `balia-technic`).
+Odpowiedź podaje `updated` i `unknownIdentifiers`. **Niepusta lista `unknownIdentifiers` znaczy,
+że dopasowanie się rozjechało.** Import od razu przepuszcza nowe ceny bazowe przez narzut Balii,
+więc sklep nie zostaje ze starymi cenami.
 
 ## 5. Ustaw narzut
 
-`/sklep/panel` → **Cennik**. Wpisujesz procent (przecinek działa: `-5,5`), widzisz podgląd na trzech
-realnych pozycjach, klikasz raz — i tyle.
+`/sklep/panel` → **Dostawcy i cennik** → **Balia Technic**. Wpisujesz procent (przecinek działa:
+`-5,5`), widzisz podgląd na trzech realnych pozycjach, klikasz raz — i tyle.
 
 Narzut liczy się **zawsze od ceny detalicznej Balii**, nigdy od bieżącej. Dlatego kliknięcie tej
 samej wartości drugi raz nic nie zmienia, a wpisanie `0` wraca dokładnie do ich cen. Pozycje bez
@@ -119,7 +122,7 @@ ceny bazowej (te z `bez-dopasowania.csv` i wszystko, co dodacie sami) zostają n
 ## Kiedy Balia zmieni ceny
 
 Powtórz kroki 1–4. Dopasowania się nie zmienią, więc jest to głównie pobranie plików i jedno
-`curl`. Narzutu nie trzeba ruszać — nowe ceny bazowe wchodzą z nim automatycznie.
+import. Narzutu nie trzeba ruszać — nowe ceny bazowe wchodzą z nim automatycznie.
 
 ## Czego to nie robi
 

@@ -64,7 +64,7 @@ Domena nie wie nic o bazie, web ani frameworkach.
 
 | Projekt | Odpowiedzialność |
 |---|---|
-| `AkHouse.Domain` | Encje, agregaty (`Lead`, `OfferItem`, `Realization`, `GalleryImage`, `ShopProduct`, `ShopOrder`), value objects (`Email`), reguły biznesowe. Zero zależności zewnętrznych — także od ASP.NET Identity. |
+| `AkHouse.Domain` | Encje, agregaty (`Lead`, `OfferItem`, `Realization`, `GalleryImage`, `PromotionCampaign`, `ShopProduct`, `ShopOrder`), value objects (`Email`), reguły biznesowe. Zero zależności zewnętrznych — także od ASP.NET Identity. |
 | `AkHouse.Application` | Przypadki użycia (`LeadService`, `ContentService`), DTO, interfejsy portów (`IApplicationDbContext`, `IEmailSender`, `IDateTimeProvider`). |
 | `AkHouse.Infrastructure` | EF Core (SQLite), konfiguracje encji, migracje, seeder, implementacje portów. **Tu izolowany jest dostawca bazy** — zamiana SQLite → PostgreSQL (zgodnie z wyceną) to jedna linijka w `DependencyInjection`. |
 | `AkHouse.Api` | Minimal API (endpointy `Content`, `Leads`), CORS, OpenAPI, bootstrap. |
@@ -100,6 +100,11 @@ CPQ i panel CMS bez przepisywania rdzenia.
 - `GET/POST/PUT/DELETE /api/admin/gallery-photos[/{id}]` — **chronione `Admin:MediaApiKey`** — dodanie
   (multipart: `file`, `caption`, `category`), zmiana podpisu i kategorii, usunięcie. Kategoria musi być
   jedną z `domki`/`sauny`/`meble`/`wnetrza`.
+- `GET /api/promotion-campaign` — publiczna kampania obowiązująca w bieżącej chwili albo `204`.
+  Gdy harmonogramy się nakładają, wygrywa włączona kampania z najpóźniejszym startem.
+- `GET/POST/PUT/DELETE /api/admin/promotion-campaigns[/{id}]` — **chronione uprawnieniem `Media`** —
+  lista, tworzenie, edycja i usuwanie kampanii popup. Kampania zawiera wyróżnik, tytuł, opis,
+  przycisk z bezpiecznym adresem, datę startu, opcjonalny koniec i przełącznik publikacji.
 - `GET  /health` — status.
 
 ### Sklep (`/api/shop`, `/api/account`, `/api/admin/shop`)
@@ -130,15 +135,20 @@ Konto klienta (ciasteczko sesji `akhouse.session`, `HttpOnly`):
 Zakup jako gość jest możliwy; przy zalogowanej sesji zamówienie dostaje `UserId` i pojawia się
 w `/konto`. Zakładanie konta nie „przejmuje” wcześniejszych zamówień gościa z tym samym adresem.
 
-Panel sklepu (**chronione `Admin:ShopApiKey`** — **osobny klucz**, nie ten od zleceń; nagłówek `X-Api-Key`):
+Panel sklepu (**chronione uprawnieniem operatora `Shop`** — ciasteczko `akhouse.operator`; skrypty
+mogą też użyć klucza maszynowego `Operators:MachineKeys:Shop` w nagłówku `X-Api-Key`. Szczegóły
+w `KONTA-OPERATOROW.md`):
 - `GET/POST/PUT/DELETE /api/admin/shop/products[/{id}]` — asortyment,
-- `GET  /api/admin/shop/pricing` — obowiązujący narzut i ile pozycji za nim idzie,
-- `PUT  /api/admin/shop/pricing/margin` — ustawia narzut i przelicza wszystkie pozycje z ceną bazową,
-- `POST /api/admin/shop/pricing/base-prices` — wgrywa ceny detaliczne dostawcy po slugu; zwraca
-  `updated` i `unknownSlugs` (niepusta lista = dopasowanie się rozjechało),
+- `GET/POST/PUT/DELETE /api/admin/shop/suppliers[/{id}]` — dostawcy i ich dane wewnętrzne,
+- `PUT /api/admin/shop/suppliers/{id}/margin` — ustawia narzut jednego dostawcy i przelicza tylko
+  przypisane do niego pozycje z ceną bazową,
+- `PUT /api/admin/shop/suppliers/margins` — jawnie ustawia ten sam narzut wszystkim aktywnym dostawcom,
+- `POST /api/admin/shop/suppliers/{id}/base-prices` — wgrywa cennik wybranego dostawcy po jego kodzie
+  produktu (ze zgodnością wsteczną po slugu); zwraca `updated` i `unknownIdentifiers`,
 - `POST /api/admin/shop/products/bulk` — jedna zmiana na wielu pozycjach naraz: publikacja,
-  dostępność, przeniesienie do kategorii, procentowa zmiana ceny. Pola opcjonalne (`null` = nie ruszaj),
-  zmiana ceny ograniczona do zakresu −99%…+500%, żeby zgubione zero nie rozdało asortymentu,
+  dostępność, przeniesienie do kategorii, procentowa zmiana ceny, stan magazynowy (`stockQuantity`)
+  albo jego zdjęcie (`clearStock`). Pola opcjonalne (`null` = nie ruszaj), zmiana ceny ograniczona
+  do zakresu −99%…+500%, żeby zgubione zero nie rozdało asortymentu,
 - `POST /api/admin/shop/products/{id}/images` (multipart, pole `file`) i `DELETE .../images/{imageId}`,
 - `GET/POST/PUT/DELETE /api/admin/shop/categories[/{key}]` — półki sklepu. Kasowanie półki z produktami
   wymaga `?moveProductsTo=<klucz>` (inaczej `400`), więc nic nie zostaje bez kategorii,
@@ -146,22 +156,46 @@ Panel sklepu (**chronione `Admin:ShopApiKey`** — **osobny klucz**, nie ten od 
 - `GET/POST/PUT/DELETE /api/admin/shop/shipping-methods[/{id}]` — metody dostawy i stawki,
 - `GET /api/admin/shop/orders[/{id}]`, `PATCH .../status`, `POST .../notes`, `PATCH .../read`.
 
-Zmiana statusu na `Cancelled` **zwraca zarezerwowany stan magazynowy** na półkę (jednokrotnie).
-Pozycje zamówienia trzymają własną kopię nazwy i ceny, więc późniejsza zmiana cennika ani
+Zmiana statusu na `Cancelled` **zwraca zarezerwowany stan magazynowy** na półkę (jednokrotnie);
+cofnięcie anulowania rezerwuje go z powrotem i kończy się `400`, jeśli w międzyczasie towar
+zszedł. Pozycje zamówienia trzymają własną kopię nazwy i ceny, więc późniejsza zmiana cennika ani
 usunięcie produktu nie przepisują historii zamówień.
+
+#### Stan magazynowy i limit sztuk
+
+`ShopProduct.StockQuantity` jest **opcjonalny** i to rozróżnienie jest tu całą treścią:
+
+| Wartość | Znaczenie | Ile klient kupi jednym zamówieniem |
+|---|---|---|
+| `null` | pozycja bez magazynu — sprowadzana od dostawcy albo sprzedawana na metry | 99 szt. (`ShopProduct.DefaultMaxOrderQuantity`) |
+| `n > 0` | tyle sztuk stoi na półce | `n` |
+| `0` | wyprzedane — znika ze sprzedaży, ale zostaje widoczne w sklepie | 0 |
+
+Licznik zmniejsza się przy składaniu zamówienia i wraca przy jego anulowaniu. `IsAvailable` to
+osobny, ręczny przełącznik: pozycję można zdjąć ze sprzedaży, mając ją na stanie, i sprzedawać
+bez licznika. `IsOnSale` = opublikowana ∧ dostępna ∧ (bez licznika ∨ stan > 0).
+
+Rezerwacja nie ma blokady optymistycznej: dwa zamówienia złożone w tej samej sekundzie mogą
+odczytać ten sam stan i zejść poniżej zera. Przy skali tego sklepu to ryzyko teoretyczne, ale
+zanim ruszy kampania z ograniczoną serią, warto dołożyć znacznik współbieżności na `ShopProducts`.
+
+Limit trzyma **serwer**, w `ShopOrder.Place`. Pole „Ilość" w przeglądarce i przycinanie koszyka
+w `POST /api/shop/cart/validate` są uprzejmością wobec klienta — nie zabezpieczeniem. To samo
+żądanie da się wysłać z curla i wtedy jedyne, co stoi między sklepem a zamówieniem na 999 balii,
+to walidacja w domenie.
 
 ### Panel sklepu (`/sklep/panel`)
 
 Osobne wejście do zarządzania sklepem: asortyment, kategorie, zamówienia i dostawa.
 Nie prowadzi tam żaden odnośnik, trasa jest wyłączona w `robots.txt` i nie ma jej w `sitemap.xml`.
 
-**Dlaczego osobno, a nie zakładka w `/admin`:** wcześniej sklepem zarządzało się piątą zakładką
+**Dlaczego osobno, a nie zakładka w `/crm`:** wcześniej sklepem zarządzało się piątą zakładką
 panelu zleceń, chronioną tym samym `Admin:ApiKey`. Kto miał prowadzić asortyment, dostawał wgląd
 we wszystkie zapytania klientów. Teraz panel ma własny `Admin:ShopApiKey` — obie role nadaje się
 i odbiera niezależnie. Klucz jest sprawdzany przy wejściu (nie dopiero przy pierwszym zapisie)
 i leży w `sessionStorage`, więc znika po zamknięciu karty.
 
-Cztery zakładki:
+Pięć zakładek:
 
 - **Asortyment** — tabela, nie ściana kafelków. Wyszukiwarka (nazwa, opis, adres), filtr kategorii,
   filtr widoczności (widoczne / ukryte / niedostępne), sortowanie i stronicowanie po 25 pozycji.
@@ -172,15 +206,24 @@ Cztery zakładki:
   wypada — zmiana masowa nie może objąć pozycji, których operator już nie widzi.
 - **Kategorie** — dodawanie, zmiana nazwy i adresu, kolejność, ukrywanie, usuwanie.
   Usunięcie półki z produktami wymaga wskazania, dokąd je przenieść.
-- **Zamówienia** — statusy i notatki (przeniesione z `/admin` bez zmian).
-- **Dostawa** — metody i stawki (przeniesione z `/admin` bez zmian).
+- **Dostawcy i cennik** — kartoteka dostawców, osobne narzuty i import ich cen bazowych.
+- **Zamówienia** — filtrowanie po statusie, płatności i stanie obsługi, wyszukiwarka po numerze,
+  kliencie i kupionych pozycjach, kolorowe plakietki statusów, statusy i notatki.
+- **Dostawa** — metody i stawki (przeniesione z dawnego `/admin` bez zmian).
 
-#### Ceny: detal dostawcy plus narzut
+#### Dostawcy, producenci i ceny
 
-Ceny w sklepie powstają z **ceny detalicznej Balia Technic** (`ShopProduct.BasePriceGrosze`)
-przepuszczonej przez **jeden narzut na cały sklep** (`ShopPricing.MarginBasisPoints`).
-W panelu, w zakładce **Cennik**, wpisujesz procent (przecinek działa: `-5,5`), widzisz podgląd
-na trzech realnych pozycjach i klikasz raz.
+`ShopSupplier` opisuje źródło zakupu i przechowuje własny narzut. Produkt wskazuje dostawcę przez
+`SupplierId`, a stabilny `SupplierProductCode` pozwala aktualizować jego cennik niezależnie od
+publicznego slugu. Balia Technic jest pierwszym dostawcą utworzonym podczas migracji.
+
+Producent nie jest wyprowadzany z dostawcy. Operator wpisuje go ręcznie w
+`ShopProduct.ManufacturerName`; ta informacja jest widoczna klientowi na kafelku i stronie produktu.
+Dostawca pozostaje informacją wewnętrzną panelu.
+
+Cena sklepowa powstaje z `ShopProduct.BasePriceGrosze` i narzutu przypisanego dostawcy.
+Każdy dostawca ma własny narzut, a osobna, wyraźnie opisana operacja może ustawić jednakową wartość
+wszystkim aktywnym dostawcom.
 
 Pierwotna formuła `hurt netto × 1,10 × 1,23` nie odtwarza detalu dostawcy — na sprawdzonych
 pozycjach mieściła się w przedziale od −18% do +64% względem ich cen. Dlatego bazą jest ich cena,
@@ -189,12 +232,12 @@ a nie nasze przeliczenie.
 Trzy rzeczy, które trzymają ten mechanizm w ryzach:
 
 - **Narzut jest aplikowany, nie kumulowany.** Cena liczy się zawsze od bazy, nigdy od bieżącej.
-  Kliknięcie +10% dwa razy to nadal +10%, a wpisanie `0` wraca dokładnie do cen Balii.
+  Ustawienie +10% dwa razy to nadal +10%, a wpisanie `0` wraca dokładnie do ceny dostawcy.
   Ta sama arytmetyka jest po obu stronach (`ShopPricing.Apply` i `features/shopadmin/pricing.ts`),
   co do grosza — inaczej podgląd kłamałby o wyniku.
 - **Punkty bazowe, nie ułamki.** Narzut siedzi w bazie jako `int` (1% = 100), z tego samego
   powodu co pieniądze w groszach: SQLite zapisuje `decimal` jako TEXT, a `-5,5%` ma być dokładne.
-- **Pusta cena bazowa = cena ręczna.** Pozycje, których Balia nie ma, i wszystko dodane samodzielnie
+- **Pusta cena bazowa = cena ręczna.** Pozycje bez cennika dostawcy i wszystko dodane samodzielnie
   mają `BasePriceGrosze = null` i narzut ich nie rusza. Panel pokazuje, ilu pozycji to dotyczy.
 
 Zakres narzutu to −99%…+500%; poza nim API zwraca `400`, żeby zgubione zero nie przeceniło sklepu.
@@ -221,9 +264,10 @@ przebudowę tabeli SQLite na żywym katalogu i wracałoby do operatora jako niec
 sterownika. Spójności pilnuje `ShopAdminService`: produkt nie zapisze się na nieistniejącej półce,
 a półki z produktami nie da się skasować bez wskazania celu — po polsku, z liczbą pozycji.
 
-### Ukryty panel zdjęć (`/admin/zdjecia`)
+### Ukryty panel zarządzania stroną (`/zdjecia`)
 
-Miejsce do podmiany zdjęć **i ich nazw** w konkretnych punktach strony: kafelki sekcji powitalnej,
+Wspólny panel kampanii reklamowych oraz podmiany zdjęć **i ich nazw** w konkretnych punktach strony:
+kafelki sekcji powitalnej,
 galeria, realizacje, nagłówki i kafelki kategorii, zdjęcia produktów oraz galerie produktowe. Każde
 miejsce ma edytowalną nazwę, informację gdzie występuje, podgląd aktualnego zdjęcia i przyciski
 **Zapisz** / **Zmień** / **Przywróć**.
@@ -241,6 +285,15 @@ Nazwa działa dwojako i panel to rozróżnia (`nameOnSite` w rejestrze):
   publikacja z Visual Studio ich nie kasuje.
 - „Przywróć" usuwa nadpisanie, więc miejsce wraca do zdjęcia z builda — nic nie jest tracone
   bezpowrotnie po stronie kodu.
+
+#### Sekcja „Kampanie reklamowe"
+
+Operator ustawia treść popupu (opcjonalny wyróżnik, np. „-10%”, tytuł, opis i przycisk), jego cel,
+datę rozpoczęcia, opcjonalną datę zakończenia oraz publikację. Można przygotować wiele kampanii z
+wyprzedzeniem; panel pokazuje stan „aktywna”, „zaplanowana”, „zakończona” albo „wyłączona”. Aktywna
+kampania pojawia się jako modal po wejściu klienta na publiczną część strony. Klient przechodzi do
+wskazanego miejsca albo zamyka popup przyciskiem **X**; zamknięcie jest pamiętane do końca bieżącej
+sesji przeglądarki. Zmiana treści kampanii powoduje pokazanie jej ponownie.
 
 Nowe miejsca dochodzą automatycznie: slot to `id` komponentu `<ImageSlot>`, a rejestr nazw dla panelu
 żyje w `frontend/src/app/imageSlots.ts` (kategorie i produkty są z niego wyprowadzane z `catalog.ts`).
@@ -264,13 +317,15 @@ Limit zgłoszeń jest konfigurowalny: `RateLimiting:LeadsPerMinute` (domyślnie 
 Globalny `IExceptionHandler` mapuje błędy domenowe na `400`, pozostałe na `500` (RFC 7807).
 
 ### Konfiguracja (`appsettings.json` / zmienne środowiskowe / `dotnet user-secrets`)
-- `Admin:ApiKey` — klucz do endpointu admina. Domyślnie pusty (panel jest wtedy wyłączony);
-  ustaw go poza repo, np. `dotnet user-secrets set "Admin:ApiKey" "<silny-losowy-klucz>" --project backend/src/AkHouse.Api`.
-- `Admin:MediaApiKey` — **osobny** klucz do ukrytego panelu zdjęć (`/admin/zdjecia`). Niezależny od
-  `Admin:ApiKey`, więc dostęp do zleceń i do zdjęć nadaje się i odbiera oddzielnie. Pusty = panel wyłączony (503).
-- `Admin:ShopApiKey` — **osobny** klucz do panelu sklepu (`/sklep/panel`). Kto prowadzi asortyment,
-  nie dostaje wglądu w zapytania klientów: ich telefony, budżety i historię kontaktów. Pusty = panel wyłączony (503).
-  `dotnet user-secrets set "Admin:ShopApiKey" "<klucz>" --project backend/src/AkHouse.Api`.
+- `Operators:Bootstrap:Email` / `:DisplayName` / `:Password` — pierwsze konto właściciela, zakładane
+  przy starcie API i **tylko wtedy, gdy nie ma jeszcze żadnego konta**. Dostaje wszystkie uprawnienia
+  i wymóg zmiany hasła przy pierwszym logowaniu. Pełna instrukcja w `KONTA-OPERATOROW.md`.
+- `Operators:MachineKeys:Enabled` + `:Leads` / `:Media` / `:Shop` — poświadczenia **maszynowe** dla
+  skryptów (nagłówek `X-Api-Key`), domyślnie wyłączone. Osobne dla każdego obszaru; żaden nie
+  zarządza kontami operatorów.
+
+  Dostęp ludzi idzie przez konta, nie przez klucze: kto prowadzi asortyment, nie dostaje wglądu
+  w zapytania klientów — ich telefony, budżety i historię kontaktów.
 - `Shop:BankAccountNumber` / `BankAccountHolder` / `BankName` / `PaymentDueDays` — dane do przelewu
   wysyłane klientowi w potwierdzeniu zamówienia. **Numer konta jest domyślnie pusty** — dopóki go nie
   uzupełnisz, mail informuje, że dane prześlemy osobno.
@@ -300,7 +355,7 @@ SEO: `robots.txt`, `sitemap.xml`, Open Graph/Twitter meta, favicon marki. Dostę
 | **View** | Komponenty prezentacyjne (czysty JSX + style z tokenów) | `features/landing/components/`, `features/admin/components/` |
 | **ViewModel** | Hooki ze stanem i logiką (`useContactForm`, `useGalleryFilter`, `useConfigurator`, `useSiteContent`, `useLeads`, `useLeadDetail`, `useAdminAuth`…) | `features/*/viewmodels/` |
 | **Model / usługi** | Klient HTTP, API treści i leadów, typy DTO | `api/`, `types/` |
-| **Routing** | `react-router-dom`: landing, katalog, kategorie, produkty, realizacje, zamówienie i panel `/admin` (konfigurator 3D bez trasy — zawieszony) | `App.tsx` |
+| **Routing** | `react-router-dom`: landing, katalog, kategorie, produkty, realizacje, zamówienie oraz narzędzia wewnętrzne `/crm`, `/zdjecia`, `/operatorzy`, `/sklep/panel` (konfigurator 3D bez trasy — zawieszony) | `App.tsx` |
 | **Design tokens** | Kolory, typografia, kształt hex — jedno źródło prawdy | `app/theme.ts`, `app/global.css` |
 
 Komponenty nie wołają `fetch` bezpośrednio — robią to view-modele przez warstwę `api/`,
@@ -335,10 +390,11 @@ bo nie ma dokąd prowadzić). Trasy: `/sklep`, `/sklep/:slug`, `/koszyk`, `/zamo
 - Dokumenty `/regulamin.html` i `/zwroty.html` to **wzorce do weryfikacji prawnej** — akceptacja
   regulaminu jest warunkiem złożenia zamówienia i jest sprawdzana także po stronie serwera.
 
-### Panel zleceń (`/admin`)
-Stanowisko pracy do kompleksowej obsługi zamówień. Po wejściu na `/admin` podajesz **klucz API**
-(ten z `Admin:ApiKey`), który trafia do nagłówka `X-Api-Key` i jest trzymany w `sessionStorage`
-(znika po zamknięciu karty). Formularz kontaktowy, kreator wyceny i wpisy ręczne trafiają do jednego
+### CRM — panel zleceń (`/crm`)
+Stanowisko pracy do obsługi zapytań i zamówień na domki, sauny i meble na wymiar — **nie** na
+asortyment sklepu, który ma własny panel. Po wejściu na `/crm` logujesz się kontem operatora
+z uprawnieniem `Leads`; sesję trzyma ciasteczko `akhouse.operator` (`HttpOnly`).
+Formularz kontaktowy, kreator wyceny i wpisy ręczne trafiają do jednego
 lejka; migracja kopiuje do niego również historyczne rekordy z tabel zamówień. Panel ma cztery widoki przełączane w nagłówku:
 - **Na dziś** (domyślny) — lista robocza operatora: działania po terminie, zaplanowane na dziś oraz
   nowe/nieprzeczytane zgłoszenia. Licznik na zakładce pokazuje, ile pozycji wymaga uwagi.
