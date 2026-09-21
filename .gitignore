@@ -33,6 +33,9 @@ __pycache__/
 *.tar.gz
 *.log
 _do-usuniecia/
+# Katalog roboczy: poprzednie wersje zdjęć („*-before-*") zastąpione już nowymi
+# w `frontend/public/images` oraz pliki pomocnicze generatora ujęć.
+tmp/
 
 # ---- Materiały źródłowe ----
 # Zdjęcia, filmy i modele 3D trzymamy obok repozytorium (..\ak-house-materialy),

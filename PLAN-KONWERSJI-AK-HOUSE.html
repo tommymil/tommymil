@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>A.K. HOUSE - plan marketingu, widoczności i sprzedaży 2026</title>
+  <style>
+    :root {
+      --ink: #171816;
+      --muted: #61655f;
+      --line: #d9ddd7;
+      --paper: #f7f8f5;
+      --surface: #fff;
+      --green: #18654a;
+      --green-soft: #e8f3ed;
+      --blue: #245b91;
+      --blue-soft: #eaf2fa;
+      --amber: #9b6400;
+      --amber-soft: #fff3d5;
+      --red: #a83d34;
+      --red-soft: #fbecea;
+      --violet: #6a4d86;
+      --shadow: 0 10px 30px rgba(20, 30, 22, .08);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; min-width: 320px; overflow-x: hidden; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+    .shell { max-width: 1480px; margin: 0 auto; padding: 0 24px 56px; }
+    .topbar {
+      position: sticky; top: 0; z-index: 30; display: flex; gap: 18px; align-items: center;
+      min-height: 64px; padding: 10px 24px; color: #fff; background: #171816; border-bottom: 1px solid #333631;
+    }
+    .brand { min-width: 190px; font-weight: 800; letter-spacing: 0; }
+    .brand small { display: block; color: #b9beb7; font-size: 11px; font-weight: 600; margin-top: 2px; }
+    .tabs { display: flex; gap: 4px; overflow-x: auto; flex: 1; min-width: 0; max-width: 100%; scrollbar-width: thin; }
+    .tab, .action, .filter-chip {
+      border: 1px solid transparent; border-radius: 6px; background: transparent; color: inherit;
+      padding: 9px 12px; white-space: nowrap; font-weight: 700; font-size: 13px;
+    }
+    .tab:hover, .tab.active { background: #30332f; }
+    .toolbar { display: flex; gap: 6px; }
+    .action { border-color: #4d514b; color: #fff; }
+    .action:hover { background: #30332f; }
+    .hero {
+      display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(280px, .55fr); gap: 38px;
+      padding: 52px 0 34px; border-bottom: 1px solid var(--line);
+    }
+    .kicker { color: var(--green); font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    h1 { max-width: 900px; font-size: clamp(34px, 5vw, 64px); line-height: 1.03; margin: 12px 0 18px; letter-spacing: 0; }
+    h2 { font-size: 27px; line-height: 1.15; margin: 0 0 10px; letter-spacing: 0; }
+    h3 { font-size: 17px; line-height: 1.25; margin: 0; letter-spacing: 0; }
+    p { line-height: 1.62; }
+    .lead { max-width: 900px; font-size: 18px; color: #454943; }
+    [contenteditable="true"] { outline: none; border-radius: 4px; }
+    [contenteditable="true"]:focus { box-shadow: 0 0 0 3px rgba(36, 91, 145, .18); background: #fff; }
+    .edit-hint { color: var(--muted); font-size: 12px; margin-top: 16px; }
+    .progress-box { align-self: end; padding: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
+    .progress-head { display: flex; justify-content: space-between; align-items: end; gap: 12px; }
+    .progress-value { font-size: 36px; font-weight: 800; color: var(--green); }
+    .progress-track { height: 10px; margin-top: 14px; overflow: hidden; border-radius: 5px; background: #e8ebe6; }
+    .progress-fill { width: 0; height: 100%; background: var(--green); transition: width .2s ease; }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 24px 0; }
+    .metric { padding: 18px; border-left: 4px solid var(--green); background: #fff; box-shadow: 0 3px 14px rgba(20,30,22,.04); }
+    .metric b { display: block; font-size: 24px; }
+    .metric span { display: block; margin-top: 5px; color: var(--muted); font-size: 13px; line-height: 1.35; }
+    .view { display: none; padding-top: 32px; }
+    .view.active { display: block; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 18px; }
+    .section-head p { max-width: 780px; margin: 0; color: var(--muted); }
+    .callout { border-left: 4px solid var(--blue); background: var(--blue-soft); padding: 18px 20px; margin: 18px 0 28px; }
+    .callout strong { display: block; margin-bottom: 5px; }
+    .status-grid, .owner-grid, .phase-grid { display: grid; gap: 14px; }
+    .status-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .owner-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .phase-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .panel { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 20px; }
+    .panel ul { padding-left: 20px; margin: 12px 0 0; }
+    .panel li { margin: 8px 0; line-height: 1.45; }
+    .panel.good { border-top: 4px solid var(--green); }
+    .panel.partial { border-top: 4px solid var(--amber); }
+    .panel.missing { border-top: 4px solid var(--red); }
+    .owner-project { border-left: 4px solid var(--blue); }
+    .owner-manual { border-left: 4px solid var(--amber); }
+    .owner-shared { border-left: 4px solid var(--violet); }
+    .filters {
+      position: sticky; top: 64px; z-index: 20; display: flex; flex-wrap: wrap; gap: 8px;
+      padding: 12px; margin-bottom: 12px; background: rgba(247,248,245,.96); border-bottom: 1px solid var(--line);
+    }
+    .filters input, .filters select { min-height: 40px; border: 1px solid #cbd0c9; border-radius: 6px; background: #fff; padding: 8px 10px; }
+    .filters input { flex: 1 1 240px; min-width: 180px; }
+    .filter-chip { color: var(--ink); border-color: #cbd0c9; background: #fff; }
+    .filter-chip:hover { border-color: #8c928a; }
+    .task-list { display: grid; gap: 9px; }
+    .task {
+      display: grid; grid-template-columns: 42px minmax(210px, 1.25fr) minmax(170px, .75fr) minmax(220px, 1fr) 38px;
+      align-items: start; background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--blue); border-radius: 7px;
+    }
+    .task[data-owner="manual"] { border-left-color: var(--amber); }
+    .task[data-owner="shared"] { border-left-color: var(--violet); }
+    .task.done { opacity: .64; }
+    .task.done .task-title { text-decoration: line-through; }
+    .task-check { display: grid; place-items: center; min-height: 74px; }
+    .task-check input { width: 20px; height: 20px; accent-color: var(--green); }
+    .task-main, .task-state, .task-result { padding: 14px 12px; min-width: 0; }
+    .task-state, .task-result { border-left: 1px solid var(--line); }
+    .task-title { margin-top: 5px; font-size: 16px; font-weight: 800; line-height: 1.35; }
+    .task-copy { color: var(--muted); font-size: 13px; line-height: 1.5; margin-top: 7px; }
+    .labels { display: flex; flex-wrap: wrap; gap: 5px; }
+    .label { display: inline-flex; align-items: center; min-height: 22px; padding: 3px 7px; border-radius: 4px; background: #eef0ed; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+    .label.p0 { color: #8f241c; background: var(--red-soft); }
+    .label.p1 { color: #765000; background: var(--amber-soft); }
+    .label.p2 { color: #1e568c; background: var(--blue-soft); }
+    .owner-label.project { color: #1e568c; background: var(--blue-soft); }
+    .owner-label.manual { color: #765000; background: var(--amber-soft); }
+    .owner-label.shared { color: #5c3a7c; background: #f0eaf6; }
+    .task-toggle { width: 34px; height: 34px; margin: 12px 8px 0 0; border: 0; background: #f0f2ef; border-radius: 5px; font-size: 17px; }
+    .task-details { display: none; grid-column: 1 / -1; padding: 0 14px 16px 54px; border-top: 1px solid var(--line); }
+    .task.open .task-details { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding-top: 15px; }
+    .task-details label { color: var(--muted); font-size: 12px; font-weight: 700; }
+    .task-details textarea { width: 100%; min-height: 82px; margin-top: 6px; resize: vertical; border: 1px solid #cbd0c9; border-radius: 6px; padding: 10px; line-height: 1.45; }
+    .empty { display: none; padding: 36px; text-align: center; color: var(--muted); background: #fff; border: 1px dashed #bfc4bd; }
+    .table-wrap { overflow-x: auto; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; min-width: 780px; }
+    th, td { padding: 13px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); line-height: 1.45; font-size: 13px; }
+    th { position: sticky; top: 64px; background: #eef1ec; font-size: 11px; text-transform: uppercase; }
+    tr:last-child td { border-bottom: 0; }
+    code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; color: #174a78; background: var(--blue-soft); padding: 2px 5px; border-radius: 4px; }
+    .timeline { display: grid; gap: 0; }
+    .phase { display: grid; grid-template-columns: 150px 1fr; gap: 22px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+    .phase-time { color: var(--green); font-weight: 800; }
+    .phase ul { margin: 0; padding-left: 20px; }
+    .phase li { margin-bottom: 7px; line-height: 1.45; }
+    .copy-block { margin: 18px 0; padding: 20px; background: #fff; border-left: 4px solid var(--green); }
+    .copy-block h3 { margin-bottom: 9px; }
+    .copy-block p { margin: 6px 0; }
+    .decision { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr); gap:20px; margin:0 0 28px; padding:24px; color:#fff; background:#1c3632; border-radius:8px; }
+    .decision h2 { margin-bottom:8px; }
+    .decision p { margin:0; color:#dfe9e4; }
+    .decision-price { display:flex; flex-direction:column; justify-content:center; padding-left:20px; border-left:1px solid #627a73; }
+    .decision-price b { font-size:30px; line-height:1.1; }
+    .decision-price span { margin-top:7px; color:#c8d6d1; font-size:12px; line-height:1.45; }
+    .roadmap { display:grid; gap:10px; counter-reset:stage; }
+    .roadmap-step { display:grid; grid-template-columns:70px 170px minmax(0,1fr) minmax(210px,.55fr); gap:16px; align-items:start; padding:18px; background:#fff; border:1px solid var(--line); }
+    .roadmap-step::before { counter-increment:stage; content:counter(stage, decimal-leading-zero); color:var(--bronze,#a9794f); font-size:22px; font-weight:800; }
+    .roadmap-step b { line-height:1.35; }
+    .roadmap-step p { margin:0; color:var(--muted); font-size:13px; line-height:1.5; }
+    .roadmap-step small { color:var(--green); font-weight:800; line-height:1.4; }
+    .budget-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:20px 0 28px; }
+    .budget-card { position:relative; padding:22px; background:#fff; border:1px solid var(--line); border-top:4px solid #889087; }
+    .budget-card.recommended { border-top-color:var(--green); box-shadow:var(--shadow); }
+    .budget-card .badge { display:inline-block; margin-bottom:9px; padding:4px 7px; color:#fff; background:var(--green); border-radius:3px; font-size:10px; font-weight:800; text-transform:uppercase; }
+    .budget-card h3 { font-size:20px; }
+    .budget-total { display:block; margin:12px 0 2px; font-size:29px; line-height:1; }
+    .budget-card .sub { display:block; color:var(--muted); font-size:11px; }
+    .budget-card ul { min-height:148px; }
+    .money-table td:nth-child(2), .money-table th:nth-child(2) { white-space:nowrap; font-weight:800; }
+    .scope-strip { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; margin:20px 0 28px; background:var(--line); border:1px solid var(--line); }
+    .scope-strip div { padding:18px; background:#fff; }
+    .scope-strip b { display:block; font-size:21px; }
+    .scope-strip span { display:block; margin-top:5px; color:var(--muted); font-size:12px; line-height:1.4; }
+    .source-list { display:grid; gap:8px; margin-top:18px; }
+    .source-list a { display:block; padding:12px 14px; color:#174a78; background:#fff; border:1px solid var(--line); text-decoration:none; font-size:12px; line-height:1.45; }
+    .source-list a:hover { border-color:#7c9bb6; }
+    .checklist { columns: 2; column-gap: 28px; }
+    .checkline { break-inside: avoid; display: flex; gap: 10px; margin: 0 0 10px; padding: 10px 12px; background: #fff; border: 1px solid var(--line); border-radius: 6px; }
+    .checkline input { flex: 0 0 auto; margin-top: 3px; accent-color: var(--green); }
+    .footer-note { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    .toast { position: fixed; right: 20px; bottom: 20px; z-index: 50; max-width: 360px; padding: 12px 16px; color: #fff; background: #171816; border-radius: 6px; box-shadow: var(--shadow); opacity: 0; transform: translateY(12px); pointer-events: none; transition: .2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .modal { position: fixed; inset: 0; z-index: 60; display: none; place-items: center; padding: 20px; background: rgba(0,0,0,.55); }
+    .modal.open { display: grid; }
+    .modal-box { width: min(680px, 100%); background: #fff; border-radius: 8px; padding: 24px; box-shadow: var(--shadow); }
+    .modal-box textarea { width: 100%; min-height: 260px; resize: vertical; margin: 14px 0; padding: 12px; border: 1px solid #bbb; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .modal-actions button { border: 1px solid #bbb; border-radius: 6px; padding: 9px 13px; background: #fff; font-weight: 700; }
+    .modal-actions .primary { color: #fff; background: var(--green); border-color: var(--green); }
+    @media (max-width: 1050px) {
+      .summary-grid, .phase-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .task { grid-template-columns: 42px 1fr 38px; }
+      .task-state, .task-result { grid-column: 2; border-left: 0; border-top: 1px solid var(--line); }
+      .task-toggle { grid-column: 3; grid-row: 1; }
+    }
+    @media (max-width: 760px) {
+      .shell { width: 100vw; max-width: 100vw; margin: 0; padding: 0 14px 40px; overflow: hidden; }
+      .topbar { position: static; flex-wrap: wrap; width: 100%; max-width: 100vw; padding: 12px 14px; overflow: hidden; }
+      .brand { flex: 0 0 100%; width: 100%; min-width: 0; }
+      .tabs { order: 3; flex: 1 1 100%; width: 100%; min-width: 0; }
+      .toolbar { order: 2; display: flex; flex: 0 0 100%; width: 100%; margin-left: 0; overflow-x: auto; }
+      .hero { grid-template-columns: minmax(0, 1fr); width: 100%; min-width: 0; padding-top: 34px; }
+      .hero > *, .view > *, .task, .panel { min-width: 0; max-width: 100%; }
+      h1 { max-width: 100%; font-size: 39px; overflow-wrap: anywhere; }
+      .summary-grid, .status-grid, .owner-grid, .phase-grid { grid-template-columns: 1fr; }
+      .filters { top: 0; }
+      .task.open .task-details { grid-template-columns: 1fr; padding-left: 14px; }
+      .phase { grid-template-columns: 1fr; gap: 8px; }
+      .checklist { columns: 1; }
+      .section-head { align-items: start; flex-direction: column; }
+      .decision { grid-template-columns:1fr; }
+      .decision-price { padding:16px 0 0; border-left:0; border-top:1px solid #627a73; }
+      .roadmap-step { grid-template-columns:48px minmax(0,1fr); }
+      .roadmap-step p, .roadmap-step small { grid-column:2; }
+      .budget-grid, .scope-strip { grid-template-columns:1fr; }
+    }
+    @media print {
+      .topbar, .filters, .task-toggle, .toolbar, .edit-hint { display: none !important; }
+      body, :root { background: #fff; }
+      .shell { max-width: none; padding: 0; }
+      .view { display: block !important; page-break-before: always; }
+      .view:first-of-type { page-break-before: auto; }
+      .task { break-inside: avoid; }
+      .task-details { display: grid !important; grid-template-columns: 1fr 1fr; }
+      .panel, .metric, .task, .table-wrap { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">A.K. HOUSE <small>Plan marketingu i sprzedaży 2026</small></div>
+    <nav class="tabs" aria-label="Sekcje planu">
+      <button class="tab active" data-view="diagnoza">Diagnoza</button>
+      <button class="tab" data-view="plan">Plan A–Z</button>
+      <button class="tab" data-view="budzet">Budżet</button>
+      <button class="tab" data-view="zadania">Backlog</button>
+      <button class="tab" data-view="struktura">Struktura strony</button>
+      <button class="tab" data-view="pomiar">Pomiar</button>
+      <button class="tab" data-view="kampanie">Kampanie</button>
+      <button class="tab" data-view="materialy">Materiały</button>
+    </nav>
+    <div class="toolbar">
+      <button class="action" id="exportBtn" title="Pobierz stan planu">Eksport</button>
+      <button class="action" id="importBtn" title="Wczytaj zapisany stan">Import</button>
+      <button class="action" id="printBtn" title="Drukuj lub zapisz jako PDF">Drukuj</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <div class="kicker">Dokument do omówienia z klientem · stan na 19.09.2026</div>
+        <h1 contenteditable="true" data-edit="main-title">Od gotowego produktu cyfrowego do powtarzalnego pozyskiwania klientów</h1>
+        <p class="lead" contenteditable="true" data-edit="main-lead">Kompletny plan marketingu A.K. HOUSE: co już zostało zbudowane, co trzeba uruchomić ręcznie, ile kosztują kolejne etapy i po jakich danych podejmujemy decyzję o skalowaniu. Celem nie jest „robić reklamy”, lecz zbudować mierzalny proces od pierwszego wejścia do podpisanego zamówienia.</p>
+        <div class="edit-hint">Teksty oznaczone kursorem można edytować. Postęp i notatki zapisują się automatycznie w tej przeglądarce.</div>
+      </div>
+      <aside class="progress-box" aria-label="Postęp realizacji">
+        <div class="progress-head"><div><b>Postęp całości</b><div id="progressCount" class="task-copy">0 z 0 zadań</div></div><div class="progress-value" id="progressValue">0%</div></div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      </aside>
+    </section>
+
+    <div class="summary-grid">
+      <div class="metric"><b id="metricReady">15</b><span>fundamentów marketingowych przygotowanych w projekcie</span></div>
+      <div class="metric"><b id="metricProject">0</b><span>zadań możliwych do wykonania w kodzie</span></div>
+      <div class="metric"><b id="metricManual">0</b><span>zadań wymagających decyzji lub pracy firmy</span></div>
+      <div class="metric"><b id="metricP0">0</b><span>zadań P0 przed większym budżetem reklamowym</span></div>
+    </div>
+
+    <section class="view active" id="view-diagnoza">
+      <div class="decision">
+        <div><div class="kicker" style="color:#d7bd9f">Rekomendacja na spotkanie</div><h2>Najpierw 90 dni kontrolowanego testu, potem skalowanie</h2><p>Uruchamiamy jeden produkt w Google Search, mierzymy jakość zapytań w CRM i dopiero po uzyskaniu ofert oraz danych sprzedażowych dokładamy Meta Ads, SEO content i kolejne kategorie. Nie dzielimy małego budżetu na wszystkie kanały naraz.</p></div>
+        <div class="decision-price"><b>7 200–8 700 zł / mies.</b><span>rekomendowany realny koszt testu jednej kategorii: 5 000 zł media + 1 200 zł obsługa + 1 000–2 500 zł materiały. Wszystkie kwoty netto.</span></div>
+      </div>
+      <div class="section-head"><div><h2>Co naprawdę wynika z audytu</h2><p>Porównanie obserwacji zewnętrznego agenta z kodem i dokumentacją projektu. Najważniejsza korekta: problemem nie jest brak całego mechanizmu sprzedaży, lecz indeksowanie pełnej treści, brak części dowodów i niedomknięty przepływ danych marketingowych.</p></div></div>
+      <div class="callout"><strong>Stan po wdrożeniu programistycznym</strong>Treść kluczowych landingów jest już obecna w plikach HTML bez JavaScript, sitemap powstaje przy buildzie, nowe strony działają w PL/EN, a zgłoszenia zapisują atrybucję kampanii w CRM po zgodzie. Techniczna gotowość nie oznacza jeszcze widoczności w Google ani skutecznych reklam: to trzeba potwierdzić na produkcji i skonfigurować konta.</div>
+
+      <div class="status-grid">
+        <article class="panel good"><h3>Już zrobione</h3><ul>
+          <li>Dedykowane landingi: domki, sauny, balie, pawilony oraz inwestorzy.</li>
+          <li>Ceny „od” netto i referencyjne karty produktów.</li>
+          <li>Konfiguratory 2D z wyceną i przekazaniem konfiguracji do CRM.</li>
+          <li>Wieloetapowy formularz wyceny, RODO, honeypot i rate limit.</li>
+          <li>Lejek CRM od nowego zgłoszenia do realizacji i utraty.</li>
+          <li>Sitemap, robots, canonical, hreflang, Open Graph i schema.org.</li>
+          <li>Statyczne dokumenty wejściowe dla katalogu z właściwymi metadanymi.</li>
+          <li>GA4/Plausible po zgodzie oraz podstawowe zdarzenia formularza.</li>
+          <li>WhatsApp, galeria, realizacje i panel zarządzania zdjęciami.</li>
+          <li>Semantyczna treść HTML dla strony głównej, katalogu, produktów i nowych landingów PL/EN.</li>
+          <li>Automatyczna sitemap generowana z routingu katalogu i stron informacyjnych.</li>
+          <li>Strony transportu, o firmie, kontaktu, SPA oraz hoteli/glampingów.</li>
+          <li>UTM i click IDs w CRM, kliknięcia telefonu/WhatsApp, podstawowy Pixel po zgodzie.</li>
+          <li>Consent Mode v2 ze stanem domyślnym denied i ponownym wyborem w stopce.</li>
+        </ul></article>
+        <article class="panel partial"><h3>Zrobione częściowo</h3><ul>
+          <li>HTML ofert zawiera teraz główne copy, ceny i FAQ; pełny test Google renderowania wymaga produkcji/GSC, a treści z API nadal są dynamiczne.</li>
+          <li>„Dla inwestorów” pokrywa B2B, lecz nie jest jeszcze landingiem pod hotele i glampingi.</li>
+          <li>Realizacje istnieją, ale potrzebują danych: klient/region, zakres, czas i efekt.</li>
+          <li>Proces zamówienia ma 6 kroków, lecz terminy i zakres gwarancji wymagają potwierdzenia.</li>
+          <li>CRM zapisuje UTM i identyfikatory kliknięć; import kwalifikacji i sprzedaży do Ads nie jest jeszcze podłączony.</li>
+          <li>Analityka rejestruje lead, ale nie odsyła jakości i sprzedaży do platform reklamowych.</li>
+        </ul></article>
+        <article class="panel missing"><h3>Braki o największym wpływie</h3><ul>
+          <li>Zweryfikowane Search Console i Google Business Profile.</li>
+          <li>Audyt indeksowania już opublikowanego HTML w Google Search Console.</li>
+          <li>Spójna nazwa i adres e-mail we wszystkich miejscach po decyzji firmy.</li>
+          <li>Prawdziwe dane produkcji, zdjęcia, terminy i case study do nowych stron.</li>
+          <li>Opinie Google i system ich regularnego pozyskiwania.</li>
+          <li>Materiały z produkcji, transportu i uruchomienia u klienta.</li>
+          <li>Konfiguracja identyfikatorów GA4/Meta, serwerowe CAPI i import konwersji offline.</li>
+          <li>Dedykowany obraz OG 1200 × 630; obecnie projekt ma wpis TODO.</li>
+        </ul></article>
+      </div>
+
+      <div class="section-head" style="margin-top:34px"><div><h2>Granica odpowiedzialności</h2><p>Najsprawniejszy model pracy: firma dostarcza prawdę handlową, dostęp i materiały; projekt zamienia je w mierzalne strony oraz narzędzia.</p></div></div>
+      <div class="owner-grid">
+        <article class="panel owner-project"><h3>Przygotowane w kodzie</h3><ul><li>główne trasy PL/EN, statyczna treść SEO i mapa strony;</li><li>nowe landingi informacyjne i sprzedażowe;</li><li>przechwytywanie UTM/GCLID i widok atrybucji w CRM;</li><li>pomiar zgłoszeń i kontaktów po zgodzie, Consent Mode oraz opcjonalne skrypty GA4/Meta;</li><li>migracja bazy, test backendu i build frontendu.</li></ul></article>
+        <article class="panel owner-manual"><h3>Firma musi zrobić ręcznie</h3><ul><li>założyć/zweryfikować Search Console, GA4, Ads, Meta i Google Business;</li><li>potwierdzić ceny, terminy, gwarancję, transport i materiały;</li><li>zdobyć zgody klientów, opinie, zdjęcia i filmy;</li><li>ustalić proces obsługi leada i SLA oddzwonienia;</li><li>odpowiadać na opinie oraz publikować materiały;</li><li>decydować o budżecie, regionach, rentowności i skalowaniu.</li></ul></article>
+      </div>
+      <div class="callout"><strong>Przekazanie do uruchomienia</strong>Po stronie firmy: potwierdzić e-mail/NAP, dostarczyć identyfikatory GA4 i Meta Pixel do zmiennych środowiskowych, zweryfikować Search Console i profil Google, zatwierdzić politykę prywatności oraz zasady gwarancji/transportu. Następnie przetestować zdarzenia i indeksację na produkcji przed włączeniem budżetu. Meta CAPI i konwersje offline pozostają odrębnym etapem integracyjnym.</div>
+      <div class="callout"><strong>Stan weryfikacji kodu · 19.09.2026</strong>TypeScript przechodzi bez błędów. W pełnym zestawie frontendu przechodzi 215 z 217 testów; dwa niepowodzenia dotyczą listowania i filtrowania miejsc na zdjęcia w SitePanelPage. To nie blokuje omówienia marketingu, ale musi zostać wyjaśnione przed odbiorem wydania. Działanie zgód, tagów, formularzy, kopii zapasowej i indeksacji trzeba ponownie sprawdzić na produkcji po podłączeniu kont.</div>
+    </section>
+
+    <section class="view" id="view-plan">
+      <div class="section-head"><div><h2>Plan marketingu od A do Z</h2><p>Etapy są bramkami decyzyjnymi, nie luźną listą pomysłów. Następny etap zaczyna się dopiero po odebraniu poprzedniego.</p></div></div>
+      <div class="roadmap">
+        <article class="roadmap-step"><b>Decyzje biznesowe</b><p>Wybrać produkt startowy, region, cenę „od”, minimalną marżę, moce produkcyjne i jedną osobę akceptującą materiały.</p><small>Tydzień 0 · firma</small></article>
+        <article class="roadmap-step"><b>Publikacja i odbiór</b><p>Wdrożenie na Azure, domena i HTTPS, backup z próbą odtworzenia, test formularzy, CRM, zgód oraz kontaktów.</p><small>Tydzień 1 · projekt + firma</small></article>
+        <article class="roadmap-step"><b>Konta należące do firmy</b><p>Search Console, GA4, Google Ads, Google Business Profile i Meta Business Manager. Firma pozostaje właścicielem kont, płatności i danych.</p><small>Tydzień 1 · firma przy wsparciu</small></article>
+        <article class="roadmap-step"><b>Prawda ofertowa</b><p>Zatwierdzić ceny, zakres standardu, opcje, terminy, gwarancję, transport, montaż, serwis i zasady płatności dla każdej kategorii.</p><small>Tydzień 1–2 · firma</small></article>
+        <article class="roadmap-step"><b>Dowody zaufania</b><p>Prawdziwe zdjęcia produkcji i realizacji, opis 3–6 wykonanych projektów, ludzie, proces, opinie i odpowiedzi na najczęstsze obiekcje.</p><small>Tydzień 1–4 · firma + projekt</small></article>
+        <article class="roadmap-step"><b>Widoczność Google</b><p>Weryfikacja domeny, zgłoszenie sitemap, kontrola indeksacji i wyników brandowych oraz kompletny profil Google z prawdziwymi zdjęciami.</p><small>Tydzień 2 · wspólnie</small></article>
+        <article class="roadmap-step"><b>Pomiar całego lejka</b><p>Tag Assistant, Consent Mode, GA4, kliknięcia telefonu/WhatsApp, lead z UTM i click ID oraz test przejścia do CRM bez przesyłania surowych PII.</p><small>Tydzień 2 · projekt</small></article>
+        <article class="roadmap-step"><b>Pilot Google Search</b><p>Jedna kategoria, osobny landing, kontrolowane słowa i regiony, lista wykluczeń, telefon i formularz jako cele. Bez Performance Max na starcie.</p><small>Tydzień 3–6 · 30 dni danych</small></article>
+        <article class="roadmap-step"><b>Sprzedaż i kwalifikacja</b><p>Kontakt do 15 minut w godzinach pracy, follow-up 0/1/3/7 dni, statusy CRM, powód utraty i wartość wysłanej oferty.</p><small>Od dnia startu · firma</small></article>
+        <article class="roadmap-step"><b>Optymalizacja</b><p>Co tydzień: zapytania, wykluczenia, urządzenia, regiony i jakość leadów. Co miesiąc: koszt kwalifikacji, ofert i sprzedaży, nie tylko liczba formularzy.</p><small>Tydzień 4–12 · wspólnie</small></article>
+        <article class="roadmap-step"><b>Meta i treści</b><p>Dopiero z biblioteką autentycznych materiałów: 3–5 kreacji na produkt, produkcja, transport, efekt i człowiek. Remarketing po uzyskaniu wystarczającej grupy.</p><small>Miesiąc 3–4 · po dowodach</small></article>
+        <article class="roadmap-step"><b>SEO i skala</b><p>Case studies, poradniki z pytań klientów, konwersje offline i przesuwanie budżetu do produktów oraz regionów dających marżę.</p><small>Miesiąc 4–12 · po danych</small></article>
+      </div>
+      <div class="callout"><strong>Warunek przejścia do skalowania</strong>Co najmniej 30 dni stabilnego pomiaru, każde zapytanie sklasyfikowane w CRM, znany koszt leada kwalifikowanego, minimum kilka wysłanych ofert i potwierdzenie, że produkcja jest w stanie obsłużyć większy popyt. Sama liczba kliknięć nie jest podstawą do zwiększenia budżetu.</div>
+
+      <div class="section-head"><div><h2>Podział odpowiedzialności</h2><p>Najwięcej problemów powstaje, gdy nikt nie wie, kto ma dostarczyć fakt, materiał albo odpowiedzieć na lead.</p></div></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Obszar</th><th>Projekt / wykonawca</th><th>A.K. HOUSE</th><th>Kryterium odbioru</th></tr></thead>
+        <tbody>
+          <tr><td>Technologia</td><td>Wdrożenie, tagi, formularze, CRM, kopie, poprawki kodu</td><td>Dostępy, akceptacja i test biznesowy</td><td>Testowe zgłoszenie od reklamy widoczne w CRM</td></tr>
+          <tr><td>Oferta</td><td>Układ i publikacja zatwierdzonych informacji</td><td>Ceny, zakres, terminy, gwarancja, transport</td><td>Podpisana tabela prawdy ofertowej</td></tr>
+          <tr><td>Materiały</td><td>Brief, kadry, obróbka i wdrożenie</td><td>Dostęp do produkcji, realizacje i zgody</td><td>Biblioteka z prawem użycia i opisem produktu</td></tr>
+          <tr><td>Reklamy</td><td>Konfiguracja, optymalizacja i raport</td><td>Budżet, karta płatnicza, szybka akceptacja</td><td>Kampania publikuje się z limitem i właściwym landingiem</td></tr>
+          <tr><td>Sprzedaż</td><td>Pomiar źródła i etapów</td><td>Telefon, kwalifikacja, oferta, follow-up i status CRM</td><td>Każdy lead ma opiekuna, wynik i powód utraty</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="section-head"><div><h2>Decyzje do zamknięcia na spotkaniu</h2><p>Pola można edytować bezpośrednio w dokumencie. Ustalenia zapisują się lokalnie w tej przeglądarce i można je wyeksportować przyciskiem u góry.</p></div></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Decyzja</th><th>Rekomendacja na start</th><th>Ustalenie z klientem</th></tr></thead>
+        <tbody>
+          <tr><td>Produkt pilotażowy</td><td>Jedna kategoria o najlepszej marży i dostępnych realizacjach</td><td contenteditable="true" data-edit="decision-product">do ustalenia</td></tr>
+          <tr><td>Obszar kampanii</td><td>Region możliwy do obsługi bez ryzyka logistycznego</td><td contenteditable="true" data-edit="decision-region">do ustalenia</td></tr>
+          <tr><td>Budżet mediów</td><td>5 000 zł netto miesięcznie przez 3 miesiące</td><td contenteditable="true" data-edit="decision-media">do ustalenia</td></tr>
+          <tr><td>Właściciel leadów</td><td>Jedna osoba dyżurna i reakcja do 15 minut</td><td contenteditable="true" data-edit="decision-leads">do ustalenia</td></tr>
+          <tr><td>Osoba akceptująca</td><td>Jeden z właścicieli, odpowiedź maksymalnie w 2 dni robocze</td><td contenteditable="true" data-edit="decision-approval">do ustalenia</td></tr>
+          <tr><td>Materiały</td><td>Sesja prawdziwej produkcji, transportu i minimum 3 realizacji</td><td contenteditable="true" data-edit="decision-content">do ustalenia</td></tr>
+          <tr><td>Sklep internetowy</td><td>Poza bieżącym etapem i wyceną</td><td contenteditable="true" data-edit="decision-shop">potwierdzić odroczenie</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="view" id="view-budzet">
+      <div class="section-head"><div><h2>Budżet i ceny</h2><p>Kwoty netto. Budżet mediowy trafia bezpośrednio do Google lub Meta i nie jest wynagrodzeniem wykonawcy. Widełki rynkowe są orientacyjne i zależą od zakresu, jakości materiałów oraz liczby kampanii.</p></div></div>
+
+      <div class="scope-strip">
+        <div><b>35 000 zł</b><span>partnerska cena za wykonany zakres bez sklepu oraz pozostającą finalizację i wdrożenie</span></div>
+        <div><b>2 500 zł</b><span>konfiguracja pilota Google Search i obsługa pierwszych 30 dni</span></div>
+        <div><b>37 500 zł</b><span>łącznie za obecny etap projektu oraz start reklamy</span></div>
+        <div><b>0 zł sklepu</b><span>sklep pozostaje poza tym etapem, zakresem i ceną</span></div>
+      </div>
+      <div class="callout"><strong>Co klient już kupuje w tej cenie</strong>Nie samą stronę wizytówkową, lecz serwis PL/EN, katalog i konfiguratory, formularze i CRM, panel treści, techniczne SEO, atrybucję kampanii, zgody, wdrożenie na jednej uzgodnionej maszynie Azure, przekazanie oraz pilot Search. Koszty Azure, domeny, skrzynek i reklam klient opłaca bezpośrednio dostawcom.</div>
+
+      <div class="budget-grid">
+        <article class="budget-card"><h3>Ostrożny test</h3><b class="budget-total">3 200–5 200 zł</b><span class="sub">miesięcznie po starcie</span><ul><li>Google Ads: 2 000–3 000 zł</li><li>obsługa 1 kanału: 1 200 zł</li><li>materiały: własne lub do 1 000 zł</li><li>jeden produkt i ograniczony region</li></ul><p><b>Wniosek:</b> sprawdza komunikaty i technikę, ale może zebrać zbyt mało danych do oceny sprzedaży.</p></article>
+        <article class="budget-card recommended"><span class="badge">Rekomendowany</span><h3>Test jednej kategorii</h3><b class="budget-total">7 200–8 700 zł</b><span class="sub">miesięcznie przez 3 miesiące</span><ul><li>Google Ads: 5 000 zł</li><li>obsługa: 1 200 zł</li><li>materiały: 1 000–2 500 zł</li><li>Search + brand, landing i CRM</li></ul><p><b>Wniosek:</b> daje rozsądniejszą szansę na porównanie zapytań, regionów i jakości leadów.</p></article>
+        <article class="budget-card"><h3>Wzrost po potwierdzeniu</h3><b class="budget-total">17 400–28 500 zł</b><span class="sub">miesięcznie, nie na start</span><ul><li>Google: 8 000–12 000 zł</li><li>Meta: 3 000–5 000 zł</li><li>obsługa obu: 2 400–3 500 zł</li><li>content: 2 500–5 000 zł</li><li>SEO: 1 500–3 000 zł</li></ul><p><b>Wniosek:</b> dopiero gdy CRM pokazuje koszt oferty i sprzedaży, a firma ma moce produkcyjne.</p></article>
+      </div>
+
+      <div class="section-head"><div><h2>Pozycje dodatkowe i realia rynku</h2><p>To nie są obowiązkowe zakupy w pierwszym miesiącu. Służą do rozmowy o dalszym rozwoju i porównania ofert wykonawców.</p></div></div>
+      <div class="table-wrap"><table class="money-table">
+        <thead><tr><th>Pozycja</th><th>Realne widełki netto</th><th>Kiedy potrzebna</th><th>Uwagi dla A.K. HOUSE</th></tr></thead>
+        <tbody>
+          <tr><td>Obsługa Google Ads, 1 kanał</td><td>1 000–3 000 zł / mies.</td><td>Od pilota</td><td>Nasza cena po pilotażu: 1 200 zł / mies.; media osobno.</td></tr>
+          <tr><td>Obsługa Meta Ads</td><td>1 000–2 800 zł / mies.</td><td>Po zebraniu kreacji</td><td>Nie uruchamiać bez regularnej wymiany materiałów.</td></tr>
+          <tr><td>SEO dla małej/średniej strony</td><td>1 500–5 000 zł / mies.</td><td>Po zamknięciu fundamentu</td><td>Najpierw case studies i odpowiedzi na prawdziwe pytania klientów.</td></tr>
+          <tr><td>Pakiet 4 rolek z nagraniem</td><td>2 000–5 000 zł</td><td>Meta, social, remarketing</td><td>Tańszy wariant: nagrania telefonem, montaż 150–400 zł / rolkę.</td></tr>
+          <tr><td>Prowadzenie FB + Instagram</td><td>1 500–4 500 zł / mies.</td><td>Gdy firma nie publikuje sama</td><td>Zakres musi określać liczbę rolek, postów, moderację i sesje.</td></tr>
+          <tr><td>Dashboard GA4 / Ads / CRM</td><td>1 500–4 000 zł jednorazowo</td><td>Po ustabilizowaniu danych</td><td>Przy małej skali wystarczy miesięczny raport; nie kupować za wcześnie.</td></tr>
+          <tr><td>Meta CAPI + konwersje offline</td><td>2 500–6 000 zł jednorazowo</td><td>Po poprawnym CRM i zgodach</td><td>Osobny etap integracyjny; cena końcowa po dostępie do kont.</td></tr>
+          <tr><td>Azure / domena / e-mail / backup</td><td>według konfiguracji</td><td>Od publikacji</td><td>Płatność bezpośrednia. Koszt VM trzeba policzyć w Azure Calculator przed akceptacją.</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="callout"><strong>Jak ocenić, ile można zapłacić za lead</strong>Maksymalny CPL kwalifikowany = marża brutto na sprzedaży × odsetek kwalifikowanych leadów kończących się sprzedażą. Przykład wyłącznie matematyczny: 20 000 zł marży × 5% sprzedaży = 1 000 zł progu przed uwzględnieniem kosztów stałych. Prawdziwy limit musi podać firma na podstawie własnej marży i CRM.</div>
+
+      <div class="section-head"><div><h2>Obecne realia w Polsce</h2><p>Wnioski, które warto klientowi powiedzieć wprost przed podpisaniem budżetu.</p></div></div>
+      <div class="owner-grid">
+        <article class="panel"><h3>Reklama jest coraz bardziej konkurencyjna</h3><ul><li>Polski rynek reklamy cyfrowej osiągnął w 2025 r. 10,9 mld zł i urósł o 14,6%.</li><li>Mały budżet nie jest błędem, ale nie może być dzielony na trzy produkty, całą Polskę i kilka platform.</li><li>Platforma ma optymalizować pod kwalifikację i sprzedaż, nie pod najtańszy formularz.</li></ul></article>
+        <article class="panel"><h3>SEO nie ma gwarantowanego terminu</h3><ul><li>Google podaje, że ponowne crawlowanie może potrwać od kilku dni do kilku tygodni.</li><li>Sitemap pomaga odkrywać adresy, ale nie gwarantuje indeksacji ani pozycji.</li><li>Pierwsze 90 dni służy również zebraniu realnych zapytań i tematów do treści.</li></ul></article>
+        <article class="panel"><h3>Autentyczność jest aktywem sprzedażowym</h3><ul><li>Google zaleca w Profilu Firmy zdjęcia pokazujące rzeczywistość, bez istotnych przeróbek, przesadnych filtrów i AI.</li><li>Wizualizacje mogą pokazywać koncepcję, ale nie mogą udawać wykonanej realizacji.</li><li>Priorytetem są własna produkcja, ludzie, transport i odbiór przez klienta.</li></ul></article>
+        <article class="panel"><h3>Opinie muszą być prawdziwe</h3><ul><li>Google pozwala prosić o opinię linkiem lub kodem QR i rekomenduje odpowiadanie na recenzje.</li><li>Nie wolno oferować rabatu ani prezentu w zamian za opinię.</li><li>Proces po odbiorze produktu jest ważniejszy niż jednorazowe „zdobycie 20 opinii”.</li></ul></article>
+      </div>
+
+      <div class="source-list">
+        <a href="https://www.iab.org.pl/bez-kategorii/iab-pwc-adex-fy2025/" target="_blank" rel="noreferrer"><b>IAB Polska / PwC AdEx 2025</b> — wartość i dynamika polskiego rynku reklamy cyfrowej.</a>
+        <a href="https://developers.google.com/search/help/crawling-index-faq" target="_blank" rel="noreferrer"><b>Google Search Central</b> — sitemap nie gwarantuje indeksacji ani wzrostu pozycji.</a>
+        <a href="https://developers.google.com/search/docs/crawling-indexing/ask-google-to-recrawl" target="_blank" rel="noreferrer"><b>Google Search Central</b> — ponowne crawlowanie może potrwać kilka dni lub tygodni.</a>
+        <a href="https://support.google.com/business/answer/6123536" target="_blank" rel="noreferrer"><b>Google Business Profile</b> — zdjęcia firmy powinny przedstawiać rzeczywistość i nie być nadmiernie przerabiane.</a>
+        <a href="https://support.google.com/business/answer/3474122" target="_blank" rel="noreferrer"><b>Google Business Profile</b> — zasady pozyskiwania opinii i zakaz zachęt.</a>
+        <a href="https://support.google.com/google-ads/answer/9888656" target="_blank" rel="noreferrer"><b>Google Ads</b> — enhanced conversions i import leadów offline z użyciem hashowanych danych first-party.</a>
+        <a href="https://artursmolicki.com/cennik-google-ads/" target="_blank" rel="noreferrer"><b>Publiczny cennik Google Ads</b> — punkt odniesienia dla miesięcznej obsługi kampanii.</a>
+        <a href="https://westom.pl/cennik-pozycjonowania/" target="_blank" rel="noreferrer"><b>Publiczny cennik SEO</b> — przykładowe pakiety pozycjonowania na polskim rynku.</a>
+        <a href="https://marketerzy.pl/cennik-prowadzenia-social-media" target="_blank" rel="noreferrer"><b>Publiczny cennik social media</b> — zakresy prowadzenia Facebooka i Instagrama.</a>
+        <a href="https://semtools.pl/analityka-i-pomiar/looker-studio-raportowanie/dashboard-ga4-looker-studio" target="_blank" rel="noreferrer"><b>Publiczny cennik raportowania</b> — punkt odniesienia dla dashboardu GA4 i Looker Studio.</a>
+        <a href="https://smart-kampanie.pl/wiedza/ile-kosztuje-kampania-meta-ads" target="_blank" rel="noreferrer"><b>Publiczny cennik Meta Ads 2026</b> — przykład kosztu mediów i obsługi małej firmy.</a>
+        <a href="https://biznesowelove.com/ile-kosztuja-rolki-dla-firmy/" target="_blank" rel="noreferrer"><b>Publiczne zestawienie cen rolek 2026</b> — montaż, nagranie i pakiety miesięczne.</a>
+      </div>
+      <div class="footer-note">Ceny rynkowe pochodzą z publicznych ofert i zestawień dostępnych we wrześniu 2026 r.; nie są cennikiem urzędowym ani gwarancją wyniku. Oferta A.K. HOUSE powinna rozdzielać wynagrodzenie wykonawcy, media, produkcję treści i usługi zewnętrzne. Żadna kampania nie gwarantuje liczby zapytań ani sprzedaży.</div>
+    </section>
+
+    <section class="view" id="view-zadania">
+      <div class="section-head"><div><h2>Kompletny backlog</h2><p>Kolejność jest celowa. P0 zamyka fundament przed reklamami, P1 poprawia konwersję i wiarygodność, P2 służy skalowaniu. Kliknij wiersz, aby rozwinąć kryteria i notatki.</p></div></div>
+      <div class="filters">
+        <input id="search" type="search" placeholder="Szukaj zadania, obszaru lub opisu…" aria-label="Szukaj zadań">
+        <select id="ownerFilter" aria-label="Właściciel"><option value="all">Każdy właściciel</option><option value="project">Projekt / kod</option><option value="manual">Firma / ręcznie</option><option value="shared">Wspólnie</option></select>
+        <select id="priorityFilter" aria-label="Priorytet"><option value="all">Każdy priorytet</option><option value="P0">P0</option><option value="P1">P1</option><option value="P2">P2</option></select>
+        <select id="areaFilter" aria-label="Obszar"><option value="all">Każdy obszar</option></select>
+        <select id="statusFilter" aria-label="Status"><option value="all">Każdy status</option><option value="open">Do zrobienia</option><option value="done">Gotowe</option></select>
+        <button class="filter-chip" id="clearFilters">Wyczyść filtry</button>
+      </div>
+      <div class="task-list" id="taskList"></div>
+      <div class="empty" id="emptyState">Brak zadań pasujących do filtrów.</div>
+    </section>
+
+    <section class="view" id="view-struktura">
+      <div class="section-head"><div><h2>Docelowa struktura i rola stron</h2><p>Nie trzeba mnożyć stu lokalnych stron. Najpierw jedna mocna strona na każdą intencję zakupową, a strony regionalne dopiero wtedy, gdy można pokazać rzeczywistą realizację.</p></div></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Docelowy URL</th><th>Stan</th><th>Intencja / treść</th><th>Główne CTA</th><th>Działanie</th></tr></thead>
+        <tbody>
+          <tr><td><code>/</code></td><td>Jest</td><td>Marka + szybki wybór produktu + dowody</td><td>Zobacz realizacje / otrzymaj wycenę</td><td>Wzmocnić Podlasie → Polska, liczby i opinie</td></tr>
+          <tr><td><code>/domki-mobilne</code></td><td>Brak; jest <code>/domki-drewniane</code></td><td>Główna fraza i segment domków mobilnych/modułowych</td><td>Skonfiguruj / wyceń transport</td><td>Utworzyć docelowy URL i 301 ze starego po analizie danych</td></tr>
+          <tr><td><code>/domki-mobilne-caloroczne</code></td><td>Brak</td><td>Izolacja, instalacje, użytkowanie zimą, formalności</td><td>Otrzymaj wycenę wariantu całorocznego</td><td>Nowy landing po potwierdzeniu specyfikacji</td></tr>
+          <tr><td><code>/sauny-ogrodowe</code></td><td>Jest</td><td>Typy, piece, drewno, wymiary, cena, dostawa</td><td>Skonfiguruj saunę</td><td>Dodać proof, FAQ i realne terminy</td></tr>
+          <tr><td><code>/balie-ogrodowe</code></td><td>Jest</td><td>Piec, wkład, izolacja, filtracja, użytkowanie</td><td>Skonfiguruj balię</td><td>Dodać proof, FAQ i koszty eksploatacji</td></tr>
+          <tr><td><code>/strefy-spa</code></td><td>Jest, PL/EN</td><td>Zestaw sauna + balia, ogród prywatny i najem</td><td>Wyceń kompletną strefę</td><td>Uzupełnić zatwierdzone pakiety i zdjęcia realizacji</td></tr>
+          <tr><td><code>/dla-hoteli-i-glampingow</code></td><td>Jest, PL/EN; <code>/dla-inwestorow</code> pozostaje</td><td>Wiele obiektów, logistyka, standard noclegowy</td><td>Umów konsultację inwestycji</td><td>Uzupełnić warunki B2B i case study; nie obiecywać ROI bez danych</td></tr>
+          <tr><td><code>/realizacje</code></td><td>Jest</td><td>Case studies według produktu i regionu</td><td>Chcę podobną realizację</td><td>Dodać metrykę, zakres, czas, miejscowość i opinię</td></tr>
+          <tr><td><code>/transport-i-montaz</code></td><td>Jest, PL/EN</td><td>Dojazd, przygotowanie działki i zakres oferty</td><td>Zapytaj o transport i wycenę</td><td>Uzupełnić szczegółowy zakres po decyzji firmy</td></tr>
+          <tr><td><code>/o-nas</code></td><td>Jest, PL/EN</td><td>Produkcja, ludzie, warsztat, doświadczenie</td><td>Porozmawiaj o projekcie</td><td>Dodać zdjęcia ludzi, produkcji i zweryfikowaną historię</td></tr>
+          <tr><td><code>/kontakt</code></td><td>Jest, PL/EN</td><td>NAP i kanały kontaktu</td><td>Zadzwoń / WhatsApp / wycena</td><td>Zatwierdzić e-mail, godziny, możliwość wizyty i mapę</td></tr>
+          <tr><td><code>/poradnik/…</code></td><td>Brak</td><td>Pytania przed zakupem i długi ogon SEO</td><td>Przejdź do właściwego produktu</td><td>Dopiero po zamknięciu P0/P1</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="callout"><strong>Ryzyko zmiany adresu domków</strong><code>/domki-drewniane</code> już istnieje i może mieć historię. Przed zmianą na <code>/domki-mobilne</code> sprawdzić w Search Console wyświetlenia i linki. Jeśli zmieniamy: stałe 301, aktualizacja linków wewnętrznych, sitemap, canonicali i monitorowanie 404.</div>
+    </section>
+
+    <section class="view" id="view-pomiar">
+      <div class="section-head"><div><h2>Pomiar, który prowadzi do sprzedaży</h2><p>„Wysłano formularz” to tylko początek. Platformy reklamowe powinny dostać informację, które zapytania zostały zakwalifikowane, wycenione i zakończyły się sprzedażą.</p></div></div>
+      <div class="timeline">
+        <div class="phase"><div class="phase-time">1. Wejście</div><div><b>Zapis źródła</b><ul><li>UTM source/medium/campaign/content/term, referrer, landing page, GCLID, GBRAID/WBRAID oraz identyfikator Meta.</li><li>Pierwsze i ostatnie źródło wizyty przechowywane zgodnie ze zgodą.</li></ul></div></div>
+        <div class="phase"><div class="phase-time">2. Zachowanie</div><div><b>Zdarzenia bez danych osobowych</b><ul><li><code>view_product</code>, <code>start_configurator</code>, <code>complete_configurator</code>, <code>quote_step</code>, <code>generate_lead</code>.</li><li><code>click_phone</code>, <code>click_whatsapp</code>, <code>view_realization</code>, <code>download_offer</code>.</li></ul></div></div>
+        <div class="phase"><div class="phase-time">3. CRM</div><div><b>Jakość leada</b><ul><li>Nowe → kontakt → kwalifikowany → wycena → negocjacje → zamówienie → zakończone / utracone.</li><li>Obecny CRM ma większość etapów; trzeba dodać jednoznaczną kwalifikację, powód utraty i dane atrybucji.</li></ul></div></div>
+        <div class="phase"><div class="phase-time">4. Zwrot danych</div><div><b>Konwersje offline</b><ul><li>Do Google Ads wysyłać kwalifikowany lead, ofertę i sprzedaż wraz z wartością, a nie każdy formularz jako równoważny sukces.</li><li>Do Meta przekazywać zdarzenia zgodne ze zgodą przez Pixel/CAPI z deduplikacją.</li></ul></div></div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:28px"><table>
+        <thead><tr><th>KPI</th><th>Jak liczyć</th><th>Cel początkowy</th><th>Decyzja</th></tr></thead>
+        <tbody>
+          <tr><td>Lead → kontakt</td><td>kontakt nawiązany / wszystkie leady</td><td contenteditable="true" data-edit="kpi-contact">ustalić po 30 dniach</td><td>Jakość danych i szybkość reakcji</td></tr>
+          <tr><td>Kontakt → kwalifikacja</td><td>kwalifikowane / kontakty</td><td contenteditable="true" data-edit="kpi-qualified">ustalić po 30 dniach</td><td>Trafność kampanii i formularza</td></tr>
+          <tr><td>Kwalifikacja → oferta</td><td>wysłane oferty / kwalifikowane</td><td contenteditable="true" data-edit="kpi-quote">ustalić z handlowcem</td><td>Proces sprzedaży i dostępność produktu</td></tr>
+          <tr><td>Oferta → sprzedaż</td><td>zamówienia / oferty</td><td contenteditable="true" data-edit="kpi-sale">ustalić z historią CRM</td><td>Oferta, cena i follow-up</td></tr>
+          <tr><td>CPL kwalifikowany</td><td>wydatki / kwalifikowane leady</td><td contenteditable="true" data-edit="kpi-cpl">próg wg marży produktu</td><td>Skalować lub wyłączyć kampanię</td></tr>
+          <tr><td>Czas pierwszej reakcji</td><td>pierwszy kontakt − data leada</td><td contenteditable="true" data-edit="kpi-sla">≤ 15 min w godzinach pracy</td><td>SLA i dyżur handlowy</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="view" id="view-kampanie">
+      <div class="section-head"><div><h2>Plan uruchomienia kampanii</h2><p>Budżet uruchamiać dopiero po zamknięciu P0. Każda grupa reklam prowadzi do odpowiadającego jej landingu, nigdy automatycznie na stronę główną.</p></div></div>
+      <div class="phase-grid">
+        <article class="panel"><div class="kicker">Faza 0 · przygotowanie</div><h3 style="margin-top:8px">0–2 tygodnie</h3><ul><li>tracking i zgody;</li><li>Search Console i indeksacja;</li><li>materiały oraz oferta;</li><li>SLA obsługi leada;</li><li>wykluczenia i geografia.</li></ul></article>
+        <article class="panel"><div class="kicker">Faza 1 · test intencji</div><h3 style="margin-top:8px">3–6 tygodni</h3><ul><li>Google Search osobno dla domków, saun i balii;</li><li>brand ochronny;</li><li>Podlasie osobno od Polski;</li><li>ścisłe dopasowania i raport zapytań.</li></ul></article>
+        <article class="panel"><div class="kicker">Faza 2 · kreacje</div><h3 style="margin-top:8px">4–10 tygodni</h3><ul><li>Meta: produkcja, dostawa, efekt;</li><li>remarketing odwiedzających;</li><li>test twarzy właściciela;</li><li>osobne kreacje B2B.</li></ul></article>
+        <article class="panel"><div class="kicker">Faza 3 · skalowanie</div><h3 style="margin-top:8px">po 8–12 tygodniach</h3><ul><li>budżet wg sprzedaży, nie formularzy;</li><li>regiony i produkty rentowne;</li><li>offline conversions;</li><li>nowe strony regionalne tylko z proof.</li></ul></article>
+      </div>
+
+      <div class="table-wrap" style="margin-top:24px"><table>
+        <thead><tr><th>Kampania</th><th>Landing</th><th>Przykładowa intencja</th><th>Oferta / komunikat</th><th>Warunek startu</th></tr></thead>
+        <tbody>
+          <tr><td>Domki Search</td><td><code>/domki-mobilne</code></td><td>producent, całoroczny, na działkę, cena</td><td>Wycena domku i transportu do miejscowości</td><td>specyfikacja, zdjęcia, cena, tracking</td></tr>
+          <tr><td>Sauny Search</td><td><code>/sauny-ogrodowe</code></td><td>producent, zewnętrzna, cena, z piecem</td><td>Konfiguracja i termin od producenta</td><td>materiały, gwarancja, realny termin</td></tr>
+          <tr><td>Balie Search</td><td><code>/balie-ogrodowe</code></td><td>z piecem, wkładem, producent, cena</td><td>Cena od 9 tys. netto + konfiguracja</td><td>zakres ceny i wyposażenia potwierdzony</td></tr>
+          <tr><td>Brand Search</td><td><code>/</code></td><td>ak house, akhouse, a.k. house</td><td>Oficjalna strona producenta z Podlasia</td><td>profil firmy i wyniki brandowe uporządkowane</td></tr>
+          <tr><td>Meta B2C</td><td>landing produktu</td><td>zimny ruch / zainteresowania / lookalike</td><td>transformacja pustej działki lub ogrodu</td><td>min. 3–5 pionowych kreacji na produkt</td></tr>
+          <tr><td>Meta B2B</td><td><code>/dla-hoteli-i-glampingow</code></td><td>właściciele noclegów i inwestorzy</td><td>atrakcyjność obiektu, cena noclegu, pakiet</td><td>case study lub wiarygodny scenariusz ROI</td></tr>
+          <tr><td>Remarketing</td><td>ostatnia oglądana kategoria</td><td>odwiedzający bez leada</td><td>realizacja + odpowiedź na obiekcję</td><td>zgody, grupy i minimalna liczebność</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout"><strong>Jak czytać budżet reklamowy</strong>2–3 tys. zł mediów może sprawdzić technikę i komunikaty, ale zwykle daje mało danych. Rekomendowany pilot to 5 tys. zł mediów na jedną kategorię przez 3 miesiące. Po potwierdzeniu jakości leadów 12–15 tys. zł mediów miesięcznie może obsłużyć kilka kategorii lub kanałów. Obsługa i produkcja materiałów są liczone osobno. Performance Max nie powinien być pierwszym źródłem leadów bez danych jakościowych.</div>
+    </section>
+
+    <section class="view" id="view-materialy">
+      <div class="section-head"><div><h2>Pakiet treści i materiałów od firmy</h2><p>To jest komplet wejścia potrzebny do przygotowania stron, reklam i dowodów zaufania. Pola są edytowalne, a checkboxy zapisywane lokalnie.</p></div></div>
+      <div class="copy-block" contenteditable="true" data-edit="hero-copy"><h3>Proponowany komunikat główny</h3><p><b>Domki mobilne i prywatne strefy SPA prosto od producenta.</b></p><p>Projektujemy i produkujemy na Podlasiu. Dostarczamy w całej Polsce.</p><p>CTA: Zobacz realizacje · Otrzymaj wycenę</p></div>
+      <div class="copy-block" contenteditable="true" data-edit="positioning-copy"><h3>Pozycjonowanie marki</h3><p><b>Z Podlasia. Do ogrodów, działek i obiektów noclegowych w całej Polsce.</b></p><p>Własna produkcja, możliwość personalizacji, transport oraz ustawienie u klienta — wyłącznie po potwierdzeniu każdego z tych faktów przez firmę.</p></div>
+
+      <div class="checklist" id="materialsChecklist">
+        <label class="checkline"><input type="checkbox" data-material="prices"><span>Potwierdzone ceny „od” i dokładny zakres każdej ceny</span></label>
+        <label class="checkline"><input type="checkbox" data-material="warranty"><span>Okres oraz warunki gwarancji dla każdej kategorii</span></label>
+        <label class="checkline"><input type="checkbox" data-material="leadtime"><span>Realne przedziały terminów produkcji i dostawy</span></label>
+        <label class="checkline"><input type="checkbox" data-material="transport"><span>Zasady transportu, montażu, HDS i przygotowania miejsca</span></label>
+        <label class="checkline"><input type="checkbox" data-material="materials"><span>Specyfikacje: drewno, izolacja, konstrukcja, piece, wkłady i instalacje</span></label>
+        <label class="checkline"><input type="checkbox" data-material="people"><span>Imiona, role i zdjęcia właścicieli / zespołu produkcji</span></label>
+        <label class="checkline"><input type="checkbox" data-material="factory"><span>Zdjęcia warsztatu, hali, etapów budowy i kontroli jakości</span></label>
+        <label class="checkline"><input type="checkbox" data-material="deliveries"><span>Zdjęcia i pionowe filmy z minimum 5 dostaw / montaży</span></label>
+        <label class="checkline"><input type="checkbox" data-material="cases"><span>Minimum 6 realizacji: produkt, miejscowość/region, zakres, czas, rezultat</span></label>
+        <label class="checkline"><input type="checkbox" data-material="reviews"><span>Minimum 10 podpisanych opinii i zgody na publikację</span></label>
+        <label class="checkline"><input type="checkbox" data-material="showroom"><span>Informacja, czy klient może zobaczyć produkcję lub gotowy egzemplarz</span></label>
+        <label class="checkline"><input type="checkbox" data-material="b2b"><span>Warunki B2B: serie, faktura, serwis, harmonogram i opieka</span></label>
+        <label class="checkline"><input type="checkbox" data-material="contacts"><span>Ostateczny telefon, WhatsApp, e-mail, godziny i adres</span></label>
+        <label class="checkline"><input type="checkbox" data-material="access"><span>Dostępy: domena/DNS, hosting, Search Console, GA4, Ads, Meta, GBP</span></label>
+      </div>
+      <div class="footer-note">Dokument jest samodzielnym plikiem HTML. Dane robocze pozostają w localStorage przeglądarki; eksport JSON służy do przeniesienia lub archiwizacji postępu. Plik nie wysyła danych do sieci.</div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="modal" id="importModal" role="dialog" aria-modal="true" aria-labelledby="importTitle">
+    <div class="modal-box"><h2 id="importTitle">Import stanu planu</h2><p>Wklej zawartość wcześniej wyeksportowanego pliku JSON.</p><textarea id="importData" spellcheck="false" placeholder="{ … }"></textarea><div class="modal-actions"><button id="cancelImport">Anuluj</button><button class="primary" id="confirmImport">Importuj</button></div></div>
+  </div>
+
+  <script>
+    const TASKS = [
+      {id:'sc-verify',p:'P0',owner:'manual',area:'SEO',title:'Zweryfikować domenę w Google Search Console',state:'Audyt nie potwierdza profilu ani danych indeksacji.',result:'Właściciel domeny zweryfikowany; sitemap zgłoszona; raport stron, ręczne działania i Core Web Vitals przejrzane.',why:'Bez danych z GSC nie wiadomo, czy problemem jest odkrywanie URL, renderowanie, jakość czy historia domeny.',dep:'Dostęp do DNS lub hostingu.'},
+      {id:'crawl-audit',p:'P0',owner:'project',area:'SEO',title:'Wykonać techniczny audyt indeksacji produkcji',state:'Są robots, sitemap, canonicale i 14+ statycznych wejść z metadanymi.',result:'Lista statusów HTTP, indeksowalności, canonicali, renderowania Google i błędów dla każdego publicznego URL.',why:'Potwierdza, które uwagi audytu są aktualne na wdrożonej wersji.',dep:'Dostępna wersja produkcyjna i GSC.'},
+      {id:'prerender',p:'P0',owner:'project',area:'SEO',title:'Dokończyć renderowanie pełnej treści publicznych stron',state:'Build zawiera teraz semantyczny HTML głównych landingów, kategorii i produktów; treści z API (np. galeria) pozostają dynamiczne.',result:'Weryfikacja HTML i test indeksowania na produkcji; w razie potrzeby SSR dla treści zarządzanej przez API.',why:'To odpowiedź na problem crawlera opisany w audycie.',dep:'Produkcyjny URL, GSC i decyzja o sposobie publikacji treści API.'},
+      {id:'sitemap-fix',p:'P0',owner:'project',area:'SEO',title:'Zsynchronizować sitemap z generowanymi trasami',state:'Gotowe w buildzie: mapa powstaje z tych samych tras co statyczne landingi PL/EN.',result:'Sitemap zawiera obecne indeksowalne strony katalogu i nowe landingi, bez ukrytego sklepu.',why:'Ręczna mapa łatwo rozjeżdża się wraz z routingiem.',dep:'Zweryfikować produkcyjny plik w Search Console.'},
+      {id:'nap',p:'P0',owner:'shared',area:'Zaufanie',title:'Ujednolicić dane NAP i oficjalny e-mail',state:'W projekcie występują kontakt@akhouse.pl i kontakt@akhousebiuro.com.',result:'Jedna zatwierdzona nazwa, adres, telefon, e-mail i zapis marki na stronie, w schema, profilach i katalogach.',why:'Niespójność osłabia wyniki brandowe i lokalne zaufanie.',dep:'Decyzja firmy o adresie podstawowym.'},
+      {id:'gbp',p:'P0',owner:'manual',area:'Lokalne SEO',title:'Założyć lub przejąć Google Business Profile',state:'Audyt nie znalazł jednoznacznego profilu A.K. HOUSE w Mątwicy.',result:'Zweryfikowany profil z kategoriami, obszarem działania, WWW, telefonem, godzinami, produktami i min. 20 zdjęciami.',why:'Profil porządkuje wyniki brandowe, mapy i zbieranie opinii.',dep:'Dokumenty firmy, dostęp właściciela, materiały.'},
+      {id:'offer-truth',p:'P0',owner:'manual',area:'Oferta',title:'Potwierdzić fakty handlowe i granice obietnic',state:'Projekt zawiera ceny od i proces, ale terminy, gwarancja, montaż oraz materiały nie są kompletne.',result:'Tabela dla każdej kategorii: cena i zakres, czas, gwarancja, transport, montaż, serwis, materiały, płatności.',why:'Kod nie może obiecywać tego, czego produkcja nie gwarantuje.',dep:'Właściciel, produkcja, handlowiec.'},
+      {id:'hero-proof',p:'P0',owner:'shared',area:'Konwersja',title:'Wzmocnić hero konkretną przewagą i dowodem',state:'Oferta i ceny są widoczne, lecz narracja Podlasie → Polska nie jest jeszcze osią całej marki.',result:'H1 opisuje produkt, podtytuł miejsce produkcji i zasięg; obok 2 CTA oraz 3 potwierdzone fakty.',why:'Pierwszy ekran ma w kilka sekund odpowiedzieć: co, dla kogo i dlaczego tutaj.',dep:'Potwierdzone fakty z zadania Oferta.'},
+      {id:'utm',p:'P0',owner:'project',area:'Analityka',title:'Zapisywać UTM, click IDs i landing page przy leadzie',state:'Gotowe: formularze przekazują atrybucję po zgodzie, CRM wyświetla źródło, a migracja dodaje snapshot w bazie.',result:'CRM pokazuje pierwsze i ostatnie wejście, UTM, referrer i identyfikatory kliknięć; bez zgody dane nie są przesyłane.',why:'Bez tego nie da się połączyć sprzedaży z reklamą.',dep:'Na produkcji zweryfikować testowym UTM i zatwierdzić politykę prywatności.'},
+      {id:'events',p:'P0',owner:'project',area:'Analityka',title:'Uzupełnić zdarzenia całego lejka na stronie',state:'Działa quote_step i generate_lead oraz infrastruktura GA4/Plausible.',result:'Wdrożone i przetestowane view_product, start/complete_configurator, phone, WhatsApp, realization i lead z parametrami bez PII.',why:'Pokazuje miejsca utraty użytkowników oraz jakość landingów.',dep:'Identyfikatory produkcyjnych kont analitycznych.'},
+      {id:'consent',p:'P0',owner:'project',area:'Analityka',title:'Wdrożyć Consent Mode v2 i ustawienia zgód',state:'Gotowe w kodzie: domyślne denied, aktualizacja zgody, ponowne otwarcie banera w stopce, skrypty dopiero po akceptacji.',result:'Kod obsługuje cztery sygnały Consent Mode v2; test w Tag Assistant czeka na konto i produkcję.',why:'Potrzebne dla zgodnego oraz użytecznego pomiaru reklam.',dep:'Weryfikacja prawna i konfiguracja narzędzi na produkcji.'},
+      {id:'lead-sla',p:'P0',owner:'manual',area:'Sprzedaż',title:'Ustalić SLA i właściciela każdego leada',state:'CRM ma następne działania i historię, ale audyt nie potwierdza procesu operacyjnego.',result:'Lead ma opiekuna; reakcja do 15 min w godzinach pracy; sekwencja 0/1/3/7 dni; powody utraty obowiązkowe.',why:'Lepsza strona nie pomoże, jeśli wartościowe zapytanie czeka kilka godzin.',dep:'Grafik i odpowiedzialność handlowa.'},
+      {id:'brand-search',p:'P0',owner:'manual',area:'SEO',title:'Uporządkować wyniki brandowe A.K. HOUSE',state:'Rejestry i obce marki dominują przy wyszukiwaniu nazwy.',result:'Oficjalna strona, GBP i profile firmy zajmują główne wyniki; nazwa i linki są spójne.',why:'Klient po reklamie często ponownie szuka marki przed kontaktem.',dep:'GSC, GBP, profile społecznościowe i spójny NAP.'},
+      {id:'redirect-map',p:'P0',owner:'shared',area:'SEO',title:'Zatwierdzić docelową mapę URL i przekierowań',state:'Jest /domki-drewniane, podczas gdy oferta i popyt używają nazwy domki mobilne/modułowe.',result:'Mapa stare → nowe, decyzja na podstawie GSC, stałe 301, poprawione canonicale, sitemap i linkowanie.',why:'Nazwy tras powinny odpowiadać intencji bez utraty istniejącej historii.',dep:'Dane GSC i lista linków zewnętrznych.'},
+      {id:'transport-page',p:'P1',owner:'project',area:'Landingi',title:'Rozwinąć stronę Transport i montaż',state:'Trasa /transport-i-montaz istnieje; wymaga odbioru treści na podstawie realnych zasad firmy.',result:'Zakres Polski, proces, przygotowanie miejsca, HDS, odpowiedzialność, FAQ i CTA z kodem pocztowym.',why:'Transport jest jedną z głównych obiekcji przy zakupie ogólnopolskim.',dep:'Potwierdzone zasady firmy.'},
+      {id:'about-page',p:'P1',owner:'shared',area:'Landingi',title:'Uwiarygodnić stronę O nas / Produkcja',state:'Trasa /o-nas istnieje; potrzebuje prawdziwych zdjęć ludzi, zakładu i zatwierdzonej historii.',result:'Historia doświadczenia bez naciągania wieku spółki, właściciele, zespół, etapy produkcji, adres i możliwość wizyty.',why:'Przy wysokiej wartości klient kupuje także wiarygodność wykonawcy.',dep:'Zdjęcia, nazwiska, historia i zgody.'},
+      {id:'contact-page',p:'P1',owner:'project',area:'Landingi',title:'Uzupełnić i odebrać stronę Kontakt',state:'Trasa /kontakt istnieje; kompletność zależy od zatwierdzenia jednego zestawu danych NAP.',result:'NAP, mapa, godziny, dwa telefony, WhatsApp, e-mail, dojazd, formularz wyceny i schema LocalBusiness.',why:'Wzmacnia lokalne SEO oraz daje bezpieczny punkt weryfikacji firmy.',dep:'Spójny NAP i GBP.'},
+      {id:'spa-page',p:'P1',owner:'shared',area:'Landingi',title:'Rozwinąć ofertę Strefy SPA: sauna + balia',state:'Trasa /strefy-spa istnieje; trzeba potwierdzić pakiety, zdjęcia realizacji i zasady cenowe.',result:'Pakiety, przykładowe układy i ceny od, proces, realizacje, FAQ oraz wspólna wycena.',why:'Podnosi wartość zamówienia i tworzy mocny komunikat wizualny.',dep:'Pakiety i zasady cenowe zatwierdzone przez firmę.'},
+      {id:'b2b-page',p:'P1',owner:'shared',area:'B2B',title:'Rozwinąć landing dla hoteli, glampingów i najmu',state:'Trasa /dla-hoteli-i-glampingow istnieje; brakuje potwierdzonych liczb i pełnego case study B2B.',result:'Korzyści biznesowe, serie obiektów, harmonogram, serwis, faktura, case study, formularz konsultacji B2B.',why:'To osobna intencja, argumenty i potencjalnie większa wartość klienta.',dep:'Oferta B2B i przynajmniej jeden wiarygodny przykład.'},
+      {id:'case-study-model',p:'P1',owner:'project',area:'Zaufanie',title:'Rozbudować realizacje do formatu case study',state:'Galeria i strona realizacji istnieją, ale proof jest głównie wizualny.',result:'Model danych i widok: produkt, region, zakres, czas, wyzwanie, rezultat, zdjęcia etapów, opinia i CTA.',why:'Realizacja ma redukować ryzyko, nie być wyłącznie galerią.',dep:'Dane i materiały od firmy.'},
+      {id:'cases-content',p:'P1',owner:'manual',area:'Zaufanie',title:'Opracować minimum 6 pełnych realizacji',state:'Zdjęcia są, lecz brakuje uporządkowanych danych i historii.',result:'Minimum po 2 realizacje głównych kategorii z prawem publikacji; każda ma region, zakres i termin.',why:'Daje materiał na stronę, reklamy, GBP i social media.',dep:'Archiwum zamówień i zgody klientów.'},
+      {id:'reviews-process',p:'P1',owner:'manual',area:'Zaufanie',title:'Uruchomić stały proces zbierania opinii Google',state:'Publiczny proof marki jest słaby.',result:'Link/QR po odbiorze, prośba po 3 dniach, przypomnienie po 10 dniach, odpowiedź firmy na każdą opinię; cel 40+.',why:'Opinie wspierają mapy, markę i decyzję o zakupie.',dep:'Zweryfikowany GBP i opiekun procesu.'},
+      {id:'reviews-ui',p:'P1',owner:'project',area:'Zaufanie',title:'Dodać zarządzane opinie na stronie',state:'Brak mocnej ściany podpisanych opinii.',result:'Sekcja na stronie głównej i produktach, źródło/link, data, produkt, zgoda; bez sztucznych ocen i bez ręcznego podszywania się pod Google.',why:'Przenosi dowód społeczny w miejsce decyzji.',dep:'Prawdziwe opinie i zgody.'},
+      {id:'materials-ui',p:'P1',owner:'shared',area:'Oferta',title:'Dodać porównanie materiałów, zakresu i gwarancji',state:'Katalog opisuje produkty, ale audyt wskazuje niedosyt konkretów technicznych.',result:'Czytelne tabele per kategoria, zakres standardu, opcje, czego cena nie obejmuje, gwarancja i FAQ.',why:'Konkrety zmniejszają liczbę obaw i pustych zapytań.',dep:'Zatwierdzone dane techniczne.'},
+      {id:'quote-form',p:'P1',owner:'project',area:'Konwersja',title:'Doprecyzować formularz wyceny pod produkt i logistykę',state:'Wizard pyta o produkt, wariant, budżet, termin, dane i lokalizację; jest lepszy niż zwykły kontakt.',result:'Kod pocztowy z walidacją, metraż/wariant zależny od produktu, opcjonalny upload miejsca, zgoda kontaktowa i jasny następny krok.',why:'Poprawia kwalifikację bez przesadnego zwiększania tarcia.',dep:'Zakres danych potrzebnych handlowcowi.'},
+      {id:'thank-you',p:'P1',owner:'project',area:'Konwersja',title:'Zbudować stronę podziękowania i następny krok',state:'Po wysłaniu pokazuje się numer referencyjny.',result:'Osobny stan/URL, deklarowany czas kontaktu, przycisk WhatsApp ze zdjęciem miejsca, materiały powiązane i precyzyjne zdarzenie konwersji.',why:'Redukuje niepewność i zwiększa szansę na komplet danych.',dep:'SLA i numer WhatsApp.'},
+      {id:'call-tracking',p:'P1',owner:'shared',area:'Analityka',title:'Mierzyć telefony i WhatsApp bez utraty prywatności',state:'Są szybkie kanały kontaktu, brak pełnej atrybucji jakości.',result:'Kliknięcia mierzone; dla reklam ewentualny numer dynamiczny; źródło ręcznie lub automatycznie trafia do CRM.',why:'Część najlepszych leadów nie wysyła formularza.',dep:'Wybór narzędzia i zgody prawne.'},
+      {id:'offline-conv',p:'P1',owner:'shared',area:'Analityka',title:'Importować etapy CRM jako konwersje offline',state:'CRM ma etapy Quote, Negotiation, Ordered, Completed i Lost.',result:'Google Ads dostaje qualified/quote/sale z wartościami; harmonogram, log błędów i testowe przejście są udokumentowane.',why:'Algorytm ma optymalizować pod sprzedaż, nie tanie formularze.',dep:'UTM/click IDs, konta Ads i definicje etapów.'},
+      {id:'meta-capi',p:'P1',owner:'project',area:'Analityka',title:'Wdrożyć Meta Pixel i CAPI z deduplikacją',state:'Projekt obsługuje GA4/Plausible; brak kompletnego toru Meta.',result:'Browser/server event mają event_id, zgodę, brak surowych PII w logach, a Events Manager nie pokazuje duplikatów.',why:'Poprawia pomiar kampanii Meta przy ograniczeniach przeglądarek.',dep:'Konto Meta, dataset/pixel i polityka prywatności.'},
+      {id:'og-image',p:'P1',owner:'project',area:'SEO',title:'Przygotować dedykowane obrazy social/OG',state:'index.html ma TODO i używa zwykłego zdjęcia produktu.',result:'1200×630 dla marki i kluczowych kategorii, poprawne kadry i test podglądu linków.',why:'Linki w social i komunikatorach powinny wyglądać jak marka, a nie przypadkowe zdjęcie.',dep:'Logo, zdjęcia i zaakceptowany komunikat.'},
+      {id:'performance',p:'P1',owner:'project',area:'Techniczne',title:'Zmierzyć i poprawić Core Web Vitals',state:'Kod używa lazy loadingu części modułów; brak tu wyniku produkcyjnego.',result:'LCP ≤2,5 s, INP ≤200 ms, CLS ≤0,1 na realnych urządzeniach; obrazy mają rozmiary i nowoczesne formaty.',why:'Szybkość wpływa na konwersję oraz widoczność.',dep:'Produkcja, RUM lub dane GSC.'},
+      {id:'creative-engine',p:'P1',owner:'manual',area:'Kreacje',title:'Wprowadzić rytm nagrywania produkcji i dostaw',state:'Firma ma wizualny produkt, ale nie ma potwierdzonej biblioteki pionowych materiałów.',result:'12–16 krótkich filmów/miesiąc: budowa, detal, test, transport, odbiór, FAQ i twarz eksperta.',why:'Autentyczny materiał zasila Meta, remarketing, GBP i strony.',dep:'Osoba odpowiedzialna i prosty kalendarz nagrań.'},
+      {id:'ads-search',p:'P1',owner:'manual',area:'Kampanie',title:'Uruchomić rozdzielone kampanie Google Search',state:'Audyt proponuje właściwy kierunek produktowy.',result:'Osobne kampanie/kategorie, brand, region lokalny i Polska; negatywne słowa; konwersje jakościowe; tygodniowy raport zapytań.',why:'Search przechwytuje istniejącą intencję zakupu.',dep:'P0 zakończone, budżet i konto Ads.'},
+      {id:'ads-meta',p:'P1',owner:'manual',area:'Kampanie',title:'Uruchomić Meta prospecting i remarketing',state:'Brak potwierdzonej konfiguracji produkcyjnej.',result:'Min. 3 kąty komunikacji na kategorię, 3–5 kreacji, osobne B2C/B2B, wykluczenia klientów i pomiar jakości.',why:'Produkt jest wizualny i dobrze sprzedaje transformację.',dep:'Kreacje, landing, Pixel/CAPI i zgody.'},
+      {id:'seo-content',p:'P2',owner:'shared',area:'SEO',title:'Zbudować poradnik na podstawie pytań klientów',state:'Brak sekcji poradnikowej; produktowe landingi są ważniejsze.',result:'Plan tematów z Search Console i CRM, ekspercka redakcja, linkowanie do oferty, aktualizacja co 6–12 miesięcy.',why:'Pokrywa długi ogon i pomaga klientom przed zakupem.',dep:'P0/P1 oraz dane o realnych pytaniach.'},
+      {id:'local-pages',p:'P2',owner:'shared',area:'Lokalne SEO',title:'Tworzyć strony regionalne tylko z realnym dowodem',state:'Audyt słusznie odradza automatyczne strony dla 100 miast.',result:'Każdy region ma unikalną realizację, logistykę, zdjęcia, case study i dane; brak doorway pages.',why:'Lokalna widoczność bez treściowego spamu.',dep:'Realizacje w regionach i dane GSC.'},
+      {id:'experiments',p:'P2',owner:'project',area:'Konwersja',title:'Uruchomić kontrolowane testy komunikatów i CTA',state:'Brak danych potrzebnych do sensownych testów.',result:'Hipoteza, jedna zmienna, zdarzenie sukcesu, minimalna próba i zapis wyniku; priorytet hero, proof, cena i formularz.',why:'Optymalizacja ma wynikać z danych, nie gustu.',dep:'Stabilny tracking i odpowiedni ruch.'},
+      {id:'dashboard',p:'P2',owner:'project',area:'Analityka',title:'Zbudować dashboard marketing → sprzedaż',state:'Dane istnieją w kilku miejscach.',result:'Koszt, leady, kwalifikacja, oferty, sprzedaż, przychód i czas reakcji wg produktu, regionu i kampanii.',why:'Pozwala przesuwać budżet tam, gdzie powstaje marża.',dep:'Atrybucja, CRM, Ads/Meta i wartości sprzedaży.'}
+    ];
+
+    const STORAGE_KEY = 'akhouse.conversion-plan.v1';
+    const CODE_COMPLETE = ['sitemap-fix', 'utm', 'consent'];
+    let state = loadState();
+
+    function defaultState() { return { done:Object.fromEntries(CODE_COMPLETE.map(id => [id, true])), notes:{}, edits:{}, materials:{} }; }
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        return { ...defaultState(), ...saved, done: { ...defaultState().done, ...saved.done } };
+      }
+      catch { return defaultState(); }
+    }
+    function saveState(message) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      updateProgress();
+      if (message) toast(message);
+    }
+    function ownerName(owner) { return owner === 'project' ? 'Projekt / kod' : owner === 'manual' ? 'Firma / ręcznie' : 'Wspólnie'; }
+
+    function renderTasks() {
+      const list = document.getElementById('taskList');
+      list.innerHTML = '';
+      for (const task of TASKS) {
+        const article = document.createElement('article');
+        article.className = `task${state.done[task.id] ? ' done' : ''}`;
+        article.dataset.id = task.id; article.dataset.owner = task.owner; article.dataset.priority = task.p; article.dataset.area = task.area;
+        article.innerHTML = `
+          <div class="task-check"><input type="checkbox" ${state.done[task.id] ? 'checked' : ''} aria-label="Oznacz jako gotowe"></div>
+          <div class="task-main"><div class="labels"><span class="label ${task.p.toLowerCase()}">${task.p}</span><span class="label owner-label ${task.owner}">${ownerName(task.owner)}</span><span class="label">${task.area}</span></div><div class="task-title">${task.title}</div><div class="task-copy">${task.why}</div></div>
+          <div class="task-state"><b>Stan teraz</b><div class="task-copy">${task.state}</div></div>
+          <div class="task-result"><b>Kryterium odbioru</b><div class="task-copy">${task.result}</div></div>
+          <button class="task-toggle" type="button" aria-label="Rozwiń szczegóły" title="Szczegóły i notatki">+</button>
+          <div class="task-details"><div><label>Zależności</label><div class="task-copy">${task.dep}</div></div><label>Notatki / osoba / termin<textarea data-note="${task.id}" placeholder="Dopisz ustalenia…">${escapeHtml(state.notes[task.id] || '')}</textarea></label></div>`;
+        article.querySelector('input').addEventListener('change', e => { state.done[task.id] = e.target.checked; article.classList.toggle('done', e.target.checked); saveState(); applyFilters(); });
+        article.querySelector('.task-toggle').addEventListener('click', () => { article.classList.toggle('open'); article.querySelector('.task-toggle').textContent = article.classList.contains('open') ? '−' : '+'; });
+        article.querySelector('textarea').addEventListener('input', e => { state.notes[task.id] = e.target.value; saveState(); });
+        list.appendChild(article);
+      }
+      const areas = [...new Set(TASKS.map(t => t.area))].sort((a,b) => a.localeCompare(b, 'pl'));
+      const areaFilter = document.getElementById('areaFilter');
+      areaFilter.innerHTML = '<option value="all">Każdy obszar</option>' + areas.map(a => `<option value="${a}">${a}</option>`).join('');
+      updateProgress();
+    }
+
+    function applyFilters() {
+      const q = document.getElementById('search').value.trim().toLocaleLowerCase('pl');
+      const owner = document.getElementById('ownerFilter').value;
+      const priority = document.getElementById('priorityFilter').value;
+      const area = document.getElementById('areaFilter').value;
+      const status = document.getElementById('statusFilter').value;
+      let visible = 0;
+      document.querySelectorAll('.task').forEach(el => {
+        const task = TASKS.find(t => t.id === el.dataset.id);
+        const haystack = `${task.title} ${task.area} ${task.state} ${task.result} ${task.why}`.toLocaleLowerCase('pl');
+        const show = (!q || haystack.includes(q)) && (owner === 'all' || task.owner === owner) && (priority === 'all' || task.p === priority) && (area === 'all' || task.area === area) && (status === 'all' || (status === 'done') === !!state.done[task.id]);
+        el.style.display = show ? '' : 'none'; if (show) visible++;
+      });
+      document.getElementById('emptyState').style.display = visible ? 'none' : 'block';
+    }
+
+    function updateProgress() {
+      const done = TASKS.filter(t => state.done[t.id]).length;
+      const pct = Math.round(done / TASKS.length * 100);
+      document.getElementById('progressCount').textContent = `${done} z ${TASKS.length} zadań`;
+      document.getElementById('progressValue').textContent = `${pct}%`;
+      document.getElementById('progressFill').style.width = `${pct}%`;
+      document.getElementById('metricProject').textContent = TASKS.filter(t => t.owner === 'project').length;
+      document.getElementById('metricManual').textContent = TASKS.filter(t => t.owner === 'manual').length;
+      document.getElementById('metricP0').textContent = TASKS.filter(t => t.p === 'P0' && !state.done[t.id]).length;
+    }
+
+    function setupTabs() {
+      document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === btn));
+        document.querySelectorAll('.view').forEach(x => x.classList.toggle('active', x.id === `view-${btn.dataset.view}`));
+        history.replaceState(null, '', `#${btn.dataset.view}`); window.scrollTo({top:0, behavior:'smooth'});
+      }));
+      const requested = location.hash.slice(1);
+      const start = document.querySelector(`.tab[data-view="${requested}"]`); if (start) start.click();
+    }
+
+    function setupEdits() {
+      document.querySelectorAll('[data-edit]').forEach(el => {
+        const key = el.dataset.edit; if (state.edits[key]) el.innerHTML = state.edits[key];
+        el.addEventListener('input', () => { state.edits[key] = el.innerHTML; saveState(); });
+      });
+      document.querySelectorAll('[data-material]').forEach(input => {
+        input.checked = !!state.materials[input.dataset.material];
+        input.addEventListener('change', () => { state.materials[input.dataset.material] = input.checked; saveState(); });
+      });
+    }
+
+    function exportState() {
+      const payload = { version:1, exportedAt:new Date().toISOString(), state };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob); const a = document.createElement('a');
+      a.href = url; a.download = `ak-house-plan-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url); toast('Wyeksportowano stan planu.');
+    }
+    function importState(raw) {
+      const parsed = JSON.parse(raw); const incoming = parsed.state || parsed;
+      if (!incoming || typeof incoming !== 'object') throw new Error('Nieprawidłowy format.');
+      state = { ...defaultState(), ...incoming }; saveState(); location.reload();
+    }
+    function escapeHtml(value) { return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+    let toastTimer;
+    function toast(message) { const el = document.getElementById('toast'); el.textContent = message; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2200); }
+
+    renderTasks(); setupTabs(); setupEdits();
+    ['search','ownerFilter','priorityFilter','areaFilter','statusFilter'].forEach(id => document.getElementById(id).addEventListener(id === 'search' ? 'input' : 'change', applyFilters));
+    document.getElementById('clearFilters').addEventListener('click', () => { document.getElementById('search').value=''; ['ownerFilter','priorityFilter','areaFilter','statusFilter'].forEach(id => document.getElementById(id).value='all'); applyFilters(); });
+    document.getElementById('exportBtn').addEventListener('click', exportState);
+    document.getElementById('printBtn').addEventListener('click', () => window.print());
+    const modal = document.getElementById('importModal');
+    document.getElementById('importBtn').addEventListener('click', () => modal.classList.add('open'));
+    document.getElementById('cancelImport').addEventListener('click', () => modal.classList.remove('open'));
+    document.getElementById('confirmImport').addEventListener('click', () => { try { importState(document.getElementById('importData').value); } catch (e) { toast(e.message || 'Nie udało się zaimportować pliku.'); } });
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+  </script>
+</body>
+</html>

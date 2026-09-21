@@ -29,6 +29,42 @@ Na produkcji te same trzy wartości jako zmienne środowiskowe:
 To konto dostaje **wszystkie uprawnienia** i flagę „zmień hasło przy pierwszym logowaniu" — bo
 hasło startowe siedzi w konfiguracji serwera, więc jest z założenia półjawne.
 
+## Awaryjny reset zapomnianego hasła
+
+Hasła operatorów są przechowywane wyłącznie jako bezpieczne skróty i nie można ich odczytać.
+Osoba mająca dostęp do terminala serwera może jednak ustawić hasło tymczasowe:
+
+```powershell
+dotnet run --project backend\src\AkHouse.Api -- reset-operator-password
+```
+
+Jeżeli jest tylko jedno konto, zostanie wybrane automatycznie. Przy kilku kontach komenda wypisze
+ich adresy; wtedy należy uruchomić ją ponownie ze wskazanym adresem:
+
+```powershell
+dotnet run --project backend\src\AkHouse.Api -- reset-operator-password operator@akhouse.pl
+```
+
+Hasło jest wpisywane dwukrotnie w interaktywnym terminalu, nie pojawia się na ekranie ani w historii
+poleceń. Musi mieć co najmniej 10 znaków. Po resecie konto zostaje również odblokowane, a panel przy
+pierwszym logowaniu wymusza zastąpienie hasła tymczasowego własnym.
+
+Na opublikowanym serwerze tę samą komendę można wykonać bez SDK, z katalogu aplikacji:
+
+```powershell
+dotnet AkHouse.Api.dll reset-operator-password operator@akhouse.pl
+```
+
+Jeżeli konsola hostingu nie obsługuje ukrytego wpisywania (np. Kudu w Azure App Service), ustaw
+tymczasową zmienną środowiskową i przekaż wyłącznie jej nazwę:
+
+```powershell
+dotnet AkHouse.Api.dll reset-operator-password operator@akhouse.pl --password-env AKHOUSE_OPERATOR_RESET_PASSWORD
+```
+
+Po udanym resecie natychmiast usuń tę zmienną z konfiguracji hostingu. Wartość hasła nie powinna
+znaleźć się ani w argumentach komendy, ani w historii konsoli.
+
 ## 3. Klucze API — teraz poświadczenie maszynowe
 
 Stare klucze **nie znikają**, ale zmieniają rolę: są dla skryptów, nie dla ludzi. Domyślnie
@@ -73,8 +109,9 @@ Uprawnienia: **Leads** (`/crm`), **Media** (`/panel`), **Shop** (`/sklep/panel`)
 
 ## Jak to wygląda w przeglądarce
 
-Wszystkie trzy panele — `/crm`, `/panel`, `/sklep/panel` — mają teraz **jeden formularz
-logowania** zamiast trzech okienek na klucz. Po zalogowaniu:
+Wspólne wejście **`/admin`** ma jeden formularz logowania i pokazuje kafelki do wszystkich paneli,
+do których dane konto ma dostęp. Bezpośrednie adresy `/crm`, `/panel`, `/sklep/panel` i
+`/operatorzy` nadal działają i korzystają z tej samej sesji. Po zalogowaniu:
 
 - konto z hasłem nadanym przez kogoś innego (albo z konfiguracji) **musi je najpierw zmienić** —
   ekran nie przepuszcza dalej;
@@ -82,7 +119,7 @@ logowania** zamiast trzech okienek na klucz. Po zalogowaniu:
   zamiast „nieprawidłowy klucz", które nic nie mówi;
 - panel **nie wysyła żadnego żądania**, zanim brama nie przepuści — odmowa nie kosztuje zapytania do API.
 
-Konta prowadzi się pod **`/admin/operatorzy`** (przycisk *Konta* w nagłówku zleceń, widoczny tylko
+Konta prowadzi się pod **`/operatorzy`** (kafelek *Konta i dostępy* pod `/admin`, widoczny tylko
 dla tych, którzy mogą go użyć). Tam: zakładanie konta, cztery przełączniki dostępu, wyłączanie
 i włączanie konta, ustawienie nowego hasła i usunięcie.
 

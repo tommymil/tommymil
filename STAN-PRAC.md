@@ -1,6 +1,20 @@
 # Stan prac — A.K. HOUSE
 
-Aktualizacja: **27 sierpnia 2026, po południu**
+Aktualizacja: **17 września 2026**
+
+## Przygotowanie techniczne pod marketing
+
+- Strony `/transport-i-montaz`, `/o-nas`, `/kontakt`, `/strefy-spa`,
+  `/dla-hoteli-i-glampingow` i wersje `/en` są gotowe strukturalnie; wymagają
+  zdjęć i zweryfikowanych warunków handlowych od firmy.
+- Build publikuje podstawowe copy, ceny i FAQ w HTML bez JavaScript i generuje sitemap.
+  Galeria oraz treści z API pozostają dynamiczne, indeksowanie wymaga testu w GSC.
+- Po zgodzie zapytania zapisują UTM/click IDs w CRM; migracja `LeadMarketingAttribution`.
+  Consent Mode v2, GA4/Plausible, opcjonalny Meta Pixel i kliknięcia kontaktowe są
+  przygotowane do konfiguracji. Brak CAPI i importu konwersji offline.
+- Potrzebne od firmy: Search Console, GBP, konta Google/Meta, identyfikatory builda,
+  decyzja NAP/e-mail, akceptacja polityki prywatności, zdjęcia, opinie i fakty ofertowe.
+- Szczegóły: `PLAN-KONWERSJI-AK-HOUSE.html`.
 
 > **Zaczynasz nowy czat?** Wskaż ten plik jako pierwszy. Sekcje 1–8 to pełny obraz projektu:
 > co to jest, gdzie co leży, co działa, czego nie wolno ruszać i co zostało do zrobienia.
@@ -11,8 +25,9 @@ Aktualizacja: **27 sierpnia 2026, po południu**
 
 ## 1. Czym jest projekt
 
-Strona firmowa i sklep internetowy A.K. HOUSE — producenta domków mobilnych, saun ogrodowych
-i mebli na wymiar (Mątwica 79C, KRS 0001121503).
+Strona firmowa i sklep internetowy A.K. HOUSE — producenta domków mobilnych, saun,
+balii ogrodowych oraz pawilonów i budynków biurowych (Mątwica 79C, KRS 0001121503).
+Meble na wymiar powstają we własnej stolarni na wyposażenie domków — nie są osobnym działem oferty.
 
 Dwa niezależne kanały sprzedaży w jednej aplikacji:
 
@@ -94,15 +109,15 @@ Skrypty w katalogu głównym — każdy z przełącznikiem podglądu:
 | `posprzataj.ps1` | Kasuje `_do-usuniecia/`, wynosi `elementy/` poza repo, porządkuje gita. |
 | `tools/sprawdz-migracje.py` | Wykonuje SQL z migracji na tymczasowej bazie SQLite i sprawdza dane. |
 
-## 5. Metryki (stan na 27.08.2026, po południu)
+## 5. Metryki (stan na 14.09.2026)
 
 | | |
 |---|---|
 | Kod produkcyjny | ~290 plików, ~31 000 linii (bez migracji, `obj/`, `bin/` i `node_modules`) |
 | Endpointy HTTP | 86 |
 | Migracje EF Core | 26, ostatnia `20260828155853_PromotionCampaignSteps` |
-| Testy backendu | **245 przypadków, wszystkie przechodzą** (Debug i Release) |
-| Testy frontendu | 30 plików → **188 testów, wszystkie przechodzą** |
+| Testy backendu | **255 przypadków, wszystkie przechodzą** (Debug i Release) |
+| Testy frontendu | 35 plików → **209 testów, wszystkie przechodzą** |
 | Moduły frontendu | 14 (`admin`, `campaign`, `catalog`, `configurator`, `consent`, `gallery`, `landing`, `media`, `notfound`, `order`, `panel`, `realizations`, `shop`, `shopadmin`) |
 | Produkty w sklepie | 155 w 13 używanych kategoriach (zdefiniowanych 15) |
 | Ceny detaliczne wgrane | 68 z 155 |
@@ -543,6 +558,44 @@ Skrypt przerywa na pierwszym błędzie i mówi, który etap padł. Pojedynczy et
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File zacommituj.ps1 -NaSucho
 ```
+
+---
+
+## 14 września 2026 — teksty od klienta: cztery działy, ceny netto, strona dla inwestorów
+
+Treść strony ustawiona według tego, co klient faktycznie sprzedaje:
+
+- **Jedno źródło tekstów producenta** — `frontend/src/app/producerCopy.ts` (PL/EN). Czerpią z niego
+  słownik `app/i18n.tsx`, katalog (`features/catalog/producerCatalog.ts`) i kafelki oferty
+  (`features/landing/viewmodels/producerSiteContent.ts`), więc nagłówek, nazwy działów i ceny „od”
+  nie mogą się już rozjechać między stroną główną, kategoriami a wynikami wyszukiwarek.
+- **Cztery działy zamiast trzech**: domki mobilne i modułowe, sauny ogrodowe i mobilne,
+  balie ogrodowe, pawilony i budynki biurowe. **Meble przestały być osobnym działem** — własna
+  stolarnia jest atutem w „Co nas wyróżnia”, a `/kuchnie-na-wymiar` przekierowuje na `/produkty`.
+- **Ceny orientacyjne „od”, zawsze netto**: domek 35 m² od 150 000 zł, sauna od 30 000 zł,
+  balia z piecem od 9 000 zł, pawilon / kontener biurowy od 25 000 zł. Domek referencyjny
+  przeszedł z wariantu 28 m² na 35 m²; `/domki-drewniane/domek-28` przekierowuje na `domek-35`.
+- **Schema.org zgodna z tym, co obiecujemy**: cena „od” netto idzie jako `AggregateOffer`
+  z `lowPrice` i `valueAddedTaxIncluded: false`, a nie jako `Offer.price`. Tak samo w statycznych
+  stronach z `vite.config.ts` i w `SeoManager.tsx`.
+- **Nowa zakładka `/dla-inwestorow`** (+ `/en/dla-inwestorow`): domki pod wynajem, kompleksy
+  wypoczynkowe, realizacja kilku obiektów naraz i co składa się na koszt całej inwestycji.
+  Pełne SEO — canonical, hreflang, meta description, `WebPage`, wpis w `sitemap.xml`.
+- **Sekcja „Masz własny projekt?”** w stopce, więc pojawia się na dole każdej zakładki
+  (poza `/zamowienie`, gdzie formularz wyceny jest treścią główną): obietnica wstępnej wyceny
+  w 48 godzin, „Twój pomysł, nasza produkcja” i doświadczenie w większych inwestycjach.
+- **Sześć etapów zamówienia** w sekcji „Jak wygląda zamówienie” — od bezpłatnej konsultacji
+  po odbiór i gwarancję.
+- **Panel**: cztery kafelki oferty ze strony głównej dostały własne miejsca na zdjęcia
+  (`ak-of-domki`, `ak-of-sauny`, `ak-of-balie`, `ak-of-pawilony`) w rejestrze `app/imageSlots.ts`.
+  Rejestr ma już blisko stu pozycji, więc karta slotu jest zapamiętana (`memo`), a filtrowanie
+  listy odłożone (`useDeferredValue`) — bez tego wpisywanie w wyszukiwarce panelu się zacinało.
+
+> **Pawilony nie mają jeszcze zdjęcia** — kafelek i strona kategorii pokazują miejsce na zdjęcie
+> zamiast fotografii. Wgranie jednego pliku w `/panel` (miejsce „Oferta — pawilony i budynki
+> biurowe”) zamyka temat; do tego czasu Open Graph podstawia zdjęcie domku.
+
+Testy po zmianach: backend **255/255**, frontend **209/209**, lint 0 błędów, build przechodzi.
 
 ---
 

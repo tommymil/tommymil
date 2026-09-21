@@ -99,7 +99,14 @@ CPQ i panel CMS bez przepisywania rdzenia.
 - `GET  /api/gallery-photos` — publiczna lista dodatkowych zdjęć galerii (bez slotów), od najnowszych.
 - `GET/POST/PUT/DELETE /api/admin/gallery-photos[/{id}]` — **chronione uprawnieniem `Media`** — dodanie
   (multipart: `file`, `caption`, `category`), zmiana podpisu i kategorii, usunięcie. Kategoria musi być
-  jedną z `domki`/`sauny`/`meble`/`wnetrza`.
+  jedną z `domki`/`sauny`/`balie`/`meble`/`wnetrza`.
+- `GET /api/configurators[?category=...]`, `GET /api/configurators/{slug}` — opublikowane konfiguratory
+  domków, saun i balii. Każdy model ma własne wymiary, układy, grupy opcji, zdjęcia i ceny brutto.
+- `POST /api/configurators/price` — walidacja zgodności wyboru i orientacyjna wycena liczona na serwerze;
+  wynik zawiera wersjonowany snapshot dołączany później do zapytania ofertowego.
+- `GET/POST/PUT/DELETE /api/admin/configurators[/{id}]`, `POST .../{id}/publish|unpublish` oraz
+  `POST .../image` — **chronione uprawnieniem `Media`** — osobne szkice modeli, publikacja wersji,
+  grafiki i reguły dostępności, wymagań oraz wykluczeń.
 - `GET /api/promotion-campaign` — publiczna kampania obowiązująca w bieżącej chwili albo `204`.
   Gdy harmonogramy się nakładają, wygrywa włączona kampania z najpóźniejszym startem.
 - `GET/POST/PUT/DELETE /api/admin/promotion-campaigns[/{id}]` — **chronione uprawnieniem `Media`** —
@@ -268,11 +275,17 @@ a półki z produktami nie da się skasować bez wskazania celu — po polsku, z
 
 ### Ukryty panel zarządzania stroną (`/panel`)
 
-Panel ma dwie zakładki — **Zdjęcia** i **Kampanie reklamowe**. Dzielą jedno uprawnienie `Media`
-i jedno konto, ale to dwie różne prace: podmiana zdjęcia jest poprawką, a kampania ma termin
-i sama się włącza. Powłoka panelu (`features/panel/SitePanelPage.tsx`) trzyma nagłówek, zakładki
-i jeden wspólny pasek komunikatów; zawartość zakładek żyje w `features/media/MediaTab.tsx`
-i `features/campaign/components/CampaignManager.tsx`.
+Panel ma trzy zakładki — **Zdjęcia**, **Kampanie reklamowe** i **Konfiguratory**. Dzielą jedno
+uprawnienie `Media` i jedno konto. Powłoka panelu (`features/panel/SitePanelPage.tsx`) trzyma
+nagłówek, zakładki i jeden wspólny pasek komunikatów; zawartość zakładek żyje odpowiednio
+w `features/media/MediaTab.tsx`, `features/campaign/components/CampaignManager.tsx`
+i `features/configuratoradmin/ConfiguratorAdminTab.tsx`.
+
+W zakładce **Konfiguratory** operator prowadzi osobny szkic dla każdego modelu domku, sauny lub
+balii: ustawia treści PL/EN, rozmiary i ceny bazowe, układy pomieszczeń, opcje dodatkowe, grafiki,
+rekomendacje oraz zależności. Dla każdego modelu niezależnie wybiera też prezentację wszystkich
+kroków naraz albo spokojny tryb „jeden krok na ekranie”. Zapis szkicu nie zmienia strony klienta —
+robi to dopiero **Publikuj**. Oba warianty kończą się pełną belką z ceną i przyciskiem zapytania.
 
 Zakładka **Zdjęcia** obsługuje podmianę zdjęć **i ich nazw** w konkretnych punktach strony:
 kafelki sekcji powitalnej,
@@ -375,6 +388,23 @@ Formularz ma checkbox zgody i link do **`/polityka-prywatnosci.html`** (wzorzec 
 SEO: `robots.txt`, `sitemap.xml`, Open Graph/Twitter meta, favicon marki. Dostępność: powiązane `label`/`input`,
 `aria-invalid`, modale z obsługą `Esc`, focus-trap i `role="dialog"`.
 
+### Przygotowanie techniczne do kampanii (wrzesień 2026)
+
+Build publikuje statyczną treść strony głównej, katalogu, produktów i nowych stron
+`/transport-i-montaz`, `/o-nas`, `/kontakt`, `/strefy-spa`, `/dla-hoteli-i-glampingow`
+(również wersje `/en/`). `vite.config.ts` generuje sitemap z tych samych tras.
+Treści z API nadal wymagają JavaScript; indeksację wdrożonej strony należy sprawdzić w GSC.
+
+Formularze zapisują UTM i identyfikatory kliknięć w CRM po zgodzie analitycznej.
+Migracja `LeadMarketingAttribution` dodaje kolumnę snapshotu do leadów. Baner ustawia
+domyślne `denied` dla czterech sygnałów Consent Mode v2 i pozwala zmienić zgodę w stopce.
+Na produkcji ustaw `VITE_GA_MEASUREMENT_ID`, opcjonalnie `VITE_PLAUSIBLE_DOMAIN` i
+`VITE_PLAUSIBLE_SRC`, oraz `VITE_META_PIXEL_ID` jako zmienne **builda** frontendu.
+Nie wpisuj sekretów serwerowych do `VITE_*`. Po zmianie identyfikatorów zbuduj frontend
+ponownie; testuj zdarzenia, zgodę i zgłoszenie z UTM na produkcji. Serwerowe Meta CAPI
+i import konwersji offline do Google Ads nie są wdrożone: wymagają kont, decyzji o
+kwalifikacji i zatwierdzenia polityki prywatności. Szczegóły: `PLAN-KONWERSJI-AK-HOUSE.html`.
+
 ## Architektura frontendu (MVVM, feature-based)
 
 | Warstwa | Rola | Lokalizacja |
@@ -382,7 +412,7 @@ SEO: `robots.txt`, `sitemap.xml`, Open Graph/Twitter meta, favicon marki. Dostę
 | **View** | Komponenty prezentacyjne (czysty JSX + style z tokenów) | `features/landing/components/`, `features/admin/components/` |
 | **ViewModel** | Hooki ze stanem i logiką (`useContactForm`, `useGalleryFilter`, `useConfigurator`, `useSiteContent`, `useLeads`, `useLeadDetail`, `useAdminAuth`…) | `features/*/viewmodels/` |
 | **Model / usługi** | Klient HTTP, API treści i leadów, typy DTO | `api/`, `types/` |
-| **Routing** | `react-router-dom`: landing, katalog, kategorie, produkty, realizacje, zamówienie oraz narzędzia wewnętrzne `/crm`, `/panel`, `/operatorzy`, `/sklep/panel` (konfigurator 3D bez trasy — zawieszony) | `App.tsx` |
+| **Routing** | `react-router-dom`: landing, katalog, kategorie, produkty, `/dla-inwestorow`, realizacje, zamówienie oraz wspólne wejście `/admin` do narzędzi wewnętrznych `/crm`, `/panel`, `/operatorzy`, `/sklep/panel` (stary konfigurator 3D bez trasy — zawieszony; konfiguratory ofertowe 2D działają na stronach kategorii i produktów) | `App.tsx` |
 | **Design tokens** | Kolory, typografia, kształt hex — jedno źródło prawdy | `app/theme.ts`, `app/global.css` |
 
 Komponenty nie wołają `fetch` bezpośrednio — robią to view-modele przez warstwę `api/`,
@@ -390,12 +420,30 @@ co ułatwia testy i przyszłą rozbudowę (np. React Query, kolejne strony).
 
 ### Katalog i strony produktowe
 
-- `/produkty` — indeks trzech kategorii.
-- `/domki-drewniane`, `/sauny-ogrodowe`, `/kuchnie-na-wymiar` — dedykowane landingi kategorii.
-- `/domki-drewniane/domek-28`, `/sauny-ogrodowe/sauna-panorama-12`,
-  `/kuchnie-na-wymiar/kuchnia-indywidualna` — referencyjne karty produktów.
+- `/produkty` — indeks czterech działów oferty.
+- `/domki-drewniane`, `/sauny-ogrodowe`, `/balie-ogrodowe`, `/pawilony-biurowe` — dedykowane
+  landingi kategorii.
+- `/domki-drewniane/domek-35`, `/sauny-ogrodowe/sauna-panorama-12`,
+  `/balie-ogrodowe/balia-classic`, `/pawilony-biurowe/pawilon-handlowy` — referencyjne karty produktów.
+- `/dla-inwestorow` — domki pod wynajem, kompleksy wypoczynkowe i realizacja kilku obiektów
+  jednocześnie, wraz z tym, co składa się na orientacyjny koszt całej inwestycji.
+- **Meble na wymiar nie są osobnym działem** — własna stolarnia jest atutem opisanym w sekcji
+  „Co nas wyróżnia”, a meble powstają na wyposażenie domków. Stare trasy `/kuchnie-na-wymiar`
+  (i `/domki-drewniane/domek-28`) zostają jako przekierowania, żeby nie psuć istniejących linków.
+- Domki, sauny i balie pokazują zarządzany konfigurator 2D z wyceną brutto na żywo. Wysłanie
+  formularza tworzy lead ze zweryfikowaną po stronie serwera ceną i pełnym snapshotem wyboru.
 - Każda trasa ma lustrzaną wersję z prefiksem `/en`, canonical/hreflang, meta description
-  oraz schema.org (`CollectionPage`/`Product`; `Offer` tylko tam, gdzie istnieje jawna cena bazowa).
+  oraz schema.org (`CollectionPage`/`Product`). Ceny katalogowe są orientacyjne „od” i **netto**,
+  więc w schemacie idą jako `AggregateOffer` z `lowPrice` i `valueAddedTaxIncluded: false` —
+  `Offer.price` obiecywałoby kwotę końcową z VAT. Ta sama treść powstaje dwa razy: statycznie
+  w `vite.config.ts` przy buildzie i w locie w `features/catalog/SeoManager.tsx`.
+- Teksty producenta (nagłówek, cztery działy, „Co nas wyróżnia”, sześć etapów zamówienia,
+  zaproszenie do przesłania własnego projektu) mają jedno źródło — `app/producerCopy.ts`.
+  Stamtąd czerpią i słownik `app/i18n.tsx`, i katalog (`features/catalog/producerCatalog.ts`),
+  i kafelki oferty na stronie głównej (`features/landing/viewmodels/producerSiteContent.ts`).
+- Sekcja „Masz własny projekt?” (`features/landing/components/ProjectInvitation.tsx`) siedzi
+  w stopce, więc pojawia się na dole każdej zakładki automatycznie — z wyjątkiem `/zamowienie`,
+  gdzie formularz wyceny jest już treścią główną.
 - Katalog jest ładowany jako osobne chunki, więc jego rozbudowana treść nie zwiększa istotnie
   początkowego pakietu strony głównej.
 
@@ -427,7 +475,7 @@ bo nie ma dokąd prowadzić). Trasy: `/sklep`, `/sklep/:slug`, `/koszyk`, `/zamo
   regulaminu jest warunkiem złożenia zamówienia i jest sprawdzana także po stronie serwera.
 
 ### CRM — panel zleceń (`/crm`)
-Stanowisko pracy do obsługi zapytań i zamówień na domki, sauny i meble na wymiar — **nie** na
+Stanowisko pracy do obsługi zapytań i zamówień na domki, sauny, balie i meble na wymiar — **nie** na
 asortyment sklepu, który ma własny panel. Po wejściu na `/crm` logujesz się kontem operatora
 z uprawnieniem `Leads`; sesję trzyma ciasteczko `akhouse.operator` (`HttpOnly`).
 Formularz kontaktowy, kreator wyceny i wpisy ręczne trafiają do jednego
@@ -462,7 +510,10 @@ wewnętrznego — pod publiczne wdrożenie warto dołożyć pełne logowanie (os
 ## Mapowanie na fazy z wyceny
 
 - **Faza 0–1 (zrobione tu):** strona prezentacyjna 1:1 + treść z backendu + działający formularz (RODO, anty-spam, e-mail SMTP), podgląd leadów dla studia, a11y, SEO, testy. CMS = treść już jest w bazie i serwowana przez API, gotowa pod panel edycji.
-- **Faza 2 — ZAWIESZONA:** konfigurator WebGL (Three.js / R3F) wraz z encjami `Product`/`Configuration`, regułami CPQ i generowaniem PDF. Kod pozostaje w repozytorium, ale nie jest wystawiany — szczegóły w sekcji „Konfigurator 3D — ZAWIESZONY" na górze. Rolę doboru wariantu przejął kreator SVG (`features/catalog/variants.tsx`).
+- **Konfiguratory ofertowe 2D — GOTOWE:** osobne modele dla domków, saun i balii, treści PL/EN,
+  zdjęcia, rozmiary, układy, opcje, ceny brutto, reguły zgodności, publikacja szkiców i zapis do CRM.
+- **Konfigurator WebGL — ZAWIESZONY:** wcześniejsza wersja Three.js / R3F nadal nie ma publicznej trasy;
+  szczegóły w sekcji „Konfigurator 3D — ZAWIESZONY" na górze.
 - **Faza 3:** integracje (SMTP/SendGrid zamiast `LoggingEmailSender`), analityka, wdrożenie; zamiana SQLite → PostgreSQL.
 - **Sklep (poza pierwotną wyceną):** katalog z bazy, koszyk, checkout z płatnością przelewem,
   konta klientów i obsługa zamówień w panelu. Poza zakresem MVP zostają: bramka płatnicza,
