@@ -170,6 +170,16 @@ td b{color:var(--ink)}
 .progress .bar{height:10px;max-width:360px}
 .progress .bar i{background:var(--bronze);transition:width .3s}
 @media (prefers-reduced-motion:reduce){.progress .bar i{transition:none}}
+.check .done-tag{margin-left:6px;font:700 .66rem/1 var(--f-head);letter-spacing:.06em;text-transform:uppercase;color:var(--ok);background:var(--ok-bg);padding:3px 6px;border-radius:999px;text-decoration:none;display:inline-block}
+.finding.done{background:var(--soft);border-color:var(--line-soft)}
+.finding.done h4{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--faint)}
+.finding .done-note{font-size:.93rem;color:var(--ok)}
+.finding .done-note::before{content:"Zrobione: ";font-weight:700}
+li.done{color:var(--muted)}
+li.done::marker{content:"✓  ";color:var(--ok)}
+.status-box{border:1px solid var(--ok);background:var(--ok-bg);border-radius:10px;padding:16px 20px;display:grid;gap:8px;color:var(--ink)}
+.status-box h3{color:var(--ok);font-size:1.05rem}
+.status-box ul{margin:0;padding-left:1.15em;display:grid;gap:4px;font-size:.94rem}
 .foot{border-top:1px solid var(--line);padding-top:20px;font-size:.86rem;color:var(--muted);display:grid;gap:8px;max-width:86ch}
 @media print{
   body{background:#fff}
@@ -192,6 +202,7 @@ td b{color:var(--ink)}
       <span>Stan na: <b>21.09.2026</b></span>
       <span>Okres planu: <b>październik 2026 – wrzesień 2027</b></span>
       <span>Kwoty: <b>PLN netto, orientacyjne</b></span>
+      <span>Aktualizacja: <b>5 poprawek z audytu zrobionych w kodzie, czekają na wdrożenie</b></span>
     </div>
     <div class="keyfigs">
       <div class="keyfig"><span class="v">5 / 10</span><span class="l">ocena gotowości marketingowej dzisiaj: technologia bardzo dobra, na produkcji brakuje treści, dowodów i pomiaru</span></div>
@@ -251,8 +262,8 @@ td b{color:var(--ink)}
         <h3>Co blokuje marketing</h3>
         <ul class="list">
           <li>Na akhouse.pl działa <strong>starsza wersja strony</strong>. Google dostaje pusty HTML, a nowych podstron nie ma.</li>
-          <li>Opinie na stronie wyglądają na przykładowe. To ryzyko prawne i wizerunkowe.</li>
-          <li>Zapytania z konfiguratorów nie są liczone jako konwersje, więc reklamy optymalizowałyby się „na ślepo”.</li>
+          <li class="done">Opinie na stronie wyglądały na przykładowe. <strong>Zrobione:</strong> sekcja ukryta do czasu prawdziwych opinii.</li>
+          <li class="done">Zapytania z konfiguratorów nie były liczone jako konwersje. <strong>Zrobione:</strong> konfiguratory wysyłają konwersję z wartością wyceny.</li>
           <li>Na stronie nie ma linków do profili w social mediach, adres e-mail jest w innej domenie, brakuje opinii w Google.</li>
         </ul>
       </div>
@@ -270,21 +281,33 @@ td b{color:var(--ink)}
       <h2>Ocena strony od A do Z</h2>
       <p>Sprawdziłem kod w repozytorium (stan z 21.09.2026) oraz działającą stronę akhouse.pl. Oceny dotyczą gotowości do pozyskiwania klientów, a nie jakości programowania, bo ta stoi wysoko.</p>
     </div>
+    <div class="status-box">
+      <h3>Stan realizacji · 21.09.2026</h3>
+      <p>W kodzie (repozytorium, gałąź 1.0) zrobione są:</p>
+      <ul>
+        <li>przekierowanie 301 z www.akhouse.pl na akhouse.pl,</li>
+        <li>ukrycie przykładowych opinii,</li>
+        <li>konwersja <code>generate_lead</code> z konfiguratorów,</li>
+        <li>piksel Meta: PageView przy każdej zmianie strony oraz ViewContent i Contact,</li>
+        <li>prawdziwe zdjęcia pawilonów.</li>
+      </ul>
+      <p>Przy okazji poprawiony jest podwójny licznik odsłon w GA4. <strong>Zmiany zadziałają na akhouse.pl dopiero po wdrożeniu aktualnej wersji</strong>, co jest pierwszym otwartym punktem poniżej.</p>
+    </div>
     <div class="tbl">
       <table>
         <thead><tr><th>Obszar</th><th>Ocena</th><th>Stan</th><th>Komentarz</th></tr></thead>
         <tbody>
           <tr><td><b>Oferta i komunikat</b></td><td><div class="score s-ok"><b>7/10</b><div class="bar"><i style="width:70%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Jasny nagłówek, cztery działy, ceny „od”, sześć etapów zamówienia. Brakuje potwierdzonych terminów, gwarancji i zakresu transportu.</td></tr>
           <tr><td><b>Konwersja: formularze, konfiguratory, CTA</b></td><td><div class="score s-ok"><b>8/10</b><div class="bar"><i style="width:80%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Konfiguratory z ceną, kreator wyceny, WhatsApp i telefon są pod ręką. Po zmianach warto dopracować wersję mobilną formularza.</td></tr>
-          <tr><td><b>Dowody zaufania: zdjęcia, realizacje, opinie</b></td><td><div class="score s-bad"><b>3/10</b><div class="bar"><i style="width:30%"></i></div></div></td><td><span class="chip bad">krytyczne</span></td><td>Opinie wyglądają na przykładowe, realizacje nie mają opisów (miejsce, zakres, czas), pawilony nie mają zdjęcia, brakuje zdjęć ludzi i hali.</td></tr>
+          <tr><td><b>Dowody zaufania: zdjęcia, realizacje, opinie</b></td><td><div class="score s-bad"><b>3/10</b><div class="bar"><i style="width:30%"></i></div></div></td><td><span class="chip bad">krytyczne</span></td><td>Realizacje nie mają opisów (miejsce, zakres, czas), brakuje prawdziwych opinii oraz zdjęć ludzi i hali. <span class="chip ok">zrobione</span> przykładowe opinie ukryte, pawilony mają zdjęcia.</td></tr>
           <tr><td><b>SEO techniczne w kodzie</b></td><td><div class="score s-ok"><b>8/10</b><div class="bar"><i style="width:80%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Statyczny HTML podstron, sitemap, canonical, hreflang i schema.org są gotowe w repozytorium.</td></tr>
-          <tr><td><b>SEO na produkcji (akhouse.pl)</b></td><td><div class="score s-bad"><b>2/10</b><div class="bar"><i style="width:20%"></i></div></div></td><td><span class="chip bad">krytyczne</span></td><td>Działa stara wersja: pusty <code>&lt;div id="root"&gt;</code>, w mapie strony są ukryty sklep i usunięte meble, strona z przedrostkiem www nie przekierowuje.</td></tr>
-          <tr><td><b>Pomiar i analityka</b></td><td><div class="score s-warn"><b>4/10</b><div class="bar"><i style="width:40%"></i></div></div></td><td><span class="chip warn">do poprawy</span></td><td>Mechanizm jest gotowy, ale konta nie są podpięte, konfiguratory nie wysyłają konwersji, a piksel Meta widzi tylko pierwszą odsłonę.</td></tr>
+          <tr><td><b>SEO na produkcji (akhouse.pl)</b></td><td><div class="score s-bad"><b>2/10</b><div class="bar"><i style="width:20%"></i></div></div></td><td><span class="chip bad">krytyczne</span></td><td>Działa stara wersja: pusty <code>&lt;div id="root"&gt;</code>, w mapie strony są ukryty sklep i usunięte meble. Przekierowanie www jest już w kodzie, ale zadziała dopiero po wdrożeniu.</td></tr>
+          <tr><td><b>Pomiar i analityka</b></td><td><div class="score s-warn"><b>6/10</b><div class="bar"><i style="width:60%"></i></div></div></td><td><span class="chip warn">konta do podpięcia</span></td><td>Kod jest gotowy: konfiguratory wysyłają konwersje, piksel Meta liczy każdą stronę, GA4 nie dubluje odsłon. Brakuje kont GA4, Ads i Meta oraz testu na produkcji.</td></tr>
           <tr><td><b>Obsługa zapytań (CRM)</b></td><td><div class="score s-ok"><b>8/10</b><div class="bar"><i style="width:80%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Narzędzie jest bardzo dobre. Brakuje jeszcze procesu: czasu reakcji, etapu kwalifikacji i powodu utraty klienta.</td></tr>
           <tr><td><b>Widoczność lokalna (Google, mapa, NAP)</b></td><td><div class="score s-bad"><b>2/10</b><div class="bar"><i style="width:20%"></i></div></div></td><td><span class="chip bad">krytyczne</span></td><td>Na stronie nie ma śladu Profilu Firmy w Google (do potwierdzenia). E-mail jest w domenie akhousebiuro.com, która pokazuje „Coming Soon”.</td></tr>
           <tr><td><b>Social media</b></td><td><div class="score s-bad"><b>1/10</b><div class="bar"><i style="width:10%"></i></div></div></td><td><span class="chip bad">brak</span></td><td>Lista profili w kodzie jest pusta (<code>SOCIALS = []</code>). Firma produkcyjna ma ogromny potencjał treści wideo, który dziś nie jest wykorzystany.</td></tr>
           <tr><td><b>Gotowość do reklam płatnych</b></td><td><div class="score s-warn"><b>5/10</b><div class="bar"><i style="width:50%"></i></div></div></td><td><span class="chip warn">po poprawkach</span></td><td>Strony docelowe są. Przed startem potrzebne są: pomiar, cena brutto w reklamach do konsumentów i materiały do kreacji.</td></tr>
-          <tr><td><b>Zgodność prawna marketingu</b></td><td><div class="score s-warn"><b>5/10</b><div class="bar"><i style="width:50%"></i></div></div></td><td><span class="chip warn">do poprawy</span></td><td>Zgody RODO i Consent Mode działają. Do poprawy: opinie, ceny netto pokazywane konsumentom, polityka prywatności jako szablon, jedna zgoda na wszystkie cookies.</td></tr>
+          <tr><td><b>Zgodność prawna marketingu</b></td><td><div class="score s-warn"><b>6/10</b><div class="bar"><i style="width:60%"></i></div></div></td><td><span class="chip warn">do poprawy</span></td><td>Zgody RODO i Consent Mode działają, a przykładowe opinie są ukryte. Do poprawy: ceny netto pokazywane konsumentom, polityka prywatności jako szablon, jedna zgoda na wszystkie cookies.</td></tr>
         </tbody>
       </table>
     </div>
@@ -292,16 +315,17 @@ td b{color:var(--ink)}
     <h3>Znaleziska: co naprawić przed pierwszą złotówką na reklamę</h3>
     <div class="findings">
       <div class="finding"><span class="chip bad tag">P0</span><h4>akhouse.pl to stara wersja strony</h4><p>Strona główna i podstrony zwracają pusty HTML. Google widzi tylko nagłówek strony, a nie treść. Mapa strony zawiera <code>/sklep</code> i <code>/meble-na-wymiar</code>, a pod adresem <code>/strefy-spa</code> ładuje się strona główna.</p><p class="fix">Wdrożyć aktualny build z repozytorium, a następnie zgłosić mapę strony w Google Search Console i sprawdzić indeksowanie.</p></div>
-      <div class="finding"><span class="chip bad tag">P0</span><h4>Opinie na stronie wyglądają na przykładowe</h4><p>Sekcja pokazuje „Średnią ocenę 4,9 / 5” i trzy opinie, w tym o zabudowie kuchni, której nie ma już w ofercie.</p><p class="fix">Jeśli to nie są prawdziwe opinie, usunąć sekcję teraz. Wrócić do niej z opiniami z Google i zgodami klientów. Przepisy zakazują publikowania nieprawdziwych opinii konsumenckich.</p></div>
-      <div class="finding"><span class="chip bad tag">P0</span><h4>Zapytania z konfiguratorów nie są konwersją</h4><p>Zdarzenie <code>generate_lead</code> wysyłają formularz kontaktowy i kreator <code>/zamowienie</code>. Konfiguratory na stronach produktów, czyli najbardziej konkretne zapytania, go nie wysyłają.</p><p class="fix">Dodać zdarzenie po udanym wysłaniu zapytania z konfiguratora, z produktem i orientacyjną wartością.</p></div>
-      <div class="finding"><span class="chip warn tag">P0</span><h4>Piksel Meta widzi tylko pierwszą stronę</h4><p>Strona jest aplikacją SPA, więc przejście na kolejną podstronę nie wysyła <code>PageView</code>. Nie ma też <code>ViewContent</code>. Remarketing typu „oglądał sauny, pokaż mu saunę” nie zadziała.</p><p class="fix">Wysyłać <code>PageView</code> przy każdej zmianie trasy oraz <code>ViewContent</code> na stronach kategorii i produktów.</p></div>
-      <div class="finding"><span class="chip warn tag">P0</span><h4>Dwie wersje adresu i niespójne dane firmy</h4><p><code>www.akhouse.pl</code> działa obok <code>akhouse.pl</code> bez przekierowania. Kontaktowy e-mail <code>kontakt@akhousebiuro.com</code> jest w domenie, która pokazuje „Coming Soon”.</p><p class="fix">Ustawić przekierowanie 301 na jedną wersję i przejść na e-mail w domenie akhouse.pl, identyczny na stronie, w Google, na Facebooku i w stopkach.</p></div>
+      <div class="finding done"><span class="chip ok tag">zrobione</span><h4>Opinie na stronie wyglądają na przykładowe</h4><p>Sekcja pokazywała „Średnią ocenę 4,9 / 5” i trzy opinie, w tym o zabudowie kuchni, której nie ma już w ofercie.</p><p class="done-note">sekcja jest ukryta przełącznikiem <code>areTestimonialsVisible</code>. Wraca po podmianie treści na prawdziwe opinie ze zgodą klientów.</p></div>
+      <div class="finding done"><span class="chip ok tag">zrobione</span><h4>Zapytania z konfiguratorów nie są konwersją</h4><p>Konfiguratory na stronach produktów, czyli najbardziej konkretne zapytania, nie wysyłały <code>generate_lead</code>.</p><p class="done-note">po wysłaniu zapytania konfigurator wysyła <code>generate_lead</code> z produktem, modelem i wyceną policzoną przez serwer.</p></div>
+      <div class="finding done"><span class="chip ok tag">zrobione</span><h4>Piksel Meta widzi tylko pierwszą stronę</h4><p>Przejście na kolejną podstronę nie wysyłało <code>PageView</code> i nie było <code>ViewContent</code>.</p><p class="done-note"><code>PageView</code> przy każdej zmianie strony, <code>ViewContent</code> na kategoriach i produktach, <code>Contact</code> przy telefonie i WhatsApp. Przy okazji GA4 przestało liczyć odsłony podwójnie.</p></div>
+      <div class="finding"><span class="chip warn tag">P0</span><h4>Dwie wersje adresu i niespójne dane firmy</h4><p><code>www.akhouse.pl</code> działa obok <code>akhouse.pl</code> bez przekierowania. Kontaktowy e-mail <code>kontakt@akhousebiuro.com</code> jest w domenie, która pokazuje „Coming Soon”.</p><p class="done-note">przekierowanie 301 z www na akhouse.pl jest w kodzie i zadziała po wdrożeniu.</p><p class="fix">Przejść na e-mail w domenie akhouse.pl, identyczny na stronie, w Google, na Facebooku i w stopkach. Wymaga decyzji firmy i założenia skrzynki.</p></div>
       <div class="finding"><span class="chip warn tag">P1</span><h4>Ceny netto w komunikacji do konsumentów</h4><p>Ceny „od … netto” są w porządku dla firm i inwestorów. Konsumentowi trzeba jednak podać cenę z VAT.</p><p class="fix">W reklamach i na stronach B2C pokazywać cenę brutto, np. „od 36 900 zł brutto”. Netto zostawić na stronach dla firm.</p></div>
       <div class="finding"><span class="chip warn tag">P1</span><h4>Dane strukturalne i podgląd linku</h4><p>Schema firmy wymienia „Meble do zabudowy”, a pomija balie i pawilony. Nie ma linków do profili społecznościowych (<code>sameAs</code>). Obraz podglądu linku (OG) jest oznaczony jako TODO.</p><p class="fix">Zaktualizować ofertę w schema, dodać <code>sameAs</code> i przygotować obraz OG 1200×630 z logo i produktem.</p></div>
+      <div class="finding done"><span class="chip ok tag">zrobione</span><h4>Pawilony bez zdjęcia</h4><p>Kafelek oferty i strona kategorii pawilonów pokazywały puste miejsce na zdjęcie.</p><p class="done-note">5 prawdziwych zdjęć na kafelku, w nagłówku kategorii i w galerii produktu.</p></div>
       <div class="finding"><span class="chip info tag">P2</span><h4>Zdjęcia z panelu są niewidoczne dla Grafiki Google</h4><p><code>robots.txt</code> blokuje <code>/uploads/</code>, a tam trafiają zdjęcia dodawane w panelu. Grafika Google to realne źródło ruchu dla saun i balii.</p><p class="fix">Odblokować <code>/uploads/</code> dla obrazów i dbać o opisy zdjęć (alt) w panelu.</p></div>
       <div class="finding"><span class="chip info tag">P2</span><h4>Baner cookies: jedna zgoda na wszystko</h4><p>Przycisk „akceptuję” włącza jednocześnie analitykę i reklamy.</p><p class="fix">Rozdzielić zgody na analityczne i marketingowe. Jest to czystsze prawnie, a część osób zgodzi się przynajmniej na analitykę.</p></div>
     </div>
-    <div class="note"><strong>Koszt poprawek technicznych:</strong> około 8–14 godzin pracy programisty, czyli <span class="num">1 000–1 700 zł</span> przy stawce 120 zł/h. Większość mieści się we wdrożeniu produkcyjnym, które jest już w bieżącej wycenie projektu.</div>
+    <div class="note"><strong>Koszt poprawek technicznych:</strong> całość szacowałem na 8–14 godzin pracy programisty. Poprawki P0 i zdjęcia pawilonów są już zrobione. Zostały schema i <code>sameAs</code>, obraz OG, odblokowanie <code>/uploads/</code>, rozdzielenie zgód cookies i ceny brutto: około 4–7 godzin, czyli <span class="num">500–850 zł</span> przy stawce 120 zł/h, plus samo wdrożenie z bieżącej wyceny projektu.</div>
   </section>
 
   <!-- 3 -->
@@ -351,7 +375,8 @@ td b{color:var(--ink)}
         <div class="stage-body">
           <div class="stage-top"><h3>Fundament</h3><span class="when">tydzień 1–2 · do ok. 5.10.2026</span></div>
           <ul class="list">
-            <li>Wdrożenie aktualnej wersji strony, przekierowanie www, poprawki z audytu (P0).</li>
+            <li class="done">Poprawki P0 w kodzie: przekierowanie www, ukryte przykładowe opinie, konwersje z konfiguratorów, piksel Meta, zdjęcia pawilonów.</li>
+            <li>Wdrożenie aktualnej wersji strony na akhouse.pl.</li>
             <li>Konta należące do firmy: Google Search Console, GA4, Google Ads, Profil Firmy w Google, Meta Business (Business Portfolio), weryfikacja domeny w Meta.</li>
             <li>E-mail w domenie akhouse.pl.</li>
             <li>„Tabela prawdy ofertowej”: ceny brutto i netto, czas realizacji, gwarancja, zakres transportu i ustawienia, warunki finansowania.</li>
@@ -359,7 +384,7 @@ td b{color:var(--ink)}
           </ul>
           <div class="stage-grid">
             <div class="kv"><span class="k">Kto</span><span>Programista + właściciel firmy</span></div>
-            <div class="kv"><span class="k">Koszt jednorazowy</span><span class="num">1 000–1 700 zł</span></div>
+            <div class="kv"><span class="k">Koszt jednorazowy</span><span><span class="num">500–850 zł</span> (pozostałe poprawki; P0 już zrobione)</span></div>
             <div class="kv"><span class="k">Koszt miesięczny</span><span>e-mail ok. <span class="num">30–60 zł</span></span></div>
           </div>
           <p class="gate">testowe zapytanie z linku z UTM widać w CRM, zdarzenia w GA4 (DebugView) i w Meta (Test Events), mapa strony jest zgłoszona w GSC.</p>
@@ -808,7 +833,7 @@ td b{color:var(--ink)}
       <table>
         <thead><tr><th>Pozycja</th><th>Etap</th><th class="r">Koszt</th><th>Uwagi</th></tr></thead>
         <tbody>
-          <tr><td><b>Poprawki techniczne z audytu</b> + wdrożenie aktualnej wersji</td><td>0</td><td class="r num">1 000–1 700 zł</td><td>Częściowo w bieżącej umowie wdrożeniowej</td></tr>
+          <tr><td><b>Poprawki techniczne z audytu</b> + wdrożenie aktualnej wersji</td><td>0</td><td class="r num">500–850 zł</td><td>P0 zrobione 21.09; zostały schema, OG, zgody cookies, ceny brutto</td></tr>
           <tr><td><b>Konfiguracja pilota Google Ads</b> z obsługą pierwszych 30 dni</td><td>2</td><td class="r num">2 500 zł</td><td>Zgodnie z propozycją z 17.09.2026</td></tr>
           <tr><td><b>Konfiguracja Meta:</b> Business Portfolio, piksel, domena, automaty</td><td>1</td><td class="r num">0–1 500 zł</td><td>0 zł, jeśli firma zrobi to sama według sekcji 8</td></tr>
           <tr><td><b>Profil Firmy w Google + katalogi firm</b></td><td>1</td><td class="r num">0–800 zł</td><td>Zwykle wystarczy samodzielnie</td></tr>
@@ -819,7 +844,7 @@ td b{color:var(--ink)}
           <tr><td><b>Etap „Kwalifikowany” i powód utraty w CRM</b></td><td>2</td><td class="r num">250–500 zł</td><td>2–4 h pracy</td></tr>
           <tr><td><b>Konwersje offline + Meta CAPI</b></td><td>4</td><td class="r num">2 500–6 000 zł</td><td>Dopiero przy poprawnym CRM i zgodach</td></tr>
         </tbody>
-        <tfoot><tr><td>Razem jednorazowo przez 12 mies.</td><td></td><td class="r num">11 150–25 000 zł</td><td>Na start (etapy 0–2) ok. 7 000–14 500 zł</td></tr></tfoot>
+        <tfoot><tr><td>Razem jednorazowo przez 12 mies.</td><td></td><td class="r num">10 650–24 150 zł</td><td>Na start (etapy 0–2) ok. 6 500–13 500 zł</td></tr></tfoot>
       </table>
     </div>
 
@@ -848,7 +873,7 @@ td b{color:var(--ink)}
       <table>
         <thead><tr><th>Miesiąc</th><th>Priorytet</th><th>Najważniejsze działania</th><th class="r">Budżet</th></tr></thead>
         <tbody>
-          <tr><td><b>Paź 2026</b></td><td>Fundament, sauny, balie</td><td>Etapy 0–1: wdrożenie, konta, sesja zdjęć, Profil Google, automaty. Pod koniec miesiąca start pilota Google.</td><td class="r num">6,5–14 tys.<br><span style="font-weight:400;color:var(--muted)">jednorazowo + media ~1,5 tys.</span></td></tr>
+          <tr><td><b>Paź 2026</b></td><td>Fundament, sauny, balie</td><td>Etapy 0–1: wdrożenie, konta, sesja zdjęć, Profil Google, automaty. Pod koniec miesiąca start pilota Google.</td><td class="r num">6–13 tys.<br><span style="font-weight:400;color:var(--muted)">jednorazowo + media ~1,5 tys.</span></td></tr>
           <tr><td><b>Lis 2026</b></td><td>Sauny, balie</td><td>Pilot Google + remarketing Meta, pierwsze rolki z dostaw, kontakt z obiektami B2B planującymi budżet na 2027.</td><td class="r num">≈ 4,5 tys.</td></tr>
           <tr><td><b>Gru 2026</b></td><td>Sauny, balie</td><td>Sauna lub balia jako prezent, pierwszy raport kwartalny, decyzje na styczeń.</td><td class="r num">≈ 4,5 tys.</td></tr>
           <tr><td><b>Sty 2027</b></td><td>+ Domki, B2B</td><td>Start kampanii na domki i frazy B2B, katalog PDF, pierwsze artykuły poradnika, film YouTube z domku.</td><td class="r num">≈ 4,5 tys. + jednorazowe</td></tr>
@@ -949,17 +974,17 @@ td b{color:var(--ink)}
     <div class="sec-head">
       <span class="eyebrow">18 · Start</span>
       <h2>Lista startowa</h2>
-      <p>Zaznaczenia zapisują się w tej przeglądarce, więc można wrócić do listy na kolejnym spotkaniu.</p>
+      <p>Punkty zrobione już w kodzie są zaznaczone z góry. Własne zaznaczenia zapisują się w tej przeglądarce, więc można wrócić do listy na kolejnym spotkaniu.</p>
     </div>
-    <div class="progress"><span id="prog-label">0 z 0</span><div class="bar"><i id="prog-bar" style="width:0%"></i></div><button type="button" id="reset" style="font:600 .82rem/1 var(--f-body);background:none;border:1px solid var(--line);color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer">Wyczyść</button></div>
+    <div class="progress"><span id="prog-label">0 z 0</span><div class="bar"><i id="prog-bar" style="width:0%"></i></div><button type="button" id="reset" style="font:600 .82rem/1 var(--f-body);background:none;border:1px solid var(--line);color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer">Przywróć stan z planu</button></div>
     <div class="cols" id="checklist">
       <div class="check-group">
         <h4>Etap 0 · Fundament</h4>
         <label class="check"><input type="checkbox" id="c01"><span>Aktualna wersja strony wdrożona na akhouse.pl</span></label>
-        <label class="check"><input type="checkbox" id="c02"><span>Przekierowanie www → akhouse.pl (301)</span></label>
-        <label class="check"><input type="checkbox" id="c03"><span>Sekcja opinii usunięta lub zastąpiona prawdziwymi</span></label>
-        <label class="check"><input type="checkbox" id="c04"><span>Konfiguratory wysyłają konwersję generate_lead</span></label>
-        <label class="check"><input type="checkbox" id="c05"><span>Piksel Meta: PageView przy zmianie strony + ViewContent</span></label>
+        <label class="check"><input type="checkbox" id="c02" checked><span>Przekierowanie www → akhouse.pl (301) <em class="done-tag">w kodzie</em></span></label>
+        <label class="check"><input type="checkbox" id="c03" checked><span>Sekcja opinii usunięta lub zastąpiona prawdziwymi <em class="done-tag">w kodzie</em></span></label>
+        <label class="check"><input type="checkbox" id="c04" checked><span>Konfiguratory wysyłają konwersję generate_lead <em class="done-tag">w kodzie</em></span></label>
+        <label class="check"><input type="checkbox" id="c05" checked><span>Piksel Meta: PageView przy zmianie strony + ViewContent <em class="done-tag">w kodzie</em></span></label>
         <label class="check"><input type="checkbox" id="c06"><span>E-mail w domenie akhouse.pl, spójny wszędzie</span></label>
         <label class="check"><input type="checkbox" id="c07"><span>Search Console + mapa strony zgłoszona</span></label>
         <label class="check"><input type="checkbox" id="c08"><span>GA4, Google Ads i Meta Business założone na firmę</span></label>
@@ -975,7 +1000,8 @@ td b{color:var(--ink)}
         <label class="check"><input type="checkbox" id="c15"><span>Sesja zdjęć i filmów zrobiona</span></label>
         <label class="check"><input type="checkbox" id="c16"><span>3–6 realizacji opisanych na stronie</span></label>
         <label class="check"><input type="checkbox" id="c17"><span>Karty QR do opinii wydrukowane</span></label>
-        <label class="check"><input type="checkbox" id="c18"><span>Obraz OG 1200×630 i zdjęcie pawilonu w panelu</span></label>
+        <label class="check"><input type="checkbox" id="c18"><span>Obraz OG 1200×630</span></label>
+        <label class="check"><input type="checkbox" id="c25" checked><span>Zdjęcia pawilonów na stronie <em class="done-tag">w kodzie</em></span></label>
       </div>
       <div class="check-group">
         <h4>Etap 2 · Pilot</h4>
@@ -991,6 +1017,7 @@ td b{color:var(--ink)}
 
   <footer class="foot">
     <p><strong>Źródła danych:</strong> kod repozytorium A.K. HOUSE (gałąź 1.0, 21.09.2026), strona akhouse.pl sprawdzona 21.09.2026, wcześniejsze dokumenty projektu: plan konwersji (19.09.2026) i propozycja startu marketingu (17.09.2026). Obsługa kampanii za 1 200 zł/mies. i konfiguracja pilota za 2 500 zł pochodzą z tej propozycji.</p>
+    <p><strong>Aktualizacja 21.09.2026:</strong> oznaczono poprawki z audytu zrobione w kodzie (commity w ak-house-backend <code>bd2933e</code> oraz ak-house-frontend <code>f72af84</code>, <code>0bf4f8e</code> i <code>7bcd2d8</code>). Działają na akhouse.pl dopiero po wdrożeniu.</p>
     <p>Ceny rynkowe to orientacyjne widełki z publicznych ofert w Polsce (wrzesień 2026). Nie są cennikiem ani gwarancją wyniku. Kwestie prawne (budowa na zgłoszenie, opinie, ceny) należy potwierdzić z prawnikiem przed publikacją treści.</p>
   </footer>
 
@@ -1009,7 +1036,8 @@ td b{color:var(--ink)}
     document.getElementById('prog-bar').style.width=(boxes.length?Math.round(done/boxes.length*100):0)+'%';
   }
   boxes.forEach(function(b){
-    b.checked=!!state[b.id];
+    // Items already done in the code ship pre-ticked; a viewer's own ticks override them.
+    if(Object.prototype.hasOwnProperty.call(state,b.id)) b.checked=!!state[b.id];
     b.addEventListener('change',function(){
       state[b.id]=b.checked;
       try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){}
@@ -1017,7 +1045,7 @@ td b{color:var(--ink)}
     });
   });
   document.getElementById('reset').addEventListener('click',function(){
-    boxes.forEach(function(b){b.checked=false;});
+    boxes.forEach(function(b){b.checked=b.defaultChecked;});
     state={};
     try{ localStorage.removeItem(KEY); }catch(e){}
     render();
