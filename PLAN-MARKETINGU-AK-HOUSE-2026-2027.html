@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plan marketingu A.K. HOUSE</title>
+<meta name="description" content="Audyt strony akhouse.pl i plan marketingu na 12 miesięcy: Google, Meta, automatyczne odpowiedzi, treści, budżet i etapy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Mulish:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+:root{
+  --ink:#181818; --ink-soft:#3a3833; --body:#4f4b45; --muted:#6a655d; --faint:#8a847b;
+  --bg:#faf9f7; --paper:#ffffff; --soft:#f3f1ed; --surface:#ece9e4;
+  --line:rgba(24,24,24,.10); --line-soft:rgba(24,24,24,.06);
+  --bronze:#a9794f; --bronze-ink:#86592f; --bronze-wash:#f4ebe1; --bronze-light:#e7c9a6;
+  --dark:#161514; --on-dark:#f3eee7;
+  --ok-bg:#dcecdf; --ok:#2c6139; --warn-bg:#fbebc9; --warn:#7d5608; --bad-bg:#f6ded8; --bad:#8f3a28; --info-bg:#dbe6f5; --info:#27578a;
+  --f-head:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-body:'Mulish',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --hex:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#f1ece4; --ink-soft:#d9d2c7; --body:#c9c1b5; --muted:#a79f93; --faint:#877f74;
+    --bg:#141312; --paper:#1c1a18; --soft:#211f1c; --surface:#2a2724;
+    --line:rgba(241,236,228,.12); --line-soft:rgba(241,236,228,.07);
+    --bronze:#c9976a; --bronze-ink:#d9aa7c; --bronze-wash:#2c2219; --bronze-light:#6b4d33;
+    --dark:#0d0c0b; --on-dark:#f3eee7;
+    --ok-bg:#1d3324; --ok:#9fd3ad; --warn-bg:#3a2c10; --warn:#f0c46a; --bad-bg:#3d1f18; --bad:#f2a593; --info-bg:#1b2a3d; --info:#9cc1ec;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#f1ece4; --ink-soft:#d9d2c7; --body:#c9c1b5; --muted:#a79f93; --faint:#877f74;
+  --bg:#141312; --paper:#1c1a18; --soft:#211f1c; --surface:#2a2724;
+  --line:rgba(241,236,228,.12); --line-soft:rgba(241,236,228,.07);
+  --bronze:#c9976a; --bronze-ink:#d9aa7c; --bronze-wash:#2c2219; --bronze-light:#6b4d33;
+  --dark:#0d0c0b; --on-dark:#f3eee7;
+  --ok-bg:#1d3324; --ok:#9fd3ad; --warn-bg:#3a2c10; --warn:#f0c46a; --bad-bg:#3d1f18; --bad:#f2a593; --info-bg:#1b2a3d; --info:#9cc1ec;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--body);font:400 16px/1.65 var(--f-body);margin:0;padding-inline:16px;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--f-head);color:var(--ink);text-wrap:balance;line-height:1.2;margin:0}
+h2{font-size:clamp(1.5rem,1.2rem + 1.2vw,2.05rem);font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.2rem;font-weight:700}
+h4{font-size:1rem;font-weight:700}
+p{margin:0}
+a{color:var(--bronze-ink)}
+strong{color:var(--ink);font-weight:700}
+code{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:.86em;background:var(--soft);border:1px solid var(--line-soft);padding:.05em .35em;border-radius:4px;color:var(--ink-soft);overflow-wrap:anywhere}
+.num,td.num,th.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+:focus-visible{outline:2px solid var(--bronze);outline-offset:2px}
+
+/* Header */
+.masthead{background:var(--dark);color:var(--on-dark);margin-inline:-16px;padding:40px 16px 36px}
+.masthead-in{max-width:1180px;margin:0 auto;display:grid;gap:26px}
+.brand{display:flex;align-items:center;gap:12px;font:800 13px/1 var(--f-head);letter-spacing:.22em;text-transform:uppercase;color:#e7c9a6}
+.brand i{width:22px;height:25px;background:#a9794f;clip-path:var(--hex);display:block}
+.masthead h1{color:#fff;font-size:clamp(1.9rem,1.3rem + 2.6vw,3.1rem);font-weight:800;letter-spacing:-.02em;max-width:18ch}
+.masthead .lead{color:#d9d2c7;font-size:1.08rem;max-width:66ch}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:.88rem;color:#b9b0a4}
+.meta-row b{color:#f3eee7;font-weight:600}
+.keyfigs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:1px;background:rgba(243,238,231,.14);border:1px solid rgba(243,238,231,.14);border-radius:10px;overflow:hidden}
+.keyfig{background:#1d1b19;padding:18px 20px;display:grid;gap:4px}
+.keyfig .v{font:800 1.55rem/1.1 var(--f-head);color:#fff;font-variant-numeric:tabular-nums}
+.keyfig .l{font-size:.85rem;color:#b9b0a4;line-height:1.4}
+
+/* Layout */
+.wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:40px;padding-block:32px 80px}
+@media (min-width:1040px){.wrap{grid-template-columns:230px minmax(0,1fr);gap:56px}}
+nav.toc{font-size:.9rem}
+@media (min-width:1040px){nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;max-height:calc(100vh - 40px);overflow:auto}}
+nav.toc details{border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+nav.toc summary{cursor:pointer;padding:12px 14px;font:700 .8rem/1 var(--f-head);letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+nav.toc ol{list-style:none;margin:0;padding:0 8px 10px;display:grid;gap:1px}
+nav.toc a{display:flex;gap:10px;padding:6px 8px;border-radius:6px;color:var(--body);text-decoration:none;line-height:1.35}
+nav.toc a:hover{background:var(--soft);color:var(--ink)}
+nav.toc a span{color:var(--faint);font-variant-numeric:tabular-nums;min-width:1.4em}
+main{display:grid;gap:72px;min-width:0}
+section{display:grid;gap:22px;scroll-margin-top:24px;min-width:0}
+.eyebrow{font:700 .74rem/1 var(--f-head);letter-spacing:.16em;text-transform:uppercase;color:var(--bronze-ink)}
+.sec-head{display:grid;gap:10px;border-top:2px solid var(--ink);padding-top:18px}
+.sec-head p{max-width:70ch;font-size:1.02rem}
+.prose{display:grid;gap:12px;max-width:74ch}
+ul.list{margin:0;padding-left:1.15em;display:grid;gap:6px}
+ul.list li::marker{color:var(--bronze)}
+.cols{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:20px 22px;display:grid;gap:10px;align-content:start}
+.box.tint{background:var(--bronze-wash);border-color:transparent}
+.box.dark{background:var(--dark);color:#d9d2c7;border-color:transparent}
+.box.dark h3,.box.dark h4,.box.dark strong{color:#fff}
+.note{border-left:3px solid var(--bronze);background:var(--bronze-wash);padding:14px 18px;border-radius:0 8px 8px 0;max-width:80ch}
+.note.bad{border-color:var(--bad);background:var(--bad-bg)}
+.note.bad strong{color:var(--bad)}
+
+/* Chips */
+.chip{display:inline-flex;align-items:center;gap:6px;font:700 .7rem/1 var(--f-head);letter-spacing:.06em;text-transform:uppercase;padding:5px 8px;border-radius:999px;white-space:nowrap}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}
+.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip.bad{background:var(--bad-bg);color:var(--bad)}
+.chip.info{background:var(--info-bg);color:var(--info)}
+.chip.neutral{background:var(--surface);color:var(--ink-soft)}
+
+/* Tables */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{text-align:left;vertical-align:top;padding:11px 14px;border-bottom:1px solid var(--line-soft)}
+thead th{font:700 .72rem/1.3 var(--f-head);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
+tbody tr:last-child td{border-bottom:0}
+tfoot td{font-weight:700;color:var(--ink);background:var(--soft);border-top:1px solid var(--line);border-bottom:0}
+td.r,th.r{text-align:right}
+td b{color:var(--ink)}
+.tbl.wide table{min-width:760px}
+
+/* Scorecard */
+.score{display:flex;align-items:center;gap:10px;min-width:150px}
+.bar{flex:1;height:8px;background:var(--surface);border-radius:4px;overflow:hidden;min-width:70px}
+.bar i{display:block;height:100%;border-radius:4px}
+.s-bad i{background:var(--bad)} .s-warn i{background:#c28a1c} .s-ok i{background:#3f8a52}
+.score b{font:800 .95rem/1 var(--f-head);color:var(--ink);font-variant-numeric:tabular-nums;min-width:2.6em}
+
+/* Findings */
+.findings{display:grid;gap:12px}
+.finding{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.finding .tag{grid-row:span 3;align-self:start}
+.finding h4{font-size:1rem}
+.finding .fix{font-size:.93rem}
+.finding .fix::before{content:"Co zrobić: ";font-weight:700;color:var(--ink)}
+@media (max-width:560px){.finding{grid-template-columns:1fr}.finding .tag{grid-row:auto}}
+
+/* Stages */
+.stages{display:grid;gap:0}
+.stage{display:grid;grid-template-columns:54px minmax(0,1fr);gap:0 20px;position:relative}
+.stage::before{content:"";position:absolute;left:26px;top:58px;bottom:0;width:2px;background:var(--line)}
+.stage:last-child::before{display:none}
+.hexnum{width:54px;height:62px;clip-path:var(--hex);background:var(--bronze);color:#fff;display:grid;place-items:center;font:800 1.15rem/1 var(--f-head)}
+.stage.dark-hex .hexnum{background:var(--ink);color:var(--bg)}
+.stage-body{padding-bottom:40px;display:grid;gap:14px;min-width:0}
+.stage-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.stage-top .when{font:600 .85rem/1.3 var(--f-body);color:var(--muted)}
+.stage-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.kv{display:grid;gap:4px;font-size:.93rem}
+.kv .k{font:700 .7rem/1.2 var(--f-head);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.gate{border:1px dashed var(--bronze);border-radius:8px;padding:12px 16px;font-size:.93rem;background:var(--paper)}
+.gate::before{content:"Warunek przejścia dalej · ";font-weight:700;color:var(--bronze-ink)}
+
+/* Budget tiers */
+.tiers{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.tier{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:22px;display:grid;gap:12px;align-content:start}
+.tier.rec{border:2px solid var(--bronze);background:linear-gradient(var(--bronze-wash),var(--paper) 45%)}
+.tier .price{font:800 1.8rem/1.05 var(--f-head);color:var(--ink);font-variant-numeric:tabular-nums}
+.tier .price small{font:600 .85rem/1 var(--f-body);color:var(--muted)}
+.tier ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:.92rem}
+.tier li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line-soft);padding-bottom:6px}
+.tier li span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink)}
+
+/* Script boxes (auto replies) */
+.bubble{background:var(--soft);border:1px solid var(--line);border-radius:14px 14px 14px 4px;padding:14px 16px;font-size:.94rem;display:grid;gap:8px}
+.bubble .who{font:700 .7rem/1 var(--f-head);letter-spacing:.1em;text-transform:uppercase;color:var(--bronze-ink)}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+.btns span{border:1px solid var(--bronze);color:var(--bronze-ink);border-radius:999px;padding:3px 10px;font-size:.82rem;font-weight:600;background:var(--paper)}
+
+/* Checklist */
+.check-group{display:grid;gap:6px}
+.check-group h4{margin-top:10px}
+.check{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:8px;background:var(--paper);border:1px solid var(--line-soft);cursor:pointer;font-size:.94rem}
+.check input{margin-top:.25em;accent-color:var(--bronze);width:17px;height:17px;flex:none}
+.check input:checked + span{color:var(--faint);text-decoration:line-through}
+.progress{display:flex;align-items:center;gap:14px;font-size:.9rem}
+.progress .bar{height:10px;max-width:360px}
+.progress .bar i{background:var(--bronze);transition:width .3s}
+@media (prefers-reduced-motion:reduce){.progress .bar i{transition:none}}
+.foot{border-top:1px solid var(--line);padding-top:20px;font-size:.86rem;color:var(--muted);display:grid;gap:8px;max-width:86ch}
+@media print{
+  body{background:#fff}
+  nav.toc{display:none}
+  .wrap{grid-template-columns:1fr}
+  .masthead{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  section{break-inside:auto}
+  .box,.finding,.tier,.stage{break-inside:avoid}
+}
+</style>
+
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-in">
+    <div class="brand"><i aria-hidden="true"></i>A.K. HOUSE · plan marketingu</div>
+    <h1>Jak z gotowej strony zrobić stały dopływ zapytań</h1>
+    <p class="lead">Audyt akhouse.pl i plan na 12 miesięcy dla producenta domków mobilnych, saun, balii i pawilonów. Obejmuje Google, Meta, automatyczne odpowiedzi, treści, opinie i obsługę zapytań. Budżet jest rozpisany na etapy, bo mała, rosnąca firma nie powinna uruchamiać wszystkich kanałów jednocześnie.</p>
+    <div class="meta-row">
+      <span>Stan na: <b>21.09.2026</b></span>
+      <span>Okres planu: <b>październik 2026 – wrzesień 2027</b></span>
+      <span>Kwoty: <b>PLN netto, orientacyjne</b></span>
+    </div>
+    <div class="keyfigs">
+      <div class="keyfig"><span class="v">5 / 10</span><span class="l">ocena gotowości marketingowej dzisiaj: technologia bardzo dobra, na produkcji brakuje treści, dowodów i pomiaru</span></div>
+      <div class="keyfig"><span class="v">≈ 4 500 zł</span><span class="l">miesięcznie na start (pilot: media Google + Meta i obsługa)</span></div>
+      <div class="keyfig"><span class="v">≈ 10 000 zł</span><span class="l">miesięcznie w sezonie, gdy CRM potwierdzi jakość leadów</span></div>
+      <div class="keyfig"><span class="v">90–105 tys. zł</span><span class="l">rekomendowana ścieżka na 12 miesięcy, z czego około połowa to budżet reklamowy</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Spis treści">
+    <details open id="toc-details">
+      <summary>Spis treści</summary>
+      <ol>
+        <li><a href="#podsumowanie"><span>1</span>Podsumowanie dla właścicieli</a></li>
+        <li><a href="#audyt"><span>2</span>Audyt strony od A do Z</a></li>
+        <li><a href="#strategia"><span>3</span>Strategia i klienci</a></li>
+        <li><a href="#etapy"><span>4</span>Etapy wdrożenia</a></li>
+        <li><a href="#google-profil"><span>5</span>Profil Firmy w Google i opinie</a></li>
+        <li><a href="#google-ads"><span>6</span>Google Ads</a></li>
+        <li><a href="#meta-ads"><span>7</span>Meta Ads (Facebook, Instagram)</a></li>
+        <li><a href="#automaty"><span>8</span>Automatyczne odpowiedzi</a></li>
+        <li><a href="#social"><span>9</span>Social media i treści</a></li>
+        <li><a href="#seo"><span>10</span>SEO i poradnik</a></li>
+        <li><a href="#kanaly"><span>11</span>Portale, partnerzy, B2B</a></li>
+        <li><a href="#sprzedaz"><span>12</span>Obsługa zapytań</a></li>
+        <li><a href="#budzet"><span>13</span>Budżet</a></li>
+        <li><a href="#kalendarz"><span>14</span>Kalendarz 12 miesięcy</a></li>
+        <li><a href="#kpi"><span>15</span>Wskaźniki i raport</a></li>
+        <li><a href="#role"><span>16</span>Kto co robi</a></li>
+        <li><a href="#ryzyka"><span>17</span>Ryzyka i prawo</a></li>
+        <li><a href="#checklista"><span>18</span>Lista startowa</a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main>
+
+  <!-- 1 -->
+  <section id="podsumowanie">
+    <div class="sec-head">
+      <span class="eyebrow">1 · Podsumowanie</span>
+      <h2>Najważniejsze w pięciu punktach</h2>
+    </div>
+    <div class="cols">
+      <div class="box">
+        <h3>Co jest mocne</h3>
+        <ul class="list">
+          <li>Konfiguratory domków, saun i balii z ceną na żywo. Konkurencja w tej branży rzadko je ma.</li>
+          <li>CRM z lejkiem sprzedaży, historią kontaktów i zapisem źródła kampanii (UTM, GCLID).</li>
+          <li>Strony pod każdy dział oferty, wersja PL/EN i osobna strona dla inwestorów i obiektów noclegowych.</li>
+          <li>Tryb zgody Google (Consent Mode v2), WhatsApp, popup kampanii, obietnica wyceny w 48 godzin.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Co blokuje marketing</h3>
+        <ul class="list">
+          <li>Na akhouse.pl działa <strong>starsza wersja strony</strong>. Google dostaje pusty HTML, a nowych podstron nie ma.</li>
+          <li>Opinie na stronie wyglądają na przykładowe. To ryzyko prawne i wizerunkowe.</li>
+          <li>Zapytania z konfiguratorów nie są liczone jako konwersje, więc reklamy optymalizowałyby się „na ślepo”.</li>
+          <li>Na stronie nie ma linków do profili w social mediach, adres e-mail jest w innej domenie, brakuje opinii w Google.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="box tint">
+      <h3>Rekomendacja w jednym akapicie</h3>
+      <p>Przez pierwsze 2–3 tygodnie <strong>nie wydajemy pieniędzy na reklamy</strong>. Wdrażamy aktualną wersję strony, naprawiamy pomiar, zakładamy Profil Firmy w Google, porządkujemy Facebooka i Instagrama, ustawiamy automatyczne odpowiedzi i robimy jedną porządną sesję zdjęć i filmów z produkcji. Pod koniec października ruszamy z pilotem <strong>Google Search na sauny i balie</strong> (to ich sezon) oraz skromnym remarketingiem w Meta. W styczniu dochodzą <strong>domki</strong>, bo wtedy klienci planują sezon. Budżet zwiększamy wyłącznie tam, gdzie CRM pokazuje wysłane oferty i sprzedaż, a nie tam, gdzie jest po prostu dużo kliknięć.</p>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section id="audyt">
+    <div class="sec-head">
+      <span class="eyebrow">2 · Audyt</span>
+      <h2>Ocena strony od A do Z</h2>
+      <p>Sprawdziłem kod w repozytorium (stan z 21.09.2026) oraz działającą stronę akhouse.pl. Oceny dotyczą gotowości do pozyskiwania klientów, a nie jakości programowania, bo ta stoi wysoko.</p>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Obszar</th><th>Ocena</th><th>Stan</th><th>Komentarz</th></tr></thead>
+        <tbody>
+          <tr><td><b>Oferta i komunikat</b></td><td><div class="score s-ok"><b>7/10</b><div class="bar"><i style="width:70%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Jasny nagłówek, cztery działy, ceny „od”, sześć etapów zamówienia. Brakuje potwierdzonych terminów, gwarancji i zakresu transportu.</td></tr>
+          <tr><td><b>Konwersja: formularze, konfiguratory, CTA</b></td><td><div class="score s-ok"><b>8/10</b><div class="bar"><i style="width:80%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Konfiguratory z ceną, kreator wyceny, WhatsApp i telefon są pod ręką. Po zmianach warto dopracować wersję mobilną formularza.</td></tr>
+          <tr><td><b>Dowody zaufania: zdjęcia, realizacje, opinie</b></td><td><div class="score s-bad"><b>3/10</b><div class="bar"><i style="width:30%"></i></div></div></td><td><span class="chip bad">krytyczne</span></td><td>Opinie wyglądają na przykładowe, realizacje nie mają opisów (miejsce, zakres, czas), pawilony nie mają zdjęcia, brakuje zdjęć ludzi i hali.</td></tr>
+          <tr><td><b>SEO techniczne w kodzie</b></td><td><div class="score s-ok"><b>8/10</b><div class="bar"><i style="width:80%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Statyczny HTML podstron, sitemap, canonical, hreflang i schema.org są gotowe w repozytorium.</td></tr>
+          <tr><td><b>SEO na produkcji (akhouse.pl)</b></td><td><div class="score s-bad"><b>2/10</b><div class="bar"><i style="width:20%"></i></div></div></td><td><span class="chip bad">krytyczne</span></td><td>Działa stara wersja: pusty <code>&lt;div id="root"&gt;</code>, w mapie strony są ukryty sklep i usunięte meble, strona z przedrostkiem www nie przekierowuje.</td></tr>
+          <tr><td><b>Pomiar i analityka</b></td><td><div class="score s-warn"><b>4/10</b><div class="bar"><i style="width:40%"></i></div></div></td><td><span class="chip warn">do poprawy</span></td><td>Mechanizm jest gotowy, ale konta nie są podpięte, konfiguratory nie wysyłają konwersji, a piksel Meta widzi tylko pierwszą odsłonę.</td></tr>
+          <tr><td><b>Obsługa zapytań (CRM)</b></td><td><div class="score s-ok"><b>8/10</b><div class="bar"><i style="width:80%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Narzędzie jest bardzo dobre. Brakuje jeszcze procesu: czasu reakcji, etapu kwalifikacji i powodu utraty klienta.</td></tr>
+          <tr><td><b>Widoczność lokalna (Google, mapa, NAP)</b></td><td><div class="score s-bad"><b>2/10</b><div class="bar"><i style="width:20%"></i></div></div></td><td><span class="chip bad">krytyczne</span></td><td>Na stronie nie ma śladu Profilu Firmy w Google (do potwierdzenia). E-mail jest w domenie akhousebiuro.com, która pokazuje „Coming Soon”.</td></tr>
+          <tr><td><b>Social media</b></td><td><div class="score s-bad"><b>1/10</b><div class="bar"><i style="width:10%"></i></div></div></td><td><span class="chip bad">brak</span></td><td>Lista profili w kodzie jest pusta (<code>SOCIALS = []</code>). Firma produkcyjna ma ogromny potencjał treści wideo, który dziś nie jest wykorzystany.</td></tr>
+          <tr><td><b>Gotowość do reklam płatnych</b></td><td><div class="score s-warn"><b>5/10</b><div class="bar"><i style="width:50%"></i></div></div></td><td><span class="chip warn">po poprawkach</span></td><td>Strony docelowe są. Przed startem potrzebne są: pomiar, cena brutto w reklamach do konsumentów i materiały do kreacji.</td></tr>
+          <tr><td><b>Zgodność prawna marketingu</b></td><td><div class="score s-warn"><b>5/10</b><div class="bar"><i style="width:50%"></i></div></div></td><td><span class="chip warn">do poprawy</span></td><td>Zgody RODO i Consent Mode działają. Do poprawy: opinie, ceny netto pokazywane konsumentom, polityka prywatności jako szablon, jedna zgoda na wszystkie cookies.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Znaleziska: co naprawić przed pierwszą złotówką na reklamę</h3>
+    <div class="findings">
+      <div class="finding"><span class="chip bad tag">P0</span><h4>akhouse.pl to stara wersja strony</h4><p>Strona główna i podstrony zwracają pusty HTML. Google widzi tylko nagłówek strony, a nie treść. Mapa strony zawiera <code>/sklep</code> i <code>/meble-na-wymiar</code>, a pod adresem <code>/strefy-spa</code> ładuje się strona główna.</p><p class="fix">Wdrożyć aktualny build z repozytorium, a następnie zgłosić mapę strony w Google Search Console i sprawdzić indeksowanie.</p></div>
+      <div class="finding"><span class="chip bad tag">P0</span><h4>Opinie na stronie wyglądają na przykładowe</h4><p>Sekcja pokazuje „Średnią ocenę 4,9 / 5” i trzy opinie, w tym o zabudowie kuchni, której nie ma już w ofercie.</p><p class="fix">Jeśli to nie są prawdziwe opinie, usunąć sekcję teraz. Wrócić do niej z opiniami z Google i zgodami klientów. Przepisy zakazują publikowania nieprawdziwych opinii konsumenckich.</p></div>
+      <div class="finding"><span class="chip bad tag">P0</span><h4>Zapytania z konfiguratorów nie są konwersją</h4><p>Zdarzenie <code>generate_lead</code> wysyłają formularz kontaktowy i kreator <code>/zamowienie</code>. Konfiguratory na stronach produktów, czyli najbardziej konkretne zapytania, go nie wysyłają.</p><p class="fix">Dodać zdarzenie po udanym wysłaniu zapytania z konfiguratora, z produktem i orientacyjną wartością.</p></div>
+      <div class="finding"><span class="chip warn tag">P0</span><h4>Piksel Meta widzi tylko pierwszą stronę</h4><p>Strona jest aplikacją SPA, więc przejście na kolejną podstronę nie wysyła <code>PageView</code>. Nie ma też <code>ViewContent</code>. Remarketing typu „oglądał sauny, pokaż mu saunę” nie zadziała.</p><p class="fix">Wysyłać <code>PageView</code> przy każdej zmianie trasy oraz <code>ViewContent</code> na stronach kategorii i produktów.</p></div>
+      <div class="finding"><span class="chip warn tag">P0</span><h4>Dwie wersje adresu i niespójne dane firmy</h4><p><code>www.akhouse.pl</code> działa obok <code>akhouse.pl</code> bez przekierowania. Kontaktowy e-mail <code>kontakt@akhousebiuro.com</code> jest w domenie, która pokazuje „Coming Soon”.</p><p class="fix">Ustawić przekierowanie 301 na jedną wersję i przejść na e-mail w domenie akhouse.pl, identyczny na stronie, w Google, na Facebooku i w stopkach.</p></div>
+      <div class="finding"><span class="chip warn tag">P1</span><h4>Ceny netto w komunikacji do konsumentów</h4><p>Ceny „od … netto” są w porządku dla firm i inwestorów. Konsumentowi trzeba jednak podać cenę z VAT.</p><p class="fix">W reklamach i na stronach B2C pokazywać cenę brutto, np. „od 36 900 zł brutto”. Netto zostawić na stronach dla firm.</p></div>
+      <div class="finding"><span class="chip warn tag">P1</span><h4>Dane strukturalne i podgląd linku</h4><p>Schema firmy wymienia „Meble do zabudowy”, a pomija balie i pawilony. Nie ma linków do profili społecznościowych (<code>sameAs</code>). Obraz podglądu linku (OG) jest oznaczony jako TODO.</p><p class="fix">Zaktualizować ofertę w schema, dodać <code>sameAs</code> i przygotować obraz OG 1200×630 z logo i produktem.</p></div>
+      <div class="finding"><span class="chip info tag">P2</span><h4>Zdjęcia z panelu są niewidoczne dla Grafiki Google</h4><p><code>robots.txt</code> blokuje <code>/uploads/</code>, a tam trafiają zdjęcia dodawane w panelu. Grafika Google to realne źródło ruchu dla saun i balii.</p><p class="fix">Odblokować <code>/uploads/</code> dla obrazów i dbać o opisy zdjęć (alt) w panelu.</p></div>
+      <div class="finding"><span class="chip info tag">P2</span><h4>Baner cookies: jedna zgoda na wszystko</h4><p>Przycisk „akceptuję” włącza jednocześnie analitykę i reklamy.</p><p class="fix">Rozdzielić zgody na analityczne i marketingowe. Jest to czystsze prawnie, a część osób zgodzi się przynajmniej na analitykę.</p></div>
+    </div>
+    <div class="note"><strong>Koszt poprawek technicznych:</strong> około 8–14 godzin pracy programisty, czyli <span class="num">1 000–1 700 zł</span> przy stawce 120 zł/h. Większość mieści się we wdrożeniu produkcyjnym, które jest już w bieżącej wycenie projektu.</div>
+  </section>
+
+  <!-- 3 -->
+  <section id="strategia">
+    <div class="sec-head">
+      <span class="eyebrow">3 · Strategia</span>
+      <h2>Do kogo mówimy i co obiecujemy</h2>
+    </div>
+    <div class="tbl wide">
+      <table>
+        <thead><tr><th>Grupa klientów</th><th>Czego szuka</th><th>Produkt</th><th>Główne kanały</th><th>Kiedy decyduje</th></tr></thead>
+        <tbody>
+          <tr><td><b>Właściciel domu z ogrodem</b></td><td>Relaks u siebie: sauna, balia, strefa SPA</td><td>Sauny, balie, strefy SPA</td><td>Google Search, Instagram/Facebook, Grafika Google, OLX</td><td>Jesień–zima (sauny), wiosna (balie)</td></tr>
+          <tr><td><b>Właściciel działki rekreacyjnej</b></td><td>Szybki domek bez długiej budowy, całoroczny lub letni</td><td>Domki mobilne i modułowe</td><td>Google Search, YouTube (oglądanie wnętrz), Facebook</td><td>Styczeń–kwiecień (planowanie sezonu)</td></tr>
+          <tr><td><b>Inwestor, glamping, agroturystyka, hotel</b></td><td>Kilka obiektów, termin, serwis, faktura VAT</td><td>Domki, sauny, balie w seriach</td><td>Kontakt bezpośredni, LinkedIn, Meta B2B, targi, polecenia</td><td>Listopad–luty (budżety na sezon)</td></tr>
+          <tr><td><b>Firma potrzebująca pomieszczeń</b></td><td>Biuro, pawilon handlowy, zaplecze budowy</td><td>Pawilony i budynki biurowe</td><td>Google Search (frazy B2B), portale ogłoszeniowe</td><td>Cały rok</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cols">
+      <div class="box">
+        <h3>Komunikat główny</h3>
+        <p><strong>„Domki, sauny i balie prosto od producenta z Podlasia. Własna hala, własne ekipy, gotowy obiekt ustawiony u Ciebie.”</strong></p>
+        <p>Argumenty wspierające (do potwierdzenia przez firmę): wycena w 48 godzin, konfigurator z ceną online, własna stolarnia, dostawa w całej Polsce, możliwość finansowania.</p>
+      </div>
+      <div class="box">
+        <h3>Czym wygrywamy z konkurencją</h3>
+        <ul class="list">
+          <li><strong>Pokazujemy produkcję.</strong> Filmy z hali, transport HDS-em i ustawianie obiektu budują zaufanie lepiej niż wizualizacje.</li>
+          <li><strong>Pokazujemy cenę.</strong> Konfigurator z ceną to rzadkość w tej branży.</li>
+          <li><strong>Szybko odpowiadamy.</strong> Kto oddzwoni w 15 minut, często wygrywa, zanim klient zapyta drugą firmę.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section id="etapy">
+    <div class="sec-head">
+      <span class="eyebrow">4 · Etapy</span>
+      <h2>Pięć etapów, każdy z warunkiem przejścia</h2>
+      <p>Kolejny etap zaczyna się dopiero, gdy poprzedni spełni swój warunek. Dzięki temu pieniądze nie trafiają w kanał, który jeszcze nie jest gotowy.</p>
+    </div>
+    <div class="stages">
+      <div class="stage">
+        <div class="hexnum">0</div>
+        <div class="stage-body">
+          <div class="stage-top"><h3>Fundament</h3><span class="when">tydzień 1–2 · do ok. 5.10.2026</span></div>
+          <ul class="list">
+            <li>Wdrożenie aktualnej wersji strony, przekierowanie www, poprawki z audytu (P0).</li>
+            <li>Konta należące do firmy: Google Search Console, GA4, Google Ads, Profil Firmy w Google, Meta Business (Business Portfolio), weryfikacja domeny w Meta.</li>
+            <li>E-mail w domenie akhouse.pl.</li>
+            <li>„Tabela prawdy ofertowej”: ceny brutto i netto, czas realizacji, gwarancja, zakres transportu i ustawienia, warunki finansowania.</li>
+            <li>Decyzje: produkt pilotażowy (rekomendacja: sauny i balie), region dostaw, osoba odpowiedzialna za leady, budżet.</li>
+          </ul>
+          <div class="stage-grid">
+            <div class="kv"><span class="k">Kto</span><span>Programista + właściciel firmy</span></div>
+            <div class="kv"><span class="k">Koszt jednorazowy</span><span class="num">1 000–1 700 zł</span></div>
+            <div class="kv"><span class="k">Koszt miesięczny</span><span>e-mail ok. <span class="num">30–60 zł</span></span></div>
+          </div>
+          <p class="gate">testowe zapytanie z linku z UTM widać w CRM, zdarzenia w GA4 (DebugView) i w Meta (Test Events), mapa strony jest zgłoszona w GSC.</p>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="hexnum">1</div>
+        <div class="stage-body">
+          <div class="stage-top"><h3>Zaufanie i obecność</h3><span class="when">tydzień 2–5 · październik 2026</span></div>
+          <ul class="list">
+            <li>Pełny Profil Firmy w Google: kategorie, usługi, produkty, minimum 20 prawdziwych zdjęć, godziny otwarcia.</li>
+            <li>Uporządkowany Facebook i Instagram: zdjęcie w tle, opis, przycisk „Wyślij wiadomość”, link do konfiguratora, przypięte posty.</li>
+            <li>Automatyczne odpowiedzi w Messengerze, na Instagramie i w WhatsApp Business (sekcja 8).</li>
+            <li>Sesja zdjęć i filmów: hala, stolarnia, ludzie, transport, gotowe realizacje, ujęcia z drona.</li>
+            <li>3–6 opisanych realizacji: miejscowość lub region, zakres, czas, zdjęcia, cytat klienta za jego zgodą.</li>
+            <li>System zbierania opinii: karta z kodem QR przy odbiorze i SMS lub e-mail 3 dni po odbiorze.</li>
+          </ul>
+          <div class="stage-grid">
+            <div class="kv"><span class="k">Kto</span><span>Firma (materiały, zgody) + fotograf/wideo + wykonawca</span></div>
+            <div class="kv"><span class="k">Koszt jednorazowy</span><span class="num">3 500–9 000 zł</span></div>
+            <div class="kv"><span class="k">Koszt miesięczny</span><span>narzędzia ok. <span class="num">100–250 zł</span></span></div>
+          </div>
+          <p class="gate">Profil Google zweryfikowany, co najmniej 5 prawdziwych opinii, biblioteka min. 40 zdjęć i 8 pionowych filmów, automaty przetestowane na telefonie.</p>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="hexnum">2</div>
+        <div class="stage-body">
+          <div class="stage-top"><h3>Pilot płatny</h3><span class="when">koniec października – grudzień 2026</span></div>
+          <ul class="list">
+            <li>Google Search: kampania na markę oraz osobne kampanie na sauny i balie, z własnymi stronami docelowymi.</li>
+            <li>Meta: remarketing osób, które odwiedziły stronę, plus jedna kampania wideo z produkcji, żeby budować grupy odbiorców.</li>
+            <li>Stała obsługa zapytań: reakcja do 15 minut, kontakty uzupełniające po 1, 3 i 7 dniach, powód utraty w CRM.</li>
+            <li>Co tydzień: przegląd wyszukiwanych haseł i wykluczeń. Co miesiąc: raport z CRM.</li>
+          </ul>
+          <div class="stage-grid">
+            <div class="kv"><span class="k">Kto</span><span>Specjalista Ads + osoba od leadów w firmie</span></div>
+            <div class="kv"><span class="k">Koszt jednorazowy</span><span><span class="num">2 500 zł</span> konfiguracja pilota z pierwszymi 30 dniami</span></div>
+            <div class="kv"><span class="k">Koszt miesięczny</span><span>ok. <span class="num">4 500 zł</span> (media 3 200 + obsługa)</span></div>
+          </div>
+          <p class="gate">30 dni stabilnego pomiaru, każde zapytanie sklasyfikowane w CRM, znany koszt leada kwalifikowanego, wysłanych co najmniej 5 ofert.</p>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="hexnum">3</div>
+        <div class="stage-body">
+          <div class="stage-top"><h3>Rozwój i treści</h3><span class="when">styczeń – marzec 2027</span></div>
+          <ul class="list">
+            <li>Kampanie Google na domki (start sezonu) i frazy B2B: glamping, domki pod wynajem, pawilony.</li>
+            <li>Meta: formularze kontaktowe (Lead Ads) z pytaniami kwalifikującymi, osobne kreacje dla inwestorów.</li>
+            <li>Poradnik: 2 artykuły miesięcznie oraz opisane realizacje (sekcja 10).</li>
+            <li>Katalog B2B w PDF i kontakt z około 100 obiektami noclegowymi (sekcja 11).</li>
+            <li>Test ogłoszeń na OLX i Allegro dla saun i balii.</li>
+            <li>Przesyłanie leadów z Facebooka do CRM automatycznie zamiast ręcznego przepisywania.</li>
+          </ul>
+          <div class="stage-grid">
+            <div class="kv"><span class="k">Kto</span><span>Specjalista Ads + twórca treści + wykonawca IT</span></div>
+            <div class="kv"><span class="k">Koszt jednorazowy</span><span><span class="num">2 000–5 500 zł</span> (integracja Lead Ads, katalog PDF)</span></div>
+            <div class="kv"><span class="k">Koszt miesięczny</span><span>ok. <span class="num">9 000–11 000 zł</span> od lutego</span></div>
+          </div>
+          <p class="gate">koszt oferty i koszt sprzedaży znane dla co najmniej dwóch produktów, a produkcja potwierdza, że obsłuży większy popyt.</p>
+        </div>
+      </div>
+      <div class="stage dark-hex">
+        <div class="hexnum">4</div>
+        <div class="stage-body">
+          <div class="stage-top"><h3>Skalowanie</h3><span class="when">kwiecień – wrzesień 2027</span></div>
+          <ul class="list">
+            <li>Import konwersji offline do Google Ads i Meta Conversions API: platformy uczą się na ofertach i sprzedaży, a nie na formularzach.</li>
+            <li>Test Performance Max, Demand Gen i YouTube, ale dopiero z danymi o jakości leadów.</li>
+            <li>Budżet przesuwany do produktów i regionów z najlepszą marżą.</li>
+            <li>Dzień otwarty na hali, targi, program poleceń.</li>
+            <li>Decyzja o uruchomieniu sklepu z akcesoriami (osobny projekt).</li>
+          </ul>
+          <div class="stage-grid">
+            <div class="kv"><span class="k">Kto</span><span>Całość zespołu</span></div>
+            <div class="kv"><span class="k">Koszt jednorazowy</span><span><span class="num">2 500–6 000 zł</span> (konwersje offline + CAPI)</span></div>
+            <div class="kv"><span class="k">Koszt miesięczny</span><span>od <span class="num">4 500 zł</span> latem do <span class="num">20 000 zł+</span> przy skali</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section id="google-profil">
+    <div class="sec-head">
+      <span class="eyebrow">5 · Google lokalnie</span>
+      <h2>Profil Firmy w Google i opinie</h2>
+      <p>To najtańszy kanał w całym planie. Przy produkcie za kilkadziesiąt tysięcy złotych klient prawie zawsze wpisze nazwę firmy w Google, zanim zadzwoni. Profil z opiniami i prawdziwymi zdjęciami często przesądza o tym telefonie.</p>
+    </div>
+    <div class="cols">
+      <div class="box">
+        <h3>Konfiguracja</h3>
+        <ul class="list">
+          <li>Weryfikacja adresu Mątwica 79C (hala produkcyjna, klienci mogą przyjechać).</li>
+          <li>Kategoria główna najbliższa „producent / sprzedawca domów mobilnych”, dodatkowe dla saun i balii (wybór z listy Google).</li>
+          <li>Usługi i produkty z ceną „od” (brutto) i linkiem do właściwej podstrony z UTM <code>utm_source=google&amp;utm_medium=organic&amp;utm_campaign=gbp</code>.</li>
+          <li>Zdjęcia: hala, ludzie, każdy produkt, transport, logo, zdjęcie w tle. Tylko prawdziwe, bez mocnych filtrów.</li>
+          <li>Wpis co tydzień: nowa realizacja, zdjęcie z produkcji, sezonowa oferta.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>System opinii</h3>
+        <ul class="list">
+          <li>Przy odbiorze obiektu klient dostaje kartę z kodem QR prowadzącym do opinii.</li>
+          <li>Po 3 dniach wysyłamy SMS lub e-mail z linkiem (w CRM jest już szablon „podziękowanie”).</li>
+          <li>Odpowiadamy na każdą opinię, także negatywną, w ciągu 48 godzin.</li>
+          <li><strong>Nie wolno</strong> dawać rabatu ani prezentu za opinię. Rabat za polecenie klienta jest dozwolony.</li>
+          <li>Cel: 20 opinii w ciągu 6 miesięcy. Wynika to z liczby realizacji, a nie z akcji jednorazowej.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note">Przy okazji warto wpisać firmę w katalogi z tymi samymi danymi (nazwa, adres, telefon, e-mail): Panorama Firm, pkt.pl, Aleo, Bing Places, Apple Maps. Koszt: <span class="num">0 zł</span> w wersjach podstawowych.</div>
+  </section>
+
+  <!-- 6 -->
+  <section id="google-ads">
+    <div class="sec-head">
+      <span class="eyebrow">6 · Google Ads</span>
+      <h2>Kampanie w wyszukiwarce: łapiemy ludzi, którzy już szukają</h2>
+      <p>Na start wyłącznie kampanie w sieci wyszukiwania, bez Performance Max. Każda grupa reklam prowadzi na właściwą podstronę, nigdy na stronę główną.</p>
+    </div>
+    <div class="tbl wide">
+      <table>
+        <thead><tr><th>Kampania</th><th>Start</th><th>Przykładowe frazy</th><th>Strona docelowa</th><th class="r">Budżet / mies.</th></tr></thead>
+        <tbody>
+          <tr><td><b>Marka</b></td><td>paź 2026</td><td>ak house, akhouse, a.k. house domki</td><td><code>/</code></td><td class="r num">100–200 zł</td></tr>
+          <tr><td><b>Sauny ogrodowe</b></td><td>paź 2026</td><td>sauna ogrodowa producent · sauna ogrodowa cena · sauna zewnętrzna z piecem · sauna do ogrodu</td><td><code>/sauny-ogrodowe</code></td><td class="r num">1 200–2 000 zł</td></tr>
+          <tr><td><b>Balie ogrodowe</b></td><td>paź 2026</td><td>balia ogrodowa z piecem · balia z wkładem akrylowym · balia producent · balia ogrodowa cena</td><td><code>/balie-ogrodowe</code></td><td class="r num">800–1 300 zł</td></tr>
+          <tr><td><b>Domki mobilne</b></td><td>sty 2027</td><td>domek mobilny całoroczny · domek mobilny producent · domek na działkę rekreacyjną · domek modułowy cena</td><td><code>/domki-drewniane</code></td><td class="r num">1 500–3 000 zł</td></tr>
+          <tr><td><b>B2B: glamping i najem</b></td><td>sty 2027</td><td>domki dla glampingu · domki pod wynajem producent · domki letniskowe dla ośrodka</td><td><code>/dla-hoteli-i-glampingow</code></td><td class="r num">500–1 000 zł</td></tr>
+          <tr><td><b>Pawilony</b></td><td>po zdjęciach</td><td>pawilon biurowy · pawilon handlowy producent · budynek biurowy modułowy</td><td><code>/pawilony-biurowe</code></td><td class="r num">400–800 zł</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cols">
+      <div class="box">
+        <h3>Wykluczenia na start</h3>
+        <p>używana, używane, olx, allegro, jak zrobić, samodzielnie, projekt pdf, darmowy, praca, leroy, castorama, obi, dmuchana, dmuchane jacuzzi, wynajem sauny, mobilna sauna na wynajem, infrared, podczerwień, kabina, do łazienki, do mieszkania, na kółkach (dla saun, jeśli nie dotyczy), chomikuj.</p>
+        <p style="font-size:.9rem;color:var(--muted)">Lista rośnie co tydzień na podstawie raportu wyszukiwanych haseł.</p>
+      </div>
+      <div class="box">
+        <h3>Ustawienia</h3>
+        <ul class="list">
+          <li><strong>Obszar:</strong> na start region, który firma obsługuje bez straty na transporcie (np. do 300 km od Mątwicy), potem cała Polska z osobnym budżetem.</li>
+          <li><strong>Stawki:</strong> 2–3 tygodnie „maksymalizacja kliknięć” z limitem CPC, potem „maksymalizacja konwersji”, a po 30+ konwersjach docelowy CPA.</li>
+          <li><strong>Konwersje główne:</strong> wysłany formularz, konfigurator i kreator wyceny oraz połączenie z reklamy dłuższe niż 60 s. <strong>Pomocnicze:</strong> kliknięcie telefonu i WhatsApp.</li>
+          <li><strong>Harmonogram:</strong> pełne stawki w godzinach, gdy ktoś odbiera telefon.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="box">
+      <h3>Przykładowa reklama: sauny</h3>
+      <div class="tbl" style="border:0">
+        <table>
+          <tbody>
+            <tr><td style="width:150px"><b>Nagłówki</b><br><span style="font-size:.8rem;color:var(--muted)">do 30 znaków</span></td><td>Sauny ogrodowe od producenta · Wycena w 48 godzin · Skonfiguruj saunę online · Własna hala na Podlasiu · Transport i ustawienie · Sauna od 36 900 zł brutto*</td></tr>
+            <tr><td><b>Opisy</b><br><span style="font-size:.8rem;color:var(--muted)">do 90 znaków</span></td><td>Produkujemy sauny we własnej hali. Wybierz rozmiar i piec, cenę zobaczysz od razu.<br>Dostarczamy gotową saunę i ustawiamy ją w Twoim ogrodzie. Zapytaj o termin.</td></tr>
+            <tr><td><b>Rozszerzenia</b></td><td>Linki: Konfigurator · Realizacje · Transport i montaż · Dla inwestorów. Objaśnienia: Własna stolarnia · Możliwość finansowania · Cała Polska. Połączenie telefoniczne, lokalizacja z Profilu Firmy, zdjęcia.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:.86rem;color:var(--muted)">* Kwota brutto przeliczona z „od 30 000 zł netto” (VAT 23%). Przed publikacją firma musi potwierdzić cenę i właściwą stawkę VAT.</p>
+    </div>
+    <div class="note">Stawki za kliknięcie w tych kategoriach wynoszą zwykle kilka złotych, ale zależą od frazy, regionu i sezonu. Przed startem trzeba je sprawdzić w Planerze słów kluczowych na koncie firmy. <strong>Przykład rachunkowy, a nie prognoza:</strong> 2 000 zł przy średnio 3 zł za kliknięcie daje około 650 wejść. Przy 3% konwersji to około 20 zapytań, czyli 100 zł za zapytanie. Opłacalność zależy od tego, ile z nich zamieni się w oferty i sprzedaż.</div>
+  </section>
+
+  <!-- 7 -->
+  <section id="meta-ads">
+    <div class="sec-head">
+      <span class="eyebrow">7 · Meta Ads</span>
+      <h2>Facebook i Instagram: pokazujemy produkt ludziom, którzy jeszcze nie szukają</h2>
+      <p>Google zbiera istniejący popyt, a Meta go tworzy. Tutaj decydują materiały. Bez prawdziwych filmów z produkcji i realizacji budżet w Meta szybko się wypala, dlatego Meta rośnie dopiero po sesji z etapu 1.</p>
+    </div>
+    <div class="tbl wide">
+      <table>
+        <thead><tr><th>Kampania</th><th>Cel</th><th>Odbiorcy</th><th>Kreacje</th><th class="r">Budżet / mies.</th></tr></thead>
+        <tbody>
+          <tr><td><b>Remarketing</b></td><td>Powrót na stronę i zapytanie</td><td>Odwiedzający stronę z 30–90 dni, osoby oglądające filmy, osoby, które weszły w interakcję z profilem</td><td>Realizacja podobna do oglądanego produktu, odpowiedź na obiekcję (cena, transport, gwarancja)</td><td class="r num">300–800 zł</td></tr>
+          <tr><td><b>Wideo z produkcji</b></td><td>Zasięg i budowa grup odbiorców</td><td>Region dostaw, szeroko, 30–65 lat</td><td>Rolki 15–30 s: transport HDS-em, ustawianie, sauna nocą, balia zimą, spacer po domku</td><td class="r num">300–700 zł</td></tr>
+          <tr><td><b>Leady B2C</b> (od etapu 3)</td><td>Formularz w Facebooku lub przejście do konfiguratora</td><td>Szeroko + zainteresowania: ogród, sauna, domki letniskowe, działka</td><td>Karuzela realizacji, film z ceną „od” (brutto), porównanie wariantów</td><td class="r num">800–2 000 zł</td></tr>
+          <tr><td><b>Leady B2B</b> (od etapu 3)</td><td>Konsultacja inwestycji</td><td>Właściciele obiektów noclegowych, agroturystyka, glamping, turystyka</td><td>Kompleks domków, sauna dla gości, „co składa się na koszt inwestycji”, bez obietnic zwrotu</td><td class="r num">500–1 000 zł</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cols">
+      <div class="box">
+        <h3>Formularz Lead Ads: pytania kwalifikujące</h3>
+        <ul class="list">
+          <li>Który produkt Cię interesuje? (domek / sauna / balia / pawilon / kilka obiektów)</li>
+          <li>Gdzie ma stanąć obiekt? (miejscowość lub kod pocztowy)</li>
+          <li>Kiedy planujesz realizację? (do 3 mies. / 3–6 mies. / później)</li>
+          <li>Czy masz już przygotowane miejsce? (tak / w trakcie / nie)</li>
+          <li>Telefon i imię + link do polityki prywatności akhouse.pl.</li>
+        </ul>
+        <p style="font-size:.9rem;color:var(--muted)">Formularz „z większą intencją” (z ekranem podsumowania) daje mniej leadów, ale lepszych. Przy tej cenie produktu to właściwy wybór.</p>
+      </div>
+      <div class="box">
+        <h3>Zasady kreacji</h3>
+        <ul class="list">
+          <li>Format pionowy 9:16, napisy na ekranie (większość ogląda bez dźwięku).</li>
+          <li>Pierwsze 2 sekundy: ruch albo efekt, np. dźwig podnosi saunę.</li>
+          <li>Prawdziwi ludzie z firmy przed kamerą. Twarz właściciela zwykle działa lepiej niż grafika.</li>
+          <li>3–5 kreacji na produkt i wymiana co 3–4 tygodnie.</li>
+          <li>Wizualizacje oznaczamy jako wizualizacje i nigdy nie udajemy nimi realizacji.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note">Przed startem sprawdzić, czy Meta nie zakwalifikuje reklam domków jako <strong>kategorii specjalnej</strong> (nieruchomości i mieszkalnictwo), co ogranicza targetowanie. Jeśli tak, reklamy domków opieramy na szerokich odbiorcach i remarketingu, a sauny i balie prowadzimy normalnie.</div>
+  </section>
+
+  <!-- 8 -->
+  <section id="automaty">
+    <div class="sec-head">
+      <span class="eyebrow">8 · Automatyzacja</span>
+      <h2>Automatyczne odpowiedzi: Messenger, Instagram, WhatsApp</h2>
+      <p>Cel automatów nie polega na sprzedawaniu za człowieka. Mają natychmiast odpowiedzieć, zebrać trzy informacje potrzebne handlowcowi i przekazać rozmowę osobie. Wszystko poniżej da się ustawić bezpłatnie w Meta Business Suite i aplikacji WhatsApp Business.</p>
+    </div>
+    <div class="tbl wide">
+      <table>
+        <thead><tr><th>Narzędzie</th><th>Do czego</th><th class="r">Koszt</th><th>Kiedy</th></tr></thead>
+        <tbody>
+          <tr><td><b>Meta Business Suite → Automatyzacje</b></td><td>Natychmiastowa odpowiedź, wiadomość poza godzinami pracy, najczęstsze pytania (FAQ), odpowiedzi na słowa kluczowe, prywatna odpowiedź na komentarz. Działa w Messengerze i na Instagramie.</td><td class="r num">0 zł</td><td>Etap 1</td></tr>
+          <tr><td><b>WhatsApp Business (aplikacja)</b></td><td>Powitanie, nieobecność, szybkie odpowiedzi (np. <code>/cena</code>, <code>/transport</code>), katalog produktów, etykiety klientów.</td><td class="r num">0 zł</td><td>Etap 1</td></tr>
+          <tr><td><b>ManyChat</b> (opcjonalnie)</td><td>Rozbudowane ścieżki z przyciskami, komentarz „CENA” → wiadomość prywatna, zapis kontaktu i wysyłka do CRM przez webhook.</td><td class="r num">ok. 60–150 zł/mies.</td><td>Etap 3, jeśli wiadomości będzie dużo</td></tr>
+          <tr><td><b>Integracja Lead Ads → CRM</b></td><td>Leady z formularzy Facebooka trafiają same do <code>/crm</code> ze źródłem kampanii.</td><td class="r num">1 000–2 500 zł jednorazowo</td><td>Etap 3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Gotowe scenariusze do wklejenia</h3>
+    <div class="cols">
+      <div class="bubble">
+        <span class="who">Natychmiastowa odpowiedź (pierwsza wiadomość)</span>
+        <p>Dzień dobry! Tu A.K. HOUSE, producent domków mobilnych, saun i balii z Mątwicy na Podlasiu. Dziękujemy za wiadomość. W czym możemy pomóc?</p>
+        <div class="btns"><span>Domki mobilne</span><span>Sauny</span><span>Balie</span><span>Pawilony</span><span>Rozmowa z doradcą</span></div>
+      </div>
+      <div class="bubble">
+        <span class="who">Po wyborze „Sauny”</span>
+        <p>Sauny produkujemy we własnej hali, ceny zaczynają się od [__ zł brutto]. W konfiguratorze wybierzesz rozmiar i piec, a cenę zobaczysz od razu: akhouse.pl/sauny-ogrodowe</p>
+        <p>Żeby przygotować wycenę z transportem, napisz proszę: 1) miejscowość, 2) planowany termin, 3) numer telefonu. Doradca oddzwoni w godzinach pracy.</p>
+      </div>
+      <div class="bubble">
+        <span class="who">Poza godzinami pracy</span>
+        <p>Dziękujemy za wiadomość! Biuro pracuje od poniedziałku do piątku w godz. [8–16]. Odpiszemy na początku następnego dnia roboczego. Jeśli chcesz, zostaw miejscowość i telefon, a oddzwonimy. Wstępną cenę sprawdzisz od razu w konfiguratorze: akhouse.pl/produkty</p>
+      </div>
+      <div class="bubble">
+        <span class="who">Komentarz pod postem „cena” → wiadomość prywatna</span>
+        <p>Cześć! Dziękujemy za pytanie pod postem. Ceny [produktu] zaczynają się od [__ zł brutto], a dokładną kwotę zależną od rozmiaru i wyposażenia pokaże konfigurator: [link]. Napisz, gdzie ma stanąć obiekt, to policzymy transport.</p>
+      </div>
+    </div>
+    <div class="box">
+      <h3>FAQ w Messengerze (propozycja 4 pytań)</h3>
+      <div class="tbl" style="border:0">
+        <table>
+          <thead><tr><th>Pytanie</th><th>Odpowiedź (firma uzupełnia pola w nawiasach)</th></tr></thead>
+          <tbody>
+            <tr><td><b>Ile to kosztuje?</b></td><td>Domek 35 m² od [__] zł brutto, sauna od [__], balia z piecem od [__]. Dokładna cena zależy od wyposażenia. Konfigurator: akhouse.pl/produkty</td></tr>
+            <tr><td><b>Jak długo trwa realizacja?</b></td><td>Obecnie [__] tygodni od podpisania umowy dla saun i balii oraz [__] dla domków. Termin potwierdzamy w ofercie.</td></tr>
+            <tr><td><b>Czy dowozicie do mnie?</b></td><td>Dostarczamy w całej Polsce i ustawiamy obiekt na miejscu. Koszt transportu zależy od odległości i dojazdu, więc podaj miejscowość.</td></tr>
+            <tr><td><b>Czy mogę zobaczyć produkt?</b></td><td>Zapraszamy do hali w Mątwicy 79C po wcześniejszym umówieniu: [telefon].</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="note"><strong>Zasady:</strong> automat nie podaje wiążących cen ani terminów, tylko „od” i link. Każda rozmowa z numerem telefonu trafia do CRM przyciskiem „+ Nowe zlecenie” ze źródłem „Messenger” lub „WhatsApp”. Na odpowiedź człowieka mamy 15 minut w godzinach pracy. Po 24 godzinach od ostatniej wiadomości klienta Meta ogranicza możliwość pisania, więc nie zostawiamy rozmów na następny tydzień.</div>
+  </section>
+
+  <!-- 9 -->
+  <section id="social">
+    <div class="sec-head">
+      <span class="eyebrow">9 · Treści</span>
+      <h2>Social media: pokazujemy halę, ludzi i dostawy</h2>
+      <p>Producent ma to, czego nie ma pośrednik: proces. Film, w którym dźwig stawia saunę w ogrodzie, jest dla tej branży lepszą reklamą niż grafika z hasłem. Proponowany rytm to 3 publikacje tygodniowo i relacje przy każdej dostawie.</p>
+    </div>
+    <div class="tbl wide">
+      <table>
+        <thead><tr><th>Filar treści</th><th>Udział</th><th>Przykłady</th><th>Format</th></tr></thead>
+        <tbody>
+          <tr><td><b>Produkcja</b></td><td class="num">30%</td><td>Szkielet domku w 60 sekund, stolarnia robi kuchnię do domku, kontrola jakości, montaż pieca</td><td>Rolki, time-lapse</td></tr>
+          <tr><td><b>Dostawy i realizacje</b></td><td class="num">30%</td><td>Transport HDS-em, ustawianie na działce, „przed i po”, pierwsze palenie w saunie u klienta</td><td>Rolki, karuzele, relacje</td></tr>
+          <tr><td><b>Porady</b></td><td class="num">20%</td><td>Jak przygotować podłoże pod saunę, piec elektryczny czy na drewno, ile kosztuje utrzymanie balii</td><td>Karuzele, krótkie filmy</td></tr>
+          <tr><td><b>Ludzie</b></td><td class="num">10%</td><td>Kim są właściciele, ekipa, „dzień z życia montażysty”</td><td>Rolki, zdjęcia</td></tr>
+          <tr><td><b>Oferta</b></td><td class="num">10%</td><td>Model miesiąca, termin dostawy przed sezonem, dzień otwarty</td><td>Post, reklama</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cols">
+      <div class="box">
+        <h3>Wariant własny (tańszy)</h3>
+        <p>Jedna osoba w firmie nagrywa telefonem przy każdej dostawie i w hali (15 minut dziennie). Montaż w CapCut lub Canva według szablonów. Koszt: <span class="num">0–100 zł/mies.</span> + szkolenie 2–3 h (<span class="num">300–600 zł</span>).</p>
+      </div>
+      <div class="box">
+        <h3>Wariant zlecony</h3>
+        <p>Freelancer lub agencja: 8–12 publikacji i 4 rolki miesięcznie, odpowiedzi na komentarze. Rynek: <span class="num">1 500–4 500 zł/mies.</span> Pakiet samych 4 rolek z nagraniem: <span class="num">2 000–5 000 zł</span>. W zakresie umowy trzeba zapisać liczbę rolek, postów i dni nagrań.</p>
+      </div>
+      <div class="box">
+        <h3>YouTube: długie filmy</h3>
+        <p>Przy domkach klienci oglądają całe prezentacje wnętrz. 10-minutowy spacer po domku 35 m² z omówieniem wyposażenia pracuje latami i nadaje się też do remarketingu. 1–2 filmy na kwartał.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section id="seo">
+    <div class="sec-head">
+      <span class="eyebrow">10 · SEO</span>
+      <h2>SEO: realizacje i odpowiedzi na prawdziwe pytania</h2>
+      <p>SEO nie ma gwarantowanego terminu, więc jest to inwestycja na 6–12 miesięcy. Najpierw musi działać aktualna wersja strony (P0), potem budujemy treść.</p>
+    </div>
+    <div class="cols">
+      <div class="box">
+        <h3>Poradnik: 10 pierwszych tematów</h3>
+        <ul class="list">
+          <li>Domek do 35 m² na zgłoszenie: co trzeba wiedzieć (po weryfikacji prawnej)</li>
+          <li>Domek mobilny całoroczny: izolacja, ogrzewanie, koszty</li>
+          <li>Jak przygotować działkę pod domek lub saunę: podłoże, dojazd dla HDS</li>
+          <li>Sauna ogrodowa: piec elektryczny czy opalany drewnem?</li>
+          <li>Ile kosztuje utrzymanie balii ogrodowej?</li>
+          <li>Balia z wkładem akrylowym czy drewniana: różnice</li>
+          <li>Jak wygląda transport i ustawienie domku mobilnego</li>
+          <li>Domki pod wynajem: z czego składa się koszt inwestycji</li>
+          <li>Pawilon biurowy czy kontener: co wybrać</li>
+          <li>Sauna zimą: użytkowanie i pielęgnacja</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Co jeszcze</h3>
+        <ul class="list">
+          <li><strong>Realizacje jako osobne strony:</strong> „Sauna Panorama w [miejscowość]”. Zawierają frazy lokalne i są najlepszym dowodem.</li>
+          <li><strong>FAQ na stronach produktów</strong> z pytań, które naprawdę padają przez telefon i w Messengerze.</li>
+          <li><strong>Linki:</strong> katalogi firm, partnerzy (architekci krajobrazu, ośrodki, które kupiły domki), artykuły w lokalnych mediach, portale ogrodnicze.</li>
+          <li><strong>Grafika Google:</strong> dobre opisy zdjęć (alt) i odblokowanie <code>/uploads/</code>.</li>
+        </ul>
+        <p style="font-size:.92rem">Strona nie ma dziś modułu bloga. Artykuły można dodawać jako statyczne strony w kodzie albo zbudować moduł poradnika w panelu (do osobnej wyceny, orientacyjnie <span class="num">3 000–6 000 zł</span>). Artykuł z redakcją i zdjęciami to na rynku <span class="num">250–600 zł</span>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section id="kanaly">
+    <div class="sec-head">
+      <span class="eyebrow">11 · Pozostałe kanały</span>
+      <h2>Portale, partnerzy i sprzedaż B2B</h2>
+    </div>
+    <div class="tbl wide">
+      <table>
+        <thead><tr><th>Kanał</th><th>Co robimy</th><th class="r">Koszt</th><th>Priorytet</th></tr></thead>
+        <tbody>
+          <tr><td><b>OLX, Allegro, Marketplace na Facebooku</b></td><td>Ogłoszenia saun i balii z ceną i linkiem do konfiguratora. Na OLX i Allegro wiele osób szuka tych produktów.</td><td class="r num">0–400 zł/mies.</td><td><span class="chip warn">etap 3</span></td></tr>
+          <tr><td><b>Katalog B2B + kontakt bezpośredni</b></td><td>PDF z ofertą dla obiektów noclegowych, lista ok. 100 obiektów (Google Maps, Booking), e-mail + telefon, spotkania.</td><td class="r num">800–2 000 zł jednorazowo</td><td><span class="chip ok">etap 3</span></td></tr>
+          <tr><td><b>Program poleceń</b></td><td>Rabat lub premia dla klienta, który poleci kupującego (np. 1 000 zł po podpisaniu umowy).</td><td class="r">tylko od sprzedaży</td><td><span class="chip ok">etap 2</span></td></tr>
+          <tr><td><b>Partnerzy</b></td><td>Architekci krajobrazu, firmy ogrodnicze, sprzedawcy działek rekreacyjnych, firmy leasingowe (finansowanie).</td><td class="r">prowizja</td><td><span class="chip neutral">etap 3–4</span></td></tr>
+          <tr><td><b>Dzień otwarty na hali</b></td><td>Wiosną: pokaz gotowych obiektów, sauna do przetestowania, zaproszenie przez Facebooka i do osób z CRM.</td><td class="r num">1 000–3 000 zł</td><td><span class="chip neutral">etap 4</span></td></tr>
+          <tr><td><b>Targi</b></td><td>Targi budowlane, ogrodowe lub branży noclegowej. Najpierw jako zwiedzający, stoisko dopiero przy potwierdzonej sprzedaży B2B.</td><td class="r num">3 000–15 000 zł</td><td><span class="chip neutral">etap 4</span></td></tr>
+          <tr><td><b>E-mail do bazy</b></td><td>2–4 wiadomości rocznie do osób z CRM, które wyraziły zgodę: nowy model, terminy przed sezonem, dzień otwarty.</td><td class="r num">0–100 zł/mies.</td><td><span class="chip neutral">etap 3</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section id="sprzedaz">
+    <div class="sec-head">
+      <span class="eyebrow">12 · Sprzedaż</span>
+      <h2>Obsługa zapytań: tu reklama zarabia albo przepala pieniądze</h2>
+      <p>Najlepsza kampania nie pomoże, jeśli lead czeka dwa dni na telefon. CRM już ma wszystko, czego trzeba. Brakuje tylko ustalonego sposobu pracy.</p>
+    </div>
+    <div class="cols">
+      <div class="box">
+        <h3>Standard obsługi</h3>
+        <ul class="list">
+          <li><strong>Do 15 minut</strong> od zapytania w godzinach pracy: telefon (widok „Na dziś” w CRM).</li>
+          <li>Nie odbiera? SMS: „Dzień dobry, tu [imię] z A.K. HOUSE w sprawie Pana/Pani zapytania o saunę. Kiedy możemy porozmawiać?”</li>
+          <li>Kontakty uzupełniające: dzień 1, 3 i 7, potem co miesiąc do decyzji.</li>
+          <li>Każdy lead ma etap, wartość i <strong>powód utraty</strong> (cena, termin, transport, brak odpowiedzi, kupił gdzie indziej).</li>
+          <li>Przy telefonach spoza strony zawsze pytamy: „Skąd Pan/Pani o nas wie?” i wpisujemy źródło.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Rozmowa kwalifikująca (5 pytań)</h3>
+        <ul class="list">
+          <li>Jaki obiekt i do czego? (rekreacja, całoroczny, pod wynajem)</li>
+          <li>Gdzie ma stanąć? Jaki jest dojazd?</li>
+          <li>Na kiedy?</li>
+          <li>Jaki budżet jest planowany?</li>
+          <li>Kto jeszcze podejmuje decyzję?</li>
+        </ul>
+        <p style="font-size:.92rem">W CRM warto dodać osobny etap „Kwalifikowany” między „Kontakt” a „Wycena”. To drobna zmiana w kodzie (<span class="num">ok. 2–4 h</span>).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 -->
+  <section id="budzet">
+    <div class="sec-head">
+      <span class="eyebrow">13 · Budżet</span>
+      <h2>Ile to kosztuje</h2>
+      <p>Wszystkie kwoty są netto i orientacyjne (wrzesień 2026). Budżet reklamowy firma płaci bezpośrednio Google i Meta, więc nie jest wynagrodzeniem wykonawcy. Żadna kampania nie gwarantuje liczby zapytań ani sprzedaży.</p>
+    </div>
+    <h3>Koszty miesięczne: trzy poziomy</h3>
+    <div class="tiers">
+      <div class="tier">
+        <span class="eyebrow">Start · pilot</span>
+        <div class="price">≈ 4 500 zł <small>/ mies.</small></div>
+        <ul>
+          <li><span>Google Ads, media</span><span>2 500 zł</span></li>
+          <li><span>Meta Ads, media</span><span>700 zł</span></li>
+          <li><span>Obsługa kampanii</span><span>1 200 zł</span></li>
+          <li><span>Treści</span><span>własne</span></li>
+          <li><span>Narzędzia</span><span>150 zł</span></li>
+        </ul>
+        <p style="font-size:.9rem">Paź–sty oraz lato. Wystarcza, żeby sprawdzić komunikaty i jakość leadów na 1–2 produktach.</p>
+      </div>
+      <div class="tier rec">
+        <span class="eyebrow">Rozwój · rekomendowany w sezonie</span>
+        <div class="price">≈ 9–11 tys. zł <small>/ mies.</small></div>
+        <ul>
+          <li><span>Google Ads, media</span><span>4 000 zł</span></li>
+          <li><span>Meta Ads, media</span><span>1 500 zł</span></li>
+          <li><span>Obsługa 2 kanałów</span><span>2 000–2 400 zł</span></li>
+          <li><span>Treści (rolki, zdjęcia)</span><span>1 000–1 500 zł</span></li>
+          <li><span>Poradnik SEO</span><span>0–1 000 zł</span></li>
+          <li><span>Narzędzia, portale</span><span>400–550 zł</span></li>
+        </ul>
+        <p style="font-size:.9rem">Luty–czerwiec, kiedy równolegle idą domki, sauny, balie i B2B.</p>
+      </div>
+      <div class="tier">
+        <span class="eyebrow">Skala · po potwierdzeniu</span>
+        <div class="price">≈ 20–24 tys. zł <small>/ mies.</small></div>
+        <ul>
+          <li><span>Google Ads, media</span><span>8 000 zł</span></li>
+          <li><span>Meta Ads, media</span><span>4 000 zł</span></li>
+          <li><span>Obsługa</span><span>3 000–3 500 zł</span></li>
+          <li><span>Treści</span><span>2 500–4 000 zł</span></li>
+          <li><span>SEO</span><span>1 500–3 000 zł</span></li>
+          <li><span>Narzędzia, portale</span><span>700–1 000 zł</span></li>
+        </ul>
+        <p style="font-size:.9rem">Tylko wtedy, gdy CRM pokazuje opłacalny koszt sprzedaży, a hala ma wolne moce.</p>
+      </div>
+    </div>
+
+    <h3>Koszty jednorazowe</h3>
+    <div class="tbl wide">
+      <table>
+        <thead><tr><th>Pozycja</th><th>Etap</th><th class="r">Koszt</th><th>Uwagi</th></tr></thead>
+        <tbody>
+          <tr><td><b>Poprawki techniczne z audytu</b> + wdrożenie aktualnej wersji</td><td>0</td><td class="r num">1 000–1 700 zł</td><td>Częściowo w bieżącej umowie wdrożeniowej</td></tr>
+          <tr><td><b>Konfiguracja pilota Google Ads</b> z obsługą pierwszych 30 dni</td><td>2</td><td class="r num">2 500 zł</td><td>Zgodnie z propozycją z 17.09.2026</td></tr>
+          <tr><td><b>Konfiguracja Meta:</b> Business Portfolio, piksel, domena, automaty</td><td>1</td><td class="r num">0–1 500 zł</td><td>0 zł, jeśli firma zrobi to sama według sekcji 8</td></tr>
+          <tr><td><b>Profil Firmy w Google + katalogi firm</b></td><td>1</td><td class="r num">0–800 zł</td><td>Zwykle wystarczy samodzielnie</td></tr>
+          <tr><td><b>Sesja zdjęć i wideo</b> (1–2 dni: hala, ludzie, 2–3 realizacje, dron)</td><td>1</td><td class="r num">2 500–6 000 zł</td><td>Najważniejsza inwestycja w całym planie</td></tr>
+          <tr><td><b>Obraz OG, szablony social, karty QR do opinii</b></td><td>1</td><td class="r num">600–1 500 zł</td><td>Canva Pro wystarczy do szablonów</td></tr>
+          <tr><td><b>Integracja Lead Ads → CRM</b></td><td>3</td><td class="r num">1 000–2 500 zł</td><td>Webhook do istniejącego API leadów</td></tr>
+          <tr><td><b>Katalog B2B (PDF)</b></td><td>3</td><td class="r num">800–2 000 zł</td><td>Na bazie materiałów z sesji</td></tr>
+          <tr><td><b>Etap „Kwalifikowany” i powód utraty w CRM</b></td><td>2</td><td class="r num">250–500 zł</td><td>2–4 h pracy</td></tr>
+          <tr><td><b>Konwersje offline + Meta CAPI</b></td><td>4</td><td class="r num">2 500–6 000 zł</td><td>Dopiero przy poprawnym CRM i zgodach</td></tr>
+        </tbody>
+        <tfoot><tr><td>Razem jednorazowo przez 12 mies.</td><td></td><td class="r num">11 150–25 000 zł</td><td>Na start (etapy 0–2) ok. 7 000–14 500 zł</td></tr></tfoot>
+      </table>
+    </div>
+
+    <h3>Trzy ścieżki na 12 miesięcy</h3>
+    <div class="tbl wide">
+      <table>
+        <thead><tr><th>Ścieżka</th><th>Założenie</th><th class="r">Razem 12 mies.</th><th>Dla kogo</th></tr></thead>
+        <tbody>
+          <tr><td><b>Oszczędna</b></td><td>Tylko Google Search zlecony (2 000 zł media + 1 200 obsługa), Meta 500 zł i social robione przez firmę samodzielnie, minimalne koszty jednorazowe</td><td class="r num">≈ 48–52 tys. zł</td><td>Gdy budżet jest bardzo ograniczony. Wolniej zbiera dane.</td></tr>
+          <tr style="background:var(--bronze-wash)"><td><b>Rekomendowana</b></td><td>Start (paź–sty, lip–wrz) + Rozwój (lut–cze) + jednorazowe etapów 0–2</td><td class="r num">≈ 90–105 tys. zł</td><td>Mała firma w fazie wzrostu, która chce sprawdzić 3–4 produkty w sezonie</td></tr>
+          <tr><td><b>Ambitna</b></td><td>Rozwój od stycznia, Skala od kwietnia</td><td class="r num">≈ 185–200 tys. zł</td><td>Dopiero przy potwierdzonej opłacalności i mocach produkcyjnych</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note"><strong>Ile można zapłacić za lead?</strong> Maksymalny koszt zapytania kwalifikowanego ≈ marża na sprzedaży × odsetek zapytań kończących się sprzedażą. Przykład matematyczny: 8 000 zł marży na saunie × 10% = do 800 zł za kwalifikowane zapytanie, przed kosztami stałymi. Prawdziwe liczby firma podaje z własnej marży i historii w CRM.</div>
+  </section>
+
+  <!-- 14 -->
+  <section id="kalendarz">
+    <div class="sec-head">
+      <span class="eyebrow">14 · Kalendarz</span>
+      <h2>Miesiąc po miesiącu: październik 2026 – wrzesień 2027</h2>
+      <p>Sezony produktów są założeniem do sprawdzenia w Planerze słów kluczowych i Google Trends po pierwszych tygodniach. Budżety to ścieżka rekomendowana.</p>
+    </div>
+    <div class="tbl wide">
+      <table>
+        <thead><tr><th>Miesiąc</th><th>Priorytet</th><th>Najważniejsze działania</th><th class="r">Budżet</th></tr></thead>
+        <tbody>
+          <tr><td><b>Paź 2026</b></td><td>Fundament, sauny, balie</td><td>Etapy 0–1: wdrożenie, konta, sesja zdjęć, Profil Google, automaty. Pod koniec miesiąca start pilota Google.</td><td class="r num">6,5–14 tys.<br><span style="font-weight:400;color:var(--muted)">jednorazowo + media ~1,5 tys.</span></td></tr>
+          <tr><td><b>Lis 2026</b></td><td>Sauny, balie</td><td>Pilot Google + remarketing Meta, pierwsze rolki z dostaw, kontakt z obiektami B2B planującymi budżet na 2027.</td><td class="r num">≈ 4,5 tys.</td></tr>
+          <tr><td><b>Gru 2026</b></td><td>Sauny, balie</td><td>Sauna lub balia jako prezent, pierwszy raport kwartalny, decyzje na styczeń.</td><td class="r num">≈ 4,5 tys.</td></tr>
+          <tr><td><b>Sty 2027</b></td><td>+ Domki, B2B</td><td>Start kampanii na domki i frazy B2B, katalog PDF, pierwsze artykuły poradnika, film YouTube z domku.</td><td class="r num">≈ 4,5 tys. + jednorazowe</td></tr>
+          <tr><td><b>Lut 2027</b></td><td>Domki, balie</td><td>Poziom Rozwój, Meta Lead Ads, integracja z CRM, ogłoszenia na OLX i Allegro.</td><td class="r num">≈ 10 tys.</td></tr>
+          <tr><td><b>Mar 2027</b></td><td>Domki, balie</td><td>Szczyt zapytań o domki, komunikat „zamów teraz, dostawa przed sezonem” (jeśli moce na to pozwolą).</td><td class="r num">≈ 10 tys.</td></tr>
+          <tr><td><b>Kwi 2027</b></td><td>Domki, balie, SPA</td><td>Dzień otwarty na hali, konwersje offline, test Performance Max na podstawie danych.</td><td class="r num">≈ 10 tys.</td></tr>
+          <tr><td><b>Maj 2027</b></td><td>Balie, strefy SPA</td><td>Szczyt balii, realizacje jako case studies, program poleceń.</td><td class="r num">≈ 10 tys.</td></tr>
+          <tr><td><b>Cze 2027</b></td><td>Balie, B2B</td><td>Ocena mocy produkcyjnych. Jeśli terminy się wydłużają, obniżamy budżet.</td><td class="r num">≈ 10 tys.</td></tr>
+          <tr><td><b>Lip 2027</b></td><td>Utrzymanie</td><td>Kampania na markę i najlepsze grupy reklam, dużo treści z dostaw na przyszły sezon.</td><td class="r num">≈ 4,5 tys.</td></tr>
+          <tr><td><b>Sie 2027</b></td><td>Utrzymanie, sauny</td><td>Przygotowanie kreacji saun na jesień, aktualizacja cennika i terminów.</td><td class="r num">≈ 4,5 tys.</td></tr>
+          <tr><td><b>Wrz 2027</b></td><td>Sauny, podsumowanie</td><td>Powrót saun, roczny raport z CRM, plan na rok 2.</td><td class="r num">≈ 4,5 tys.</td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="3">Razem, ścieżka rekomendowana</td><td class="r num">≈ 90–105 tys. zł</td></tr></tfoot>
+      </table>
+    </div>
+  </section>
+
+  <!-- 15 -->
+  <section id="kpi">
+    <div class="sec-head">
+      <span class="eyebrow">15 · Pomiar</span>
+      <h2>Wskaźniki, na podstawie których podejmujemy decyzje</h2>
+      <p>Liczba kliknięć i polubień nie jest celem. Liczymy drogę od zapytania do podpisanej umowy, bo CRM to umożliwia.</p>
+    </div>
+    <div class="tbl wide">
+      <table>
+        <thead><tr><th>Wskaźnik</th><th>Jak liczyć</th><th>Punkt kontrolny</th><th>Decyzja, gdy odstaje</th></tr></thead>
+        <tbody>
+          <tr><td><b>Czas pierwszej reakcji</b></td><td>pierwszy kontakt − data zapytania</td><td class="num">≤ 15 min w godzinach pracy</td><td>Dyżur, powiadomienia na telefon</td></tr>
+          <tr><td><b>Koszt zapytania (CPL)</b></td><td>wydatki ÷ zapytania</td><td>ustalić po 30 dniach</td><td>Wykluczenia, teksty, strona docelowa</td></tr>
+          <tr><td><b>Koszt zapytania kwalifikowanego</b></td><td>wydatki ÷ kwalifikowane</td><td>poniżej progu z marży</td><td>Skalować albo wyłączyć kampanię</td></tr>
+          <tr><td><b>Zapytanie → oferta</b></td><td>wysłane oferty ÷ kwalifikowane</td><td>ustalić z handlowcem</td><td>Proces sprzedaży, dostępność produktu</td></tr>
+          <tr><td><b>Oferta → sprzedaż</b></td><td>umowy ÷ oferty</td><td>ustalić z historią CRM</td><td>Cena, termin, kontakty uzupełniające</td></tr>
+          <tr><td><b>Współczynnik konwersji strony</b></td><td>zapytania ÷ wejścia z reklam</td><td>kontrola co tydzień</td><td>UX formularza, treść, zdjęcia</td></tr>
+          <tr><td><b>Opinie w Google</b></td><td>liczba i średnia</td><td>+3 miesięcznie, średnia ≥ 4,7</td><td>Proces po odbiorze obiektu</td></tr>
+          <tr><td><b>Ruch organiczny</b></td><td>GSC: kliknięcia i wyświetlenia</td><td>wzrost kwartał do kwartału</td><td>Plan treści, indeksowanie</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="box">
+      <h3>Raport miesięczny (jedna strona)</h3>
+      <p>1) Wydatki według kanału i produktu. 2) Zapytania, kwalifikowane, oferty i sprzedaż, każdy według źródła z CRM. 3) Koszt zapytania kwalifikowanego i koszt sprzedaży. 4) Trzy rzeczy, które działają, i trzy, które wyłączamy. 5) Plan na kolejny miesiąc i zmiana budżetu. Przy tej skali nie trzeba płatnego dashboardu, bo wystarczy CRM, GA4 i arkusz.</p>
+    </div>
+  </section>
+
+  <!-- 16 -->
+  <section id="role">
+    <div class="sec-head">
+      <span class="eyebrow">16 · Odpowiedzialność</span>
+      <h2>Kto co robi</h2>
+    </div>
+    <div class="tbl wide">
+      <table>
+        <thead><tr><th>Obszar</th><th>Firma A.K. HOUSE</th><th>Wykonawca IT</th><th>Specjalista reklam</th><th>Treści (osoba w firmie lub freelancer)</th></tr></thead>
+        <tbody>
+          <tr><td><b>Konta i płatności</b></td><td>Właściciel wszystkich kont i kart</td><td>Podpięcie do strony</td><td>Dostęp jako administrator</td><td>Dostęp do stron FB/IG</td></tr>
+          <tr><td><b>Oferta</b></td><td>Ceny, terminy, gwarancja, transport</td><td>Publikacja na stronie</td><td>Teksty reklam na podstawie faktów</td><td>Posty z ofertą</td></tr>
+          <tr><td><b>Materiały</b></td><td>Dostęp do hali, zgody klientów</td><td>Wgranie do panelu</td><td>Wybór kreacji</td><td>Nagrania, montaż</td></tr>
+          <tr><td><b>Leady</b></td><td>Telefon do 15 min, oferta, status w CRM</td><td>Utrzymanie CRM</td><td>Raport według źródeł</td><td>Odpowiedzi na komentarze</td></tr>
+          <tr><td><b>Decyzje</b></td><td>Budżet, regiony, skalowanie (odpowiedź do 2 dni)</td><td>Rekomendacje techniczne</td><td>Rekomendacje budżetowe</td><td>Plan publikacji</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 17 -->
+  <section id="ryzyka">
+    <div class="sec-head">
+      <span class="eyebrow">17 · Ryzyka</span>
+      <h2>Ryzyka i zasady prawne</h2>
+    </div>
+    <div class="cols">
+      <div class="box">
+        <h3>Prawo i platformy</h3>
+        <ul class="list">
+          <li><strong>Opinie:</strong> publikować tylko prawdziwe, od prawdziwych klientów, i informować, jak są weryfikowane. Fałszywe opinie to zakazana praktyka rynkowa.</li>
+          <li><strong>Ceny:</strong> konsumentowi pokazujemy cenę brutto. Przy promocjach (popup „-10%”) podajemy najniższą cenę z 30 dni przed obniżką, jeśli obniżka dotyczy konkretnej ceny.</li>
+          <li><strong>RODO:</strong> polityka prywatności musi być uzupełniona i zatwierdzona (dziś jest szablonem), bo formularze Meta i piksel jej wymagają.</li>
+          <li><strong>Zgody cookies:</strong> bez zgody nie ma remarketingu. Rozdzielenie zgód jest bezpieczniejsze.</li>
+          <li><strong>„Możliwość finansowania”:</strong> reklamować tylko, jeśli jest konkretny partner i warunki.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Biznes</h3>
+        <ul class="list">
+          <li><strong>Moce produkcyjne:</strong> reklama, która generuje zapytania na terminy, których hala nie obsłuży, psuje opinie. Budżet idzie w parze z grafikiem produkcji.</li>
+          <li><strong>Własność kont:</strong> konta reklamowe, Profil Google i strony w social mediach należą do firmy, a nie do agencji.</li>
+          <li><strong>Za mały budżet na zbyt wiele frontów:</strong> 3 000 zł rozłożone na 4 produkty i całą Polskę nie da danych. Lepiej zacząć od 1–2 produktów.</li>
+          <li><strong>Wizualizacje zamiast zdjęć:</strong> obniżają zaufanie. Priorytetem są prawdziwe materiały.</li>
+          <li><strong>Brak osoby od leadów:</strong> największe ryzyko całego planu.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 -->
+  <section id="checklista">
+    <div class="sec-head">
+      <span class="eyebrow">18 · Start</span>
+      <h2>Lista startowa</h2>
+      <p>Zaznaczenia zapisują się w tej przeglądarce, więc można wrócić do listy na kolejnym spotkaniu.</p>
+    </div>
+    <div class="progress"><span id="prog-label">0 z 0</span><div class="bar"><i id="prog-bar" style="width:0%"></i></div><button type="button" id="reset" style="font:600 .82rem/1 var(--f-body);background:none;border:1px solid var(--line);color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer">Wyczyść</button></div>
+    <div class="cols" id="checklist">
+      <div class="check-group">
+        <h4>Etap 0 · Fundament</h4>
+        <label class="check"><input type="checkbox" id="c01"><span>Aktualna wersja strony wdrożona na akhouse.pl</span></label>
+        <label class="check"><input type="checkbox" id="c02"><span>Przekierowanie www → akhouse.pl (301)</span></label>
+        <label class="check"><input type="checkbox" id="c03"><span>Sekcja opinii usunięta lub zastąpiona prawdziwymi</span></label>
+        <label class="check"><input type="checkbox" id="c04"><span>Konfiguratory wysyłają konwersję generate_lead</span></label>
+        <label class="check"><input type="checkbox" id="c05"><span>Piksel Meta: PageView przy zmianie strony + ViewContent</span></label>
+        <label class="check"><input type="checkbox" id="c06"><span>E-mail w domenie akhouse.pl, spójny wszędzie</span></label>
+        <label class="check"><input type="checkbox" id="c07"><span>Search Console + mapa strony zgłoszona</span></label>
+        <label class="check"><input type="checkbox" id="c08"><span>GA4, Google Ads i Meta Business założone na firmę</span></label>
+        <label class="check"><input type="checkbox" id="c09"><span>Tabela prawdy ofertowej: ceny brutto, terminy, gwarancja, transport</span></label>
+        <label class="check"><input type="checkbox" id="c10"><span>Polityka prywatności uzupełniona i zatwierdzona</span></label>
+      </div>
+      <div class="check-group">
+        <h4>Etap 1 · Zaufanie</h4>
+        <label class="check"><input type="checkbox" id="c11"><span>Profil Firmy w Google zweryfikowany, 20+ zdjęć</span></label>
+        <label class="check"><input type="checkbox" id="c12"><span>Facebook i Instagram uporządkowane, linki na stronie</span></label>
+        <label class="check"><input type="checkbox" id="c13"><span>Automaty Messenger/Instagram ustawione i przetestowane</span></label>
+        <label class="check"><input type="checkbox" id="c14"><span>WhatsApp Business: powitanie, nieobecność, szybkie odpowiedzi</span></label>
+        <label class="check"><input type="checkbox" id="c15"><span>Sesja zdjęć i filmów zrobiona</span></label>
+        <label class="check"><input type="checkbox" id="c16"><span>3–6 realizacji opisanych na stronie</span></label>
+        <label class="check"><input type="checkbox" id="c17"><span>Karty QR do opinii wydrukowane</span></label>
+        <label class="check"><input type="checkbox" id="c18"><span>Obraz OG 1200×630 i zdjęcie pawilonu w panelu</span></label>
+      </div>
+      <div class="check-group">
+        <h4>Etap 2 · Pilot</h4>
+        <label class="check"><input type="checkbox" id="c19"><span>Osoba od leadów i dyżur ustalone (15 min)</span></label>
+        <label class="check"><input type="checkbox" id="c20"><span>Kampania na markę uruchomiona</span></label>
+        <label class="check"><input type="checkbox" id="c21"><span>Kampanie na sauny i balie z wykluczeniami</span></label>
+        <label class="check"><input type="checkbox" id="c22"><span>Remarketing Meta + wideo z produkcji</span></label>
+        <label class="check"><input type="checkbox" id="c23"><span>Etap „Kwalifikowany” i powód utraty w CRM</span></label>
+        <label class="check"><input type="checkbox" id="c24"><span>Pierwszy raport miesięczny omówiony</span></label>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p><strong>Źródła danych:</strong> kod repozytorium A.K. HOUSE (gałąź 1.0, 21.09.2026), strona akhouse.pl sprawdzona 21.09.2026, wcześniejsze dokumenty projektu: plan konwersji (19.09.2026) i propozycja startu marketingu (17.09.2026). Obsługa kampanii za 1 200 zł/mies. i konfiguracja pilota za 2 500 zł pochodzą z tej propozycji.</p>
+    <p>Ceny rynkowe to orientacyjne widełki z publicznych ofert w Polsce (wrzesień 2026). Nie są cennikiem ani gwarancją wyniku. Kwestie prawne (budowa na zgłoszenie, opinie, ceny) należy potwierdzić z prawnikiem przed publikacją treści.</p>
+  </footer>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  var KEY='akhouse-plan-checklist-v1';
+  var boxes=[].slice.call(document.querySelectorAll('#checklist input[type=checkbox]'));
+  var state={};
+  try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+  function render(){
+    var done=boxes.filter(function(b){return b.checked;}).length;
+    document.getElementById('prog-label').textContent=done+' z '+boxes.length+' gotowe';
+    document.getElementById('prog-bar').style.width=(boxes.length?Math.round(done/boxes.length*100):0)+'%';
+  }
+  boxes.forEach(function(b){
+    b.checked=!!state[b.id];
+    b.addEventListener('change',function(){
+      state[b.id]=b.checked;
+      try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){}
+      render();
+    });
+  });
+  document.getElementById('reset').addEventListener('click',function(){
+    boxes.forEach(function(b){b.checked=false;});
+    state={};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+  });
+  render();
+  // Collapse the table of contents on narrow screens so the plan starts right away.
+  if(window.matchMedia && window.matchMedia('(max-width:1039px)').matches){
+    var d=document.getElementById('toc-details'); if(d) d.open=false;
+  }
+})();
+</script>
+
+</body>
+</html>
