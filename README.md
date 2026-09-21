@@ -372,6 +372,9 @@ Globalny `IExceptionHandler` mapuje błędy domenowe na `400`, pozostałe na `50
 - `Shop:SiteBaseUrl` — publiczny adres używany do budowania linku resetu hasła w mailu. Brany
   z konfiguracji, a nie z nagłówka `Host`, żeby podrobiony nagłówek nie przekierował linku.
   W `appsettings.Development.json` wskazuje na `http://localhost:5173`.
+  To także **adres kanoniczny strony**: żądanie na jego wariant `www.` (np. `www.akhouse.pl`)
+  dostaje `301` na ten adres z zachowaniem ścieżki i parametrów (`CanonicalHostRedirect`).
+  Inne nazwy hosta, np. adres usługi hostingowej i sondy zdrowia, działają bez zmian.
 - `Media:UploadRoot` — katalog na wgrane zdjęcia. Pusty = `uploads/` obok binariów, co na Azure
   **znika przy każdej publikacji** — na produkcji ustaw ścieżkę pod `/home`, np. `/home/data/uploads`.
 - `Email:SmtpHost` + `SmtpPort/SmtpUser/SmtpPassword/SmtpUseSsl`, `Email:FromAddress/FromName`, `Email:StudioInbox` — gdy `SmtpHost` puste, używany jest deweloperski `LoggingEmailSender` (loguje maile zamiast wysyłać).
@@ -400,8 +403,16 @@ Migracja `LeadMarketingAttribution` dodaje kolumnę snapshotu do leadów. Baner 
 domyślne `denied` dla czterech sygnałów Consent Mode v2 i pozwala zmienić zgodę w stopce.
 Na produkcji ustaw `VITE_GA_MEASUREMENT_ID`, opcjonalnie `VITE_PLAUSIBLE_DOMAIN` i
 `VITE_PLAUSIBLE_SRC`, oraz `VITE_META_PIXEL_ID` jako zmienne **builda** frontendu.
-Nie wpisuj sekretów serwerowych do `VITE_*`. Po zmianie identyfikatorów zbuduj frontend
-ponownie; testuj zdarzenia, zgodę i zgłoszenie z UTM na produkcji. Serwerowe Meta CAPI
+Nie wpisuj sekretów serwerowych do `VITE_*`.
+
+Zdarzenia (`features/consent/analytics.ts`): `generate_lead` wysyłają formularz kontaktowy,
+kreator `/zamowienie` i konfiguratory na stronach produktów (z wartością wyceny).
+Meta Pixel dostaje `PageView` przy każdej zmianie trasy oraz `ViewContent`, `Contact`
+i `Lead` zmapowane z tych zdarzeń. GA4 **nie** dostaje ręcznego `page_view`, bo
+przejścia w SPA liczy sam. W ustawieniach strumienia GA4 musi więc zostać włączona opcja
+„Zmiany strony na podstawie zdarzeń historii przeglądania” (domyślnie jest włączona).
+
+Po zmianie identyfikatorów zbuduj frontend ponownie; testuj zdarzenia, zgodę i zgłoszenie z UTM na produkcji. Serwerowe Meta CAPI
 i import konwersji offline do Google Ads nie są wdrożone: wymagają kont, decyzji o
 kwalifikacji i zatwierdzenia polityki prywatności. Szczegóły: `PLAN-KONWERSJI-AK-HOUSE.html`.
 
