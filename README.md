@@ -77,11 +77,11 @@ CPQ i panel CMS bez przepisywania rdzenia.
 - `GET  /api/content` — komplet treści strony (oferta, atuty, realizacje, galeria, kontakt).
 - `POST /api/leads` — zapis zapytania z formularza. Wymaga zgody RODO; honeypot odsiewa boty; limit **5 zgłoszeń/min/IP** (`429` po przekroczeniu). Walidacja domenowa → `400` z `ProblemDetails`.
 - `POST /api/leads/quote` — zapis pełnego briefu z kreatora wyceny w tym samym lejku; zwraca numer `ZAM-…` i zachowuje produkt, budżet, termin, lokalizację oraz preferowany kontakt.
-- `POST /api/leads/manual` — **chronione** — ręczne dodanie zlecenia (np. z telefonu); bez rate-limitu i bez maila do klienta. E-mail opcjonalny, ale wymagany e-mail **lub** telefon. Zwraca utworzone zlecenie.
+- `POST /api/leads/manual` — **chronione** — ręczne dodanie zlecenia (np. z telefonu); bez rate-limitu i bez maila do klienta. E-mail opcjonalny, ale wymagany e-mail **lub** telefon. Opcjonalne `source` zapisuje kanał (`Phone`/`Email`/`Messenger`/`Instagram`/`WhatsApp`/`Referral`/`Marketplace`/`TradeFair`/`Visit`/`Other`); puste = `Manual`. Źródeł strony (`ContactForm`, `QuoteWizard`) nie da się wybrać ręcznie (`400`). Zwraca utworzone zlecenie.
 - `GET  /api/leads` — **chronione** (nagłówek `X-Api-Key`) — lista ostatnich leadów dla studia.
-- `GET  /api/leads/stats` — **chronione** — agregaty do pulpitu (liczby per etap, nowe w tygodniu, zaległe terminy, wartość lejka).
+- `GET  /api/leads/stats` — **chronione** — agregaty do pulpitu (liczby per etap, nowe w tygodniu, zaległe terminy, wartość lejka, utracone według powodu w `lostByReason`).
 - `GET  /api/leads/{id}` — **chronione** — pojedyncze zlecenie z osią czasu działań (`404` gdy brak).
-- `PATCH /api/leads/{id}/stage` — **chronione** — zmiana etapu w lejku (`New`/`Contacted`/`Quote`/`Negotiation`/`Ordered`/`Production`/`Delivery`/`Completed`/`Lost`); `204`, `404` gdy brak, `400` dla nieznanego etapu. Zmiana etapu jest automatycznie zapisywana w historii.
+- `PATCH /api/leads/{id}/stage` — **chronione** — zmiana etapu w lejku (`New`/`Contacted`/`Qualified`/`Quote`/`Negotiation`/`Ordered`/`Production`/`Delivery`/`Completed`/`Lost`); `204`, `404` gdy brak, `400` dla nieznanego etapu. Przy `Lost` opcjonalne `lossReason` (`Price`/`Timing`/`Transport`/`NoResponse`/`BoughtElsewhere`/`NotOurOffer`/`Other`), które można też dopisać później; wyjście z `Lost` czyści powód, a powód przy innym etapie daje `400`. Zmiana etapu jest automatycznie zapisywana w historii.
 - `PATCH /api/leads/{id}/fields` — **chronione** — priorytet / szacowana kwota / termin kontaktu (każda zmiana trafia do historii).
 - `POST /api/leads/{id}/contacts` — **chronione** — rejestracja wykonanego kontaktu; rozlicza stary termin i opcjonalnie ustawia następne działanie.
 - `PATCH /api/leads/{id}/contact` — **chronione** — korekta danych kontaktowych (imię, e-mail, telefon, typ, treść); e-mail opcjonalny, wymagany e-mail lub telefon.
@@ -388,7 +388,11 @@ Uruchom: `dotnet test backend/AkHouse.slnx`.
 
 ### Zgodność / RODO i SEO
 Formularz ma checkbox zgody i link do **`/polityka-prywatnosci.html`** (wzorzec do uzupełnienia danymi firmy).
-SEO: `robots.txt`, `sitemap.xml`, Open Graph/Twitter meta, favicon marki. Dostępność: powiązane `label`/`input`,
+SEO: `robots.txt` (`/uploads/` celowo otwarte dla Grafiki Google), `sitemap.xml`, Open Graph/Twitter
+meta z obrazami 1200×630 (`public/og/` generuje `scripts/generate-share-images.ps1`, a przypisuje je
+`src/app/shareImages.ts`: karta działu dla kategorii i jej produktów, karta firmy dla reszty),
+schema.org firmy budowane z `contact.ts` i `producerCopy.ts` (`src/app/businessSchema.ts`; `sameAs`
+pojawia się po uzupełnieniu `SOCIALS`), favicon marki. Dostępność: powiązane `label`/`input`,
 `aria-invalid`, modale z obsługą `Esc`, focus-trap i `role="dialog"`.
 
 ### Przygotowanie techniczne do kampanii (wrzesień 2026)
@@ -398,9 +402,15 @@ Build publikuje statyczną treść strony głównej, katalogu, produktów i nowy
 (również wersje `/en/`). `vite.config.ts` generuje sitemap z tych samych tras.
 Treści z API nadal wymagają JavaScript; indeksację wdrożonej strony należy sprawdzić w GSC.
 
-Formularze zapisują UTM i identyfikatory kliknięć w CRM po zgodzie analitycznej.
-Migracja `LeadMarketingAttribution` dodaje kolumnę snapshotu do leadów. Baner ustawia
-domyślne `denied` dla czterech sygnałów Consent Mode v2 i pozwala zmienić zgodę w stopce.
+Baner zgód pyta osobno o dwa cele (`features/consent/consentState.ts`):
+**analityczne** (GA4/Plausible, `analytics_storage`, źródło UTM zapisane w CRM) i
+**marketingowe** (Meta Pixel, `ad_storage`/`ad_user_data`/`ad_personalization`,
+identyfikatory kliknięć `gclid`/`gbraid`/`wbraid`/`fbclid`/`_fbp`/`_fbc`). Bez zgody
+marketingowej zgłoszenie trafia do CRM ze źródłem kampanii, ale bez identyfikatorów reklam.
+Stare wartości `accepted`/`rejected` są czytane jako „oba cele” / „żaden”, więc powracający
+odwiedzający nie są pytani ponownie. Migracja `LeadMarketingAttribution` dodaje kolumnę
+snapshotu do leadów. Baner ustawia domyślne `denied` dla czterech sygnałów Consent Mode v2
+i pozwala zmienić zgodę w stopce.
 Na produkcji ustaw `VITE_GA_MEASUREMENT_ID`, opcjonalnie `VITE_PLAUSIBLE_DOMAIN` i
 `VITE_PLAUSIBLE_SRC`, oraz `VITE_META_PIXEL_ID` jako zmienne **builda** frontendu.
 Nie wpisuj sekretów serwerowych do `VITE_*`.
@@ -494,7 +504,8 @@ lejka; migracja kopiuje do niego również historyczne rekordy z tabel zamówie�
 - **Na dziś** (domyślny) — lista robocza operatora: działania po terminie, zaplanowane na dziś oraz
   nowe/nieprzeczytane zgłoszenia. Licznik na zakładce pokazuje, ile pozycji wymaga uwagi.
 - **Pulpit** — kafelki KPI (nowe w tygodniu, zlecenia w toku, działania po terminie, wartość
-  lejka) oraz rozkład zleceń per etap (klik w etap przenosi do przefiltrowanej listy).
+  lejka), rozkład zleceń per etap (klik w etap przenosi do przefiltrowanej listy), źródła zgłoszeń
+  oraz powody utraty, najczęstsze na górze.
 - **Tablica** (kanban) — kolumna na każdy etap lejka; karty przeciąga się między etapami
   (natywny HTML5 drag-and-drop), co optymistycznie zmienia etap (z wycofaniem przy błędzie).
 - **Sklep** — asortyment (dodawanie, edycja, zdjęcia, publikacja), zamówienia sklepowe
@@ -505,7 +516,9 @@ lejka; migracja kopiuje do niego również historyczne rekordy z tabel zamówie�
 
 Przycisk **„+ Nowe zlecenie"** w nagłówku otwiera formularz ręcznego dodania zgłoszenia spoza
 strony (np. telefon) — wymaga nazwy oraz e-maila lub telefonu; pozwala od razu ustawić etap,
-priorytet, kwotę i termin. Nowe zlecenie pojawia się natychmiast na liście/tablicy.
+priorytet, kwotę, termin i kanał („Skąd klient o nas wie?”). Nowe zlecenie pojawia się natychmiast
+na liście/tablicy. Etap **Kwalifikowany** (między kontaktem a wyceną) oznacza potwierdzoną potrzebę,
+miejsce, termin i budżet. Wybór **Utracone** w szczegółach zlecenia pyta o powód utraty.
 
 Klik w kartę/wiersz otwiera **panel szczegółów** (drawer): edytowalne dane kontaktowe (imię,
 telefon, e-mail, typ, treść), edycja etapu, priorytetu, kwoty wyceny i opcjonalnego następnego działania,
@@ -546,4 +559,6 @@ npm --prefix frontend test            # testy jednostkowe (Vitest + Testing Libr
 node scripts/generate-honeycomb.mjs   # regeneruje public/honeycomb.svg (tło 3D)
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/optimize-images.ps1
                                       # tworzy webowe .jpg z oryginałów .png w public/images
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generate-share-images.ps1
+                                      # obrazy podglądu linku 1200×630 w public/og
 ```
