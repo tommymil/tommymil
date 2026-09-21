@@ -202,13 +202,13 @@ li.done::marker{content:"✓  ";color:var(--ok)}
       <span>Stan na: <b>21.09.2026</b></span>
       <span>Okres planu: <b>październik 2026 – wrzesień 2027</b></span>
       <span>Kwoty: <b>PLN netto, orientacyjne</b></span>
-      <span>Aktualizacja: <b>5 poprawek z audytu zrobionych w kodzie, czekają na wdrożenie</b></span>
+      <span>Aktualizacja: <b>11 poprawek z audytu zrobionych w kodzie, czekają na wdrożenie</b></span>
     </div>
     <div class="keyfigs">
       <div class="keyfig"><span class="v">5 / 10</span><span class="l">ocena gotowości marketingowej dzisiaj: technologia bardzo dobra, na produkcji brakuje treści, dowodów i pomiaru</span></div>
       <div class="keyfig"><span class="v">≈ 4 500 zł</span><span class="l">miesięcznie na start (pilot: media Google + Meta i obsługa)</span></div>
       <div class="keyfig"><span class="v">≈ 10 000 zł</span><span class="l">miesięcznie w sezonie, gdy CRM potwierdzi jakość leadów</span></div>
-      <div class="keyfig"><span class="v">90–105 tys. zł</span><span class="l">rekomendowana ścieżka na 12 miesięcy, z czego około połowa to budżet reklamowy</span></div>
+      <div class="keyfig"><span class="v">89–104 tys. zł</span><span class="l">rekomendowana ścieżka na 12 miesięcy, z czego około połowa to budżet reklamowy</span></div>
     </div>
   </div>
 </header>
@@ -289,7 +289,13 @@ li.done::marker{content:"✓  ";color:var(--ok)}
         <li>ukrycie przykładowych opinii,</li>
         <li>konwersja <code>generate_lead</code> z konfiguratorów,</li>
         <li>piksel Meta: PageView przy każdej zmianie strony oraz ViewContent i Contact,</li>
-        <li>prawdziwe zdjęcia pawilonów.</li>
+        <li>prawdziwe zdjęcia pawilonów,</li>
+        <li>dane strukturalne firmy budowane z danych kontaktowych (cztery działy, miejsce na linki do profili),</li>
+        <li>zdjęcia z panelu dostępne dla Grafiki Google,</li>
+        <li>obrazy podglądu linku 1200×630 dla firmy i każdego działu,</li>
+        <li>osobne zgody na cookies analityczne i marketingowe,</li>
+        <li>CRM: etap „Kwalifikowany” i powód utraty,</li>
+        <li>CRM: źródło zgłoszenia przy ręcznym dodaniu (telefon, Messenger, polecenie…) i zestawienie źródeł.</li>
       </ul>
       <p>Przy okazji poprawiony jest podwójny licznik odsłon w GA4. <strong>Zmiany zadziałają na akhouse.pl dopiero po wdrożeniu aktualnej wersji</strong>, co jest pierwszym otwartym punktem poniżej.</p>
     </div>
@@ -300,14 +306,14 @@ li.done::marker{content:"✓  ";color:var(--ok)}
           <tr><td><b>Oferta i komunikat</b></td><td><div class="score s-ok"><b>7/10</b><div class="bar"><i style="width:70%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Jasny nagłówek, cztery działy, ceny „od”, sześć etapów zamówienia. Brakuje potwierdzonych terminów, gwarancji i zakresu transportu.</td></tr>
           <tr><td><b>Konwersja: formularze, konfiguratory, CTA</b></td><td><div class="score s-ok"><b>8/10</b><div class="bar"><i style="width:80%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Konfiguratory z ceną, kreator wyceny, WhatsApp i telefon są pod ręką. Po zmianach warto dopracować wersję mobilną formularza.</td></tr>
           <tr><td><b>Dowody zaufania: zdjęcia, realizacje, opinie</b></td><td><div class="score s-bad"><b>3/10</b><div class="bar"><i style="width:30%"></i></div></div></td><td><span class="chip bad">krytyczne</span></td><td>Realizacje nie mają opisów (miejsce, zakres, czas), brakuje prawdziwych opinii oraz zdjęć ludzi i hali. <span class="chip ok">zrobione</span> przykładowe opinie ukryte, pawilony mają zdjęcia.</td></tr>
-          <tr><td><b>SEO techniczne w kodzie</b></td><td><div class="score s-ok"><b>8/10</b><div class="bar"><i style="width:80%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Statyczny HTML podstron, sitemap, canonical, hreflang i schema.org są gotowe w repozytorium.</td></tr>
+          <tr><td><b>SEO techniczne w kodzie</b></td><td><div class="score s-ok"><b>9/10</b><div class="bar"><i style="width:90%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Statyczny HTML podstron, sitemap, canonical, hreflang, aktualne schema.org firmy, obrazy podglądu linku i zdjęcia otwarte dla Grafiki Google.</td></tr>
           <tr><td><b>SEO na produkcji (akhouse.pl)</b></td><td><div class="score s-bad"><b>2/10</b><div class="bar"><i style="width:20%"></i></div></div></td><td><span class="chip bad">krytyczne</span></td><td>Działa stara wersja: pusty <code>&lt;div id="root"&gt;</code>, w mapie strony są ukryty sklep i usunięte meble. Przekierowanie www jest już w kodzie, ale zadziała dopiero po wdrożeniu.</td></tr>
-          <tr><td><b>Pomiar i analityka</b></td><td><div class="score s-warn"><b>6/10</b><div class="bar"><i style="width:60%"></i></div></div></td><td><span class="chip warn">konta do podpięcia</span></td><td>Kod jest gotowy: konfiguratory wysyłają konwersje, piksel Meta liczy każdą stronę, GA4 nie dubluje odsłon. Brakuje kont GA4, Ads i Meta oraz testu na produkcji.</td></tr>
-          <tr><td><b>Obsługa zapytań (CRM)</b></td><td><div class="score s-ok"><b>8/10</b><div class="bar"><i style="width:80%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Narzędzie jest bardzo dobre. Brakuje jeszcze procesu: czasu reakcji, etapu kwalifikacji i powodu utraty klienta.</td></tr>
+          <tr><td><b>Pomiar i analityka</b></td><td><div class="score s-warn"><b>7/10</b><div class="bar"><i style="width:70%"></i></div></div></td><td><span class="chip warn">konta do podpięcia</span></td><td>Kod jest gotowy: konfiguratory wysyłają konwersje, piksel Meta liczy każdą stronę, GA4 nie dubluje odsłon, CRM zapisuje źródło także zgłoszeń telefonicznych i z Messengera. Brakuje kont GA4, Ads i Meta oraz testu na produkcji.</td></tr>
+          <tr><td><b>Obsługa zapytań (CRM)</b></td><td><div class="score s-ok"><b>9/10</b><div class="bar"><i style="width:90%"></i></div></div></td><td><span class="chip ok">dobrze</span></td><td>Narzędzie ma już etap kwalifikacji, powód utraty i źródło zgłoszenia. Brakuje ustalonego procesu po stronie firmy: czasu reakcji i dyżuru.</td></tr>
           <tr><td><b>Widoczność lokalna (Google, mapa, NAP)</b></td><td><div class="score s-bad"><b>2/10</b><div class="bar"><i style="width:20%"></i></div></div></td><td><span class="chip bad">krytyczne</span></td><td>Na stronie nie ma śladu Profilu Firmy w Google (do potwierdzenia). E-mail jest w domenie akhousebiuro.com, która pokazuje „Coming Soon”.</td></tr>
           <tr><td><b>Social media</b></td><td><div class="score s-bad"><b>1/10</b><div class="bar"><i style="width:10%"></i></div></div></td><td><span class="chip bad">brak</span></td><td>Lista profili w kodzie jest pusta (<code>SOCIALS = []</code>). Firma produkcyjna ma ogromny potencjał treści wideo, który dziś nie jest wykorzystany.</td></tr>
           <tr><td><b>Gotowość do reklam płatnych</b></td><td><div class="score s-warn"><b>5/10</b><div class="bar"><i style="width:50%"></i></div></div></td><td><span class="chip warn">po poprawkach</span></td><td>Strony docelowe są. Przed startem potrzebne są: pomiar, cena brutto w reklamach do konsumentów i materiały do kreacji.</td></tr>
-          <tr><td><b>Zgodność prawna marketingu</b></td><td><div class="score s-warn"><b>6/10</b><div class="bar"><i style="width:60%"></i></div></div></td><td><span class="chip warn">do poprawy</span></td><td>Zgody RODO i Consent Mode działają, a przykładowe opinie są ukryte. Do poprawy: ceny netto pokazywane konsumentom, polityka prywatności jako szablon, jedna zgoda na wszystkie cookies.</td></tr>
+          <tr><td><b>Zgodność prawna marketingu</b></td><td><div class="score s-warn"><b>7/10</b><div class="bar"><i style="width:70%"></i></div></div></td><td><span class="chip warn">do poprawy</span></td><td>Zgody RODO i Consent Mode działają, zgody na cookies są rozdzielone, a przykładowe opinie ukryte. Do poprawy: ceny netto pokazywane konsumentom i polityka prywatności jako szablon.</td></tr>
         </tbody>
       </table>
     </div>
@@ -320,12 +326,12 @@ li.done::marker{content:"✓  ";color:var(--ok)}
       <div class="finding done"><span class="chip ok tag">zrobione</span><h4>Piksel Meta widzi tylko pierwszą stronę</h4><p>Przejście na kolejną podstronę nie wysyłało <code>PageView</code> i nie było <code>ViewContent</code>.</p><p class="done-note"><code>PageView</code> przy każdej zmianie strony, <code>ViewContent</code> na kategoriach i produktach, <code>Contact</code> przy telefonie i WhatsApp. Przy okazji GA4 przestało liczyć odsłony podwójnie.</p></div>
       <div class="finding"><span class="chip warn tag">P0</span><h4>Dwie wersje adresu i niespójne dane firmy</h4><p><code>www.akhouse.pl</code> działa obok <code>akhouse.pl</code> bez przekierowania. Kontaktowy e-mail <code>kontakt@akhousebiuro.com</code> jest w domenie, która pokazuje „Coming Soon”.</p><p class="done-note">przekierowanie 301 z www na akhouse.pl jest w kodzie i zadziała po wdrożeniu.</p><p class="fix">Przejść na e-mail w domenie akhouse.pl, identyczny na stronie, w Google, na Facebooku i w stopkach. Wymaga decyzji firmy i założenia skrzynki.</p></div>
       <div class="finding"><span class="chip warn tag">P1</span><h4>Ceny netto w komunikacji do konsumentów</h4><p>Ceny „od … netto” są w porządku dla firm i inwestorów. Konsumentowi trzeba jednak podać cenę z VAT.</p><p class="fix">W reklamach i na stronach B2C pokazywać cenę brutto, np. „od 36 900 zł brutto”. Netto zostawić na stronach dla firm.</p></div>
-      <div class="finding"><span class="chip warn tag">P1</span><h4>Dane strukturalne i podgląd linku</h4><p>Schema firmy wymienia „Meble do zabudowy”, a pomija balie i pawilony. Nie ma linków do profili społecznościowych (<code>sameAs</code>). Obraz podglądu linku (OG) jest oznaczony jako TODO.</p><p class="fix">Zaktualizować ofertę w schema, dodać <code>sameAs</code> i przygotować obraz OG 1200×630 z logo i produktem.</p></div>
+      <div class="finding done"><span class="chip ok tag">zrobione</span><h4>Dane strukturalne i podgląd linku</h4><p>Schema firmy wymieniała „Meble do zabudowy” i pomijała balie oraz pawilony. Obraz podglądu linku był oznaczony jako TODO.</p><p class="done-note">schema powstaje z danych kontaktowych i czterech działów, a <code>sameAs</code> pojawi się po dopisaniu profili do <code>SOCIALS</code>. Jest 5 obrazów podglądu 1200×630: karta firmy oraz karta każdego działu dla jego kategorii i produktów.</p></div>
       <div class="finding done"><span class="chip ok tag">zrobione</span><h4>Pawilony bez zdjęcia</h4><p>Kafelek oferty i strona kategorii pawilonów pokazywały puste miejsce na zdjęcie.</p><p class="done-note">5 prawdziwych zdjęć na kafelku, w nagłówku kategorii i w galerii produktu.</p></div>
-      <div class="finding"><span class="chip info tag">P2</span><h4>Zdjęcia z panelu są niewidoczne dla Grafiki Google</h4><p><code>robots.txt</code> blokuje <code>/uploads/</code>, a tam trafiają zdjęcia dodawane w panelu. Grafika Google to realne źródło ruchu dla saun i balii.</p><p class="fix">Odblokować <code>/uploads/</code> dla obrazów i dbać o opisy zdjęć (alt) w panelu.</p></div>
-      <div class="finding"><span class="chip info tag">P2</span><h4>Baner cookies: jedna zgoda na wszystko</h4><p>Przycisk „akceptuję” włącza jednocześnie analitykę i reklamy.</p><p class="fix">Rozdzielić zgody na analityczne i marketingowe. Jest to czystsze prawnie, a część osób zgodzi się przynajmniej na analitykę.</p></div>
+      <div class="finding done"><span class="chip ok tag">zrobione</span><h4>Zdjęcia z panelu są niewidoczne dla Grafiki Google</h4><p><code>robots.txt</code> blokował <code>/uploads/</code>, gdzie trafiają zdjęcia dodawane w panelu.</p><p class="done-note"><code>/uploads/</code> jest otwarte. Po stronie firmy zostaje dbanie o opisy zdjęć (alt) w panelu.</p></div>
+      <div class="finding done"><span class="chip ok tag">zrobione</span><h4>Baner cookies: jedna zgoda na wszystko</h4><p>Przycisk „akceptuję” włączał jednocześnie analitykę i reklamy.</p><p class="done-note">baner ma „Akceptuję wszystkie”, „Tylko niezbędne” i „Ustawienia” z dwoma przełącznikami. Bez zgody marketingowej zgłoszenie trafia do CRM ze źródłem kampanii, ale bez identyfikatorów reklam.</p></div>
     </div>
-    <div class="note"><strong>Koszt poprawek technicznych:</strong> całość szacowałem na 8–14 godzin pracy programisty. Poprawki P0 i zdjęcia pawilonów są już zrobione. Zostały schema i <code>sameAs</code>, obraz OG, odblokowanie <code>/uploads/</code>, rozdzielenie zgód cookies i ceny brutto: około 4–7 godzin, czyli <span class="num">500–850 zł</span> przy stawce 120 zł/h, plus samo wdrożenie z bieżącej wyceny projektu.</div>
+    <div class="note"><strong>Koszt poprawek technicznych:</strong> całość szacowałem na 8–14 godzin pracy programisty. Poprawki P0, zdjęcia pawilonów oraz punkty A1–A6 (schema, Grafika Google, obrazy OG, zgody cookies, kwalifikacja, powód utraty i źródło w CRM) są już zrobione. Zostały ceny brutto po decyzji firmy o stawkach VAT: około 1–2 godzin, czyli <span class="num">120–250 zł</span>, plus samo wdrożenie z bieżącej wyceny projektu.</div>
   </section>
 
   <!-- 3 -->
@@ -384,7 +390,7 @@ li.done::marker{content:"✓  ";color:var(--ok)}
           </ul>
           <div class="stage-grid">
             <div class="kv"><span class="k">Kto</span><span>Programista + właściciel firmy</span></div>
-            <div class="kv"><span class="k">Koszt jednorazowy</span><span><span class="num">500–850 zł</span> (pozostałe poprawki; P0 już zrobione)</span></div>
+            <div class="kv"><span class="k">Koszt jednorazowy</span><span><span class="num">120–250 zł</span> (zostały ceny brutto; reszta zrobiona)</span></div>
             <div class="kv"><span class="k">Koszt miesięczny</span><span>e-mail ok. <span class="num">30–60 zł</span></span></div>
           </div>
           <p class="gate">testowe zapytanie z linku z UTM widać w CRM, zdarzenia w GA4 (DebugView) i w Meta (Test Events), mapa strony jest zgłoszona w GSC.</p>
@@ -718,7 +724,7 @@ li.done::marker{content:"✓  ";color:var(--ok)}
           <li><strong>Realizacje jako osobne strony:</strong> „Sauna Panorama w [miejscowość]”. Zawierają frazy lokalne i są najlepszym dowodem.</li>
           <li><strong>FAQ na stronach produktów</strong> z pytań, które naprawdę padają przez telefon i w Messengerze.</li>
           <li><strong>Linki:</strong> katalogi firm, partnerzy (architekci krajobrazu, ośrodki, które kupiły domki), artykuły w lokalnych mediach, portale ogrodnicze.</li>
-          <li><strong>Grafika Google:</strong> dobre opisy zdjęć (alt) i odblokowanie <code>/uploads/</code>.</li>
+          <li><strong>Grafika Google:</strong> dobre opisy zdjęć (alt) w panelu. <code>/uploads/</code> jest już otwarte.</li>
         </ul>
         <p style="font-size:.92rem">Strona nie ma dziś modułu bloga. Artykuły można dodawać jako statyczne strony w kodzie albo zbudować moduł poradnika w panelu (do osobnej wyceny, orientacyjnie <span class="num">3 000–6 000 zł</span>). Artykuł z redakcją i zdjęciami to na rynku <span class="num">250–600 zł</span>.</p>
       </div>
@@ -774,7 +780,7 @@ li.done::marker{content:"✓  ";color:var(--ok)}
           <li>Jaki budżet jest planowany?</li>
           <li>Kto jeszcze podejmuje decyzję?</li>
         </ul>
-        <p style="font-size:.92rem">W CRM warto dodać osobny etap „Kwalifikowany” między „Kontakt” a „Wycena”. To drobna zmiana w kodzie (<span class="num">ok. 2–4 h</span>).</p>
+        <p style="font-size:.92rem"><span class="chip ok">zrobione</span> CRM ma etap „Kwalifikowany” między kontaktem a wyceną, powód utraty i pole „Skąd klient o nas wie?”. Pulpit pokazuje źródła zgłoszeń i powody utraty.</p>
       </div>
     </div>
   </section>
@@ -833,7 +839,7 @@ li.done::marker{content:"✓  ";color:var(--ok)}
       <table>
         <thead><tr><th>Pozycja</th><th>Etap</th><th class="r">Koszt</th><th>Uwagi</th></tr></thead>
         <tbody>
-          <tr><td><b>Poprawki techniczne z audytu</b> + wdrożenie aktualnej wersji</td><td>0</td><td class="r num">500–850 zł</td><td>P0 zrobione 21.09; zostały schema, OG, zgody cookies, ceny brutto</td></tr>
+          <tr><td><b>Poprawki techniczne z audytu</b> + wdrożenie aktualnej wersji</td><td>0</td><td class="r num">120–250 zł</td><td>P0 i A1–A6 zrobione 21.09; zostały ceny brutto</td></tr>
           <tr><td><b>Konfiguracja pilota Google Ads</b> z obsługą pierwszych 30 dni</td><td>2</td><td class="r num">2 500 zł</td><td>Zgodnie z propozycją z 17.09.2026</td></tr>
           <tr><td><b>Konfiguracja Meta:</b> Business Portfolio, piksel, domena, automaty</td><td>1</td><td class="r num">0–1 500 zł</td><td>0 zł, jeśli firma zrobi to sama według sekcji 8</td></tr>
           <tr><td><b>Profil Firmy w Google + katalogi firm</b></td><td>1</td><td class="r num">0–800 zł</td><td>Zwykle wystarczy samodzielnie</td></tr>
@@ -841,10 +847,10 @@ li.done::marker{content:"✓  ";color:var(--ok)}
           <tr><td><b>Obraz OG, szablony social, karty QR do opinii</b></td><td>1</td><td class="r num">600–1 500 zł</td><td>Canva Pro wystarczy do szablonów</td></tr>
           <tr><td><b>Integracja Lead Ads → CRM</b></td><td>3</td><td class="r num">1 000–2 500 zł</td><td>Webhook do istniejącego API leadów</td></tr>
           <tr><td><b>Katalog B2B (PDF)</b></td><td>3</td><td class="r num">800–2 000 zł</td><td>Na bazie materiałów z sesji</td></tr>
-          <tr><td><b>Etap „Kwalifikowany” i powód utraty w CRM</b></td><td>2</td><td class="r num">250–500 zł</td><td>2–4 h pracy</td></tr>
+          <tr><td><b>Etap „Kwalifikowany” i powód utraty w CRM</b></td><td>2</td><td class="r num">0 zł</td><td><span class="chip ok">zrobione</span> razem ze źródłem zgłoszenia</td></tr>
           <tr><td><b>Konwersje offline + Meta CAPI</b></td><td>4</td><td class="r num">2 500–6 000 zł</td><td>Dopiero przy poprawnym CRM i zgodach</td></tr>
         </tbody>
-        <tfoot><tr><td>Razem jednorazowo przez 12 mies.</td><td></td><td class="r num">10 650–24 150 zł</td><td>Na start (etapy 0–2) ok. 6 500–13 500 zł</td></tr></tfoot>
+        <tfoot><tr><td>Razem jednorazowo przez 12 mies.</td><td></td><td class="r num">10 020–23 050 zł</td><td>Na start (etapy 0–2) ok. 5 500–12 500 zł</td></tr></tfoot>
       </table>
     </div>
 
@@ -854,7 +860,7 @@ li.done::marker{content:"✓  ";color:var(--ok)}
         <thead><tr><th>Ścieżka</th><th>Założenie</th><th class="r">Razem 12 mies.</th><th>Dla kogo</th></tr></thead>
         <tbody>
           <tr><td><b>Oszczędna</b></td><td>Tylko Google Search zlecony (2 000 zł media + 1 200 obsługa), Meta 500 zł i social robione przez firmę samodzielnie, minimalne koszty jednorazowe</td><td class="r num">≈ 48–52 tys. zł</td><td>Gdy budżet jest bardzo ograniczony. Wolniej zbiera dane.</td></tr>
-          <tr style="background:var(--bronze-wash)"><td><b>Rekomendowana</b></td><td>Start (paź–sty, lip–wrz) + Rozwój (lut–cze) + jednorazowe etapów 0–2</td><td class="r num">≈ 90–105 tys. zł</td><td>Mała firma w fazie wzrostu, która chce sprawdzić 3–4 produkty w sezonie</td></tr>
+          <tr style="background:var(--bronze-wash)"><td><b>Rekomendowana</b></td><td>Start (paź–sty, lip–wrz) + Rozwój (lut–cze) + jednorazowe etapów 0–2</td><td class="r num">≈ 89–104 tys. zł</td><td>Mała firma w fazie wzrostu, która chce sprawdzić 3–4 produkty w sezonie</td></tr>
           <tr><td><b>Ambitna</b></td><td>Rozwój od stycznia, Skala od kwietnia</td><td class="r num">≈ 185–200 tys. zł</td><td>Dopiero przy potwierdzonej opłacalności i mocach produkcyjnych</td></tr>
         </tbody>
       </table>
@@ -873,7 +879,7 @@ li.done::marker{content:"✓  ";color:var(--ok)}
       <table>
         <thead><tr><th>Miesiąc</th><th>Priorytet</th><th>Najważniejsze działania</th><th class="r">Budżet</th></tr></thead>
         <tbody>
-          <tr><td><b>Paź 2026</b></td><td>Fundament, sauny, balie</td><td>Etapy 0–1: wdrożenie, konta, sesja zdjęć, Profil Google, automaty. Pod koniec miesiąca start pilota Google.</td><td class="r num">6–13 tys.<br><span style="font-weight:400;color:var(--muted)">jednorazowo + media ~1,5 tys.</span></td></tr>
+          <tr><td><b>Paź 2026</b></td><td>Fundament, sauny, balie</td><td>Etapy 0–1: wdrożenie, konta, sesja zdjęć, Profil Google, automaty. Pod koniec miesiąca start pilota Google.</td><td class="r num">5,5–12,5 tys.<br><span style="font-weight:400;color:var(--muted)">jednorazowo + media ~1,5 tys.</span></td></tr>
           <tr><td><b>Lis 2026</b></td><td>Sauny, balie</td><td>Pilot Google + remarketing Meta, pierwsze rolki z dostaw, kontakt z obiektami B2B planującymi budżet na 2027.</td><td class="r num">≈ 4,5 tys.</td></tr>
           <tr><td><b>Gru 2026</b></td><td>Sauny, balie</td><td>Sauna lub balia jako prezent, pierwszy raport kwartalny, decyzje na styczeń.</td><td class="r num">≈ 4,5 tys.</td></tr>
           <tr><td><b>Sty 2027</b></td><td>+ Domki, B2B</td><td>Start kampanii na domki i frazy B2B, katalog PDF, pierwsze artykuły poradnika, film YouTube z domku.</td><td class="r num">≈ 4,5 tys. + jednorazowe</td></tr>
@@ -886,7 +892,7 @@ li.done::marker{content:"✓  ";color:var(--ok)}
           <tr><td><b>Sie 2027</b></td><td>Utrzymanie, sauny</td><td>Przygotowanie kreacji saun na jesień, aktualizacja cennika i terminów.</td><td class="r num">≈ 4,5 tys.</td></tr>
           <tr><td><b>Wrz 2027</b></td><td>Sauny, podsumowanie</td><td>Powrót saun, roczny raport z CRM, plan na rok 2.</td><td class="r num">≈ 4,5 tys.</td></tr>
         </tbody>
-        <tfoot><tr><td colspan="3">Razem, ścieżka rekomendowana</td><td class="r num">≈ 90–105 tys. zł</td></tr></tfoot>
+        <tfoot><tr><td colspan="3">Razem, ścieżka rekomendowana</td><td class="r num">≈ 89–104 tys. zł</td></tr></tfoot>
       </table>
     </div>
   </section>
@@ -1000,7 +1006,9 @@ li.done::marker{content:"✓  ";color:var(--ok)}
         <label class="check"><input type="checkbox" id="c15"><span>Sesja zdjęć i filmów zrobiona</span></label>
         <label class="check"><input type="checkbox" id="c16"><span>3–6 realizacji opisanych na stronie</span></label>
         <label class="check"><input type="checkbox" id="c17"><span>Karty QR do opinii wydrukowane</span></label>
-        <label class="check"><input type="checkbox" id="c18"><span>Obraz OG 1200×630</span></label>
+        <label class="check"><input type="checkbox" id="c18" checked><span>Obraz OG 1200×630 <em class="done-tag">w kodzie</em></span></label>
+        <label class="check"><input type="checkbox" id="c26" checked><span>Schema firmy i zdjęcia dla Grafiki Google <em class="done-tag">w kodzie</em></span></label>
+        <label class="check"><input type="checkbox" id="c27" checked><span>Osobne zgody na cookies analityczne i marketingowe <em class="done-tag">w kodzie</em></span></label>
         <label class="check"><input type="checkbox" id="c25" checked><span>Zdjęcia pawilonów na stronie <em class="done-tag">w kodzie</em></span></label>
       </div>
       <div class="check-group">
@@ -1009,7 +1017,8 @@ li.done::marker{content:"✓  ";color:var(--ok)}
         <label class="check"><input type="checkbox" id="c20"><span>Kampania na markę uruchomiona</span></label>
         <label class="check"><input type="checkbox" id="c21"><span>Kampanie na sauny i balie z wykluczeniami</span></label>
         <label class="check"><input type="checkbox" id="c22"><span>Remarketing Meta + wideo z produkcji</span></label>
-        <label class="check"><input type="checkbox" id="c23"><span>Etap „Kwalifikowany” i powód utraty w CRM</span></label>
+        <label class="check"><input type="checkbox" id="c23" checked><span>Etap „Kwalifikowany” i powód utraty w CRM <em class="done-tag">w kodzie</em></span></label>
+        <label class="check"><input type="checkbox" id="c28" checked><span>Źródło zgłoszenia przy ręcznym dodaniu w CRM <em class="done-tag">w kodzie</em></span></label>
         <label class="check"><input type="checkbox" id="c24"><span>Pierwszy raport miesięczny omówiony</span></label>
       </div>
     </div>
@@ -1018,6 +1027,7 @@ li.done::marker{content:"✓  ";color:var(--ok)}
   <footer class="foot">
     <p><strong>Źródła danych:</strong> kod repozytorium A.K. HOUSE (gałąź 1.0, 21.09.2026), strona akhouse.pl sprawdzona 21.09.2026, wcześniejsze dokumenty projektu: plan konwersji (19.09.2026) i propozycja startu marketingu (17.09.2026). Obsługa kampanii za 1 200 zł/mies. i konfiguracja pilota za 2 500 zł pochodzą z tej propozycji.</p>
     <p><strong>Aktualizacja 21.09.2026:</strong> oznaczono poprawki z audytu zrobione w kodzie (commity w ak-house-backend <code>bd2933e</code> oraz ak-house-frontend <code>f72af84</code>, <code>0bf4f8e</code> i <code>7bcd2d8</code>). Działają na akhouse.pl dopiero po wdrożeniu.</p>
+    <p><strong>Aktualizacja 21.09.2026 (A1–A6):</strong> schema firmy, Grafika Google, obrazy podglądu linku, rozdzielone zgody cookies, etap „Kwalifikowany”, powód utraty i źródło zgłoszenia w CRM (ak-house-backend <code>d04e9eb</code>, <code>e94d6ab</code>; ak-house-frontend <code>f1e508c</code>, <code>a18c0d9</code>, <code>9b0d253</code>, <code>665810f</code>, <code>15748d6</code>, <code>8231155</code>).</p>
     <p>Ceny rynkowe to orientacyjne widełki z publicznych ofert w Polsce (wrzesień 2026). Nie są cennikiem ani gwarancją wyniku. Kwestie prawne (budowa na zgłoszenie, opinie, ceny) należy potwierdzić z prawnikiem przed publikacją treści.</p>
   </footer>
 
