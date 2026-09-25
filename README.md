@@ -98,7 +98,7 @@ CPQ i panel CMS bez przepisywania rdzenia.
   nadpisanie znika w całości (`204`).
 - `GET  /api/gallery-photos` — publiczna lista dodatkowych zdjęć galerii (bez slotów), od najnowszych.
 - `GET/POST/PUT/DELETE /api/admin/gallery-photos[/{id}]` — **chronione uprawnieniem `Media`** — dodanie
-  (multipart: `file`, `caption`, `category`), zmiana podpisu i kategorii, usunięcie. Kategoria musi być
+  (multipart: `file`, `caption`, `captionEn`, `category`), zmiana podpisów PL/EN i kategorii, usunięcie. Kategoria musi być
   jedną z `domki`/`sauny`/`balie`/`meble`/`wnetrza`.
 - `GET /api/configurators[?category=...]`, `GET /api/configurators/{slug}` — opublikowane konfiguratory
   domków, saun i balii. Każdy model ma własne wymiary, układy, grupy opcji, zdjęcia i ceny brutto.
@@ -377,6 +377,11 @@ Globalny `IExceptionHandler` mapuje błędy domenowe na `400`, pozostałe na `50
   Inne nazwy hosta, np. adres usługi hostingowej i sondy zdrowia, działają bez zmian.
 - `Media:UploadRoot` — katalog na wgrane zdjęcia. Pusty = `uploads/` obok binariów, co na Azure
   **znika przy każdej publikacji** — na produkcji ustaw ścieżkę pod `/home`, np. `/home/data/uploads`.
+- `ConnectionStrings:Default` — na Azure SQLite musi leżeć poza katalogiem publikacji, np.
+  `Data Source=/home/data/akhouse.db`. Przed publikacją wykonaj kopię pliku bazy i katalogu uploadów.
+- `Security:DataProtectionKeysPath` — trwały katalog kluczy szyfrujących sesje klientów i operatorów.
+  Na Azure ustaw `/home/data/dataprotection-keys`; bez trwałych kluczy restart może unieważnić
+  wszystkie ciasteczka logowania.
 - `Email:SmtpHost` + `SmtpPort/SmtpUser/SmtpPassword/SmtpUseSsl`, `Email:FromAddress/FromName`, `Email:StudioInbox` — gdy `SmtpHost` puste, używany jest deweloperski `LoggingEmailSender` (loguje maile zamiast wysyłać).
 - Sekrety trzymaj poza repo: `dotnet user-secrets set "Email:SmtpPassword" "…"`.
 
@@ -433,7 +438,7 @@ kwalifikacji i zatwierdzenia polityki prywatności. Szczegóły: `PLAN-KONWERSJI
 | **View** | Komponenty prezentacyjne (czysty JSX + style z tokenów) | `features/landing/components/`, `features/admin/components/` |
 | **ViewModel** | Hooki ze stanem i logiką (`useContactForm`, `useGalleryFilter`, `useConfigurator`, `useSiteContent`, `useLeads`, `useLeadDetail`, `useAdminAuth`…) | `features/*/viewmodels/` |
 | **Model / usługi** | Klient HTTP, API treści i leadów, typy DTO | `api/`, `types/` |
-| **Routing** | `react-router-dom`: landing, katalog, kategorie, produkty, `/dla-inwestorow`, realizacje, zamówienie oraz wspólne wejście `/admin` do narzędzi wewnętrznych `/crm`, `/panel`, `/operatorzy`, `/sklep/panel` (stary konfigurator 3D bez trasy — zawieszony; konfiguratory ofertowe 2D działają na stronach kategorii i produktów) | `App.tsx` |
+| **Routing** | `react-router-dom`: landing, katalog, kategorie, produkty, `/dla-inwestorow`, realizacje, zamówienie oraz wspólne wejście `/admin` do narzędzi wewnętrznych `/crm`, `/panel`, `/operatorzy`, `/sklep/panel`, `/oferty` (stary konfigurator 3D bez trasy — zawieszony; konfiguratory ofertowe 2D działają na stronach kategorii i produktów) | `App.tsx` |
 | **Design tokens** | Kolory, typografia, kształt hex — jedno źródło prawdy | `app/theme.ts`, `app/global.css` |
 
 Komponenty nie wołają `fetch` bezpośrednio — robią to view-modele przez warstwę `api/`,
@@ -494,6 +499,16 @@ bo nie ma dokąd prowadzić). Trasy: `/sklep`, `/sklep/:slug`, `/koszyk`, `/zamo
   zamówienia (numer + e-mail), zamiast pokazywać pustą stronę.
 - Dokumenty `/regulamin.html` i `/zwroty.html` to **wzorce do weryfikacji prawnej** — akceptacja
   regulaminu jest warunkiem złożenia zamówienia i jest sprawdzana także po stronie serwera.
+
+### Generator ofert (`/oferty`)
+
+Osobny obszar operatora, chroniony uprawnieniem `Offers`. Pozwala budować własne szablony z dowolną
+liczbą sekcji i wariantów, ceną netto, jednostką oraz stawką VAT. Na podstawie szablonu operator
+wybiera warianty, ilości i ceny indywidualne, uzupełnia dane klienta, rabat, termin ważności i notatki.
+Podsumowanie netto/VAT/brutto jest widoczne na żywo, a zapisana oferta otrzymuje własny numer oraz
+niezmienny snapshot konfiguracji. Gotowy dokument można pobrać jako responsywny PDF lub wysłać
+bezpośrednio na e-mail klienta jako załącznik. Wysłane oferty pozostają w historii; usuwać można tylko
+szkice. Dane szablonów i dokumentów są przechowywane w bazie.
 
 ### CRM — panel zleceń (`/crm`)
 Stanowisko pracy do obsługi zapytań i zamówień na domki, sauny, balie i meble na wymiar — **nie** na
