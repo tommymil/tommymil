@@ -1,6 +1,18 @@
 # Lesson Runner — aktualny stan projektu
 
-Ostatnia aktualizacja: 03.09.2026
+Ostatnia aktualizacja: 25.09.2026
+
+## Zmiany z 25.09.2026 — pliki w imporcie konspektu
+
+- **`[obraz] Podpis | plik.png` i `[plik] Etykieta | plik.pdf` w sekcji `### Materiały`.**
+  Pliki wybiera się razem z `.md`; import wgrywa je przed utworzeniem lekcji i podmienia
+  odwołania na adresy `/uploads/...`. Wcześniej obraz z dysku autora był błędem importu
+  i każdy screen trzeba było dokładać ręcznie w edytorze. `![podpis](plik.png)` z lokalną
+  ścieżką działa teraz tak samo jak `[obraz]`. Brakujący plik blokuje import (podgląd
+  pokazuje listę wybranych i brakujących). Format: `PLAN.md`, sekcja „Format pliku importu”.
+- **`.mkcd` wysłany jako `application/json`** przechodzi przez `FileUploadRules` — plik
+  projektu MakeCode to w środku JSON i część systemów tak go przedstawia przeglądarce.
+  Sloty „Lekcja startowa” / „Lekcja końcowa” przyjmowały `.mkcd` już wcześniej.
 
 ## Zmiany z 03.09.2026 — publiczna strona i wejście do lejka
 

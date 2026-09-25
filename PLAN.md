@@ -285,10 +285,18 @@ Cel: <zdanie>            -> cel dydaktyczny lekcji (`Lesson.Objective`); `Opis:`
   ```
   ...wieloliniowy pseudo-kod (wcięcia zachowane)...
   ```
-- ![Podpis](/uploads/screen.png)   -> wrzutka na ekran ucznia; adres musi być pełny
-                                      albo zaczynać się od `/` - import nie wysyła plików
+- [obraz] Podpis | screen.png      -> obraz na ekran ucznia (aliasy: image, grafika, screen)
+- [plik] Etykieta | karta.pdf      -> plik do pobrania (aliasy: file, pdf)
+- ![Podpis](screen.png)            -> to samo co [obraz]
 - Tekst bez tagu = tekstowa wrzutka na ekran
 ```
+
+Pliki lokalne z `[obraz]` / `[plik]` / `![...](...)` wybiera się razem z `.md` (jednym
+przyciskiem, można kilka razy). Import dopasowuje je po nazwie pliku bez ścieżki i bez
+wielkości liter, wgrywa na serwer i dopiero potem tworzy lekcję z adresami `/uploads/...`.
+Brak któregoś pliku blokuje import bez możliwości potwierdzenia - lekcja dostałaby ścieżkę
+z dysku autora, czyli puste miejsce na ekranie dziecka. Adresy `https://...` i zaczynające
+się od `/` nie wymagają pliku.
 
 `[mów]` zostaje prefiksem w treści punktu, a nie osobnym polem: kroki lekcji leżą w bazie
 jako JSON bez wersji, więc zamiana `Script: string[]` na listę obiektów wywróciłaby odczyt
