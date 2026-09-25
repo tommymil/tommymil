@@ -113,16 +113,15 @@ Opis: Drugie z dwóch spotkań. Dzieci dodają punkty, pułapki i supermoce, odl
 ## [guided] Pierwsza rozgrywka: graj i stop (12 min)
 
 ### Co robić teraz
-- Komenda `graj`: wyzeruj punkty, wyjdź na platformę, zbuduj kopalnię, schowaj skarby, wyczyść ekwipunek, wejdź na górę, **wywołanie dajKilof**, włącz tryb **przygoda**.
+- Komenda `graj`: wyzeruj punkty, wyjdź na platformę, zbuduj kopalnię, schowaj skarby, wyczyść ekwipunek, wejdź na górę, daj kilof, włącz tryb przetrwania.
 - Pytanie do grupy: „Dlaczego najpierw wychodzimy, a dopiero potem budujemy?” (Inaczej gracz zostałby zamurowany w kamieniu.)
-- Tryb **przygoda** z kilofem z silnika: kopać można tylko kamień i skarby, a szklane ściany i podłoga są nie do zniszczenia. W trybie kreatywnym bloki znikałyby od jednego kliknięcia i każdy by się przekopał na zewnątrz.
+- Tryb przetrwania jest potrzebny, bo w kreatywnym bloki znikają od jednego kliknięcia i nie trzeba szukać.
 - Komenda `stop`: tryb kreatywny i powrót na platformę.
 - Test: `graj` → kopiemy → `stop`. Tablica wyników musi się zmieniać, szmaragd dawać supermoc, a TNT robić BUM.
 
 ### Wskazówki
-- [błąd] Gracz nie może kopać: nie dostał kilofa z silnika (brak „wywołanie dajKilof”). W trybie przygody innym kilofem albo ręką nic się nie wykopie.
-- [podpowiedź] Powiedz dzieciom na starcie: „Kopiemy tylko w kamieniu. Szkło to ściany areny, przez nie nie przejdziecie”.
-- [podpowiedź] Diamentowy kilof kopie kamień szybko, więc 60 sekund wystarcza na kilka warstw.
+- [błąd] Gracz nie może kopać: nie dostał kilofa albo jest w trybie przygody. Sprawdź bloczki „daj” i „zmień tryb gry”.
+- [podpowiedź] Diamentowy kilof kopie kamień szybko. Z innym kilofem gra robi się dużo trudniejsza.
 
 ### Materiały
 - [obraz] Pierwsza rozgrywka: graj | infografiki/12-graj-pierwsza-rozgrywka.png
@@ -136,8 +135,8 @@ Opis: Drugie z dwóch spotkań. Dzieci dodają punkty, pułapki i supermoce, odl
     wywołanie ukryjSkarby
     wykonaj [clear @p]
     teleportuj do (świat 0 -56 0)
-    wywołanie dajKilof
-    zmień tryb gry na [przygoda] dla [@p]
+    daj [@p] [diamentowy kilof] ilość 1
+    zmień tryb gry na [przetrwanie] dla [@p]
 
   przy poleceniu czatu [stop]
     zmień tryb gry na [kreatywny] dla [@p]
@@ -153,8 +152,8 @@ Opis: Drugie z dwóch spotkań. Dzieci dodają punkty, pułapki i supermoce, odl
       ukryjSkarby()
       player.execute("clear @p")
       player.teleport(world(0, -56, 0))
-      dajKilof()
-      gameplay.setGameMode(ADVENTURE, mobs.target(LOCAL_PLAYER))
+      mobs.give(mobs.target(LOCAL_PLAYER), DIAMOND_PICKAXE, 1)
+      gameplay.setGameMode(SURVIVAL, mobs.target(LOCAL_PLAYER))
   })
   player.onChat("stop", function () {
       gameplay.setGameMode(CREATIVE, mobs.target(LOCAL_PLAYER))
@@ -177,7 +176,7 @@ Opis: Drugie z dwóch spotkań. Dzieci dodają punkty, pułapki i supermoce, odl
 - 5 minut przerwy: dzieci wstają od ekranów, piją wodę, rozprostowują się.
 
 ### Wskazówki
-- [tempo] Przed przerwą niech każdy wpisze `stop`, żeby nie zostać w trybie przygody.
+- [tempo] Przed przerwą niech każdy wpisze `stop`, żeby nie zostać w trybie przetrwania.
 
 ## [concept] Czego brakuje grze? (3 min)
 
@@ -221,8 +220,8 @@ Opis: Drugie z dwóch spotkań. Dzieci dodają punkty, pułapki i supermoce, odl
       wykonaj [clear @p]
       teleportuj do (świat 0 -56 0)
       wywołanie odliczanie
-      wywołanie dajKilof
-      zmień tryb gry na [przygoda] dla [@p]
+      daj [@p] [diamentowy kilof] ilość 1
+      zmień tryb gry na [przetrwanie] dla [@p]
       ustaw gra na (prawda)
       dopóki (czas > 0)
         wywołanie pokazCzas
@@ -250,8 +249,8 @@ Opis: Drugie z dwóch spotkań. Dzieci dodają punkty, pułapki i supermoce, odl
           player.execute("clear @p")
           player.teleport(world(0, -56, 0))
           odliczanie()
-          dajKilof()
-          gameplay.setGameMode(ADVENTURE, mobs.target(LOCAL_PLAYER))
+          mobs.give(mobs.target(LOCAL_PLAYER), DIAMOND_PICKAXE, 1)
+          gameplay.setGameMode(SURVIVAL, mobs.target(LOCAL_PLAYER))
           gra = true
           while (czas > 0) {
               pokazCzas()

@@ -93,8 +93,8 @@ def on_graj():
         player.execute("clear @p")
         player.teleport(world(0, -56, 0))
         odliczanie()
-        dajKilof()
-        gameplay.set_game_mode(ADVENTURE, mobs.target(LOCAL_PLAYER))
+        mobs.give(mobs.target(LOCAL_PLAYER), DIAMOND_PICKAXE, 1)
+        gameplay.set_game_mode(SURVIVAL, mobs.target(LOCAL_PLAYER))
         gra = True
         while czas > 0:
             pokazCzas()

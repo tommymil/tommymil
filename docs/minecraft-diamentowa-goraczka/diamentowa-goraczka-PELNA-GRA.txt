@@ -60,13 +60,6 @@ function dekoracje () {
     blocks.fill(SEA_LANTERN, world(-9, -60, 9), world(-9, -52, 9), FillOperation.Replace)
     blocks.fill(SEA_LANTERN, world(9, -60, 9), world(9, -52, 9), FillOperation.Replace)
     blocks.fill(GOLD_BLOCK, world(-2, -61, 11), world(2, -61, 15), FillOperation.Replace)
-    // Podłoga kopalni z bedrocka - nie da się przez nią przekopać.
-    blocks.fill(BEDROCK, world(-8, -61, -8), world(8, -61, 8), FillOperation.Replace)
-}
-
-// Kilof, który w trybie przygody niszczy tylko kamień, rudy i TNT - szkła i podłogi nie ruszy.
-function dajKilof () {
-    player.execute("give @p diamond_pickaxe 1 0 {\"minecraft:can_destroy\":{\"blocks\":[\"stone\",\"diamond_ore\",\"gold_ore\",\"emerald_ore\",\"tnt\"]}}")
 }
 
 function odliczanie () {
@@ -225,8 +218,8 @@ player.onChat("graj", function () {
         player.execute("clear @p")
         player.teleport(world(0, -56, 0))
         odliczanie()
-        dajKilof()
-        gameplay.setGameMode(ADVENTURE, mobs.target(LOCAL_PLAYER))
+        mobs.give(mobs.target(LOCAL_PLAYER), DIAMOND_PICKAXE, 1)
+        gameplay.setGameMode(SURVIVAL, mobs.target(LOCAL_PLAYER))
         gra = true
         while (czas > 0) {
             pokazCzas()
@@ -278,12 +271,6 @@ def dekoracje():
     blocks.fill(SEA_LANTERN, world(-9, -60, 9), world(-9, -52, 9), FillOperation.REPLACE)
     blocks.fill(SEA_LANTERN, world(9, -60, 9), world(9, -52, 9), FillOperation.REPLACE)
     blocks.fill(GOLD_BLOCK, world(-2, -61, 11), world(2, -61, 15), FillOperation.REPLACE)
-    # Podłoga kopalni z bedrocka - nie da się przez nią przekopać.
-    blocks.fill(BEDROCK, world(-8, -61, -8), world(8, -61, 8), FillOperation.REPLACE)
-
-# Kilof, który w trybie przygody niszczy tylko kamień, rudy i TNT - szkła i podłogi nie ruszy.
-def dajKilof():
-    player.execute("give @p diamond_pickaxe 1 0 {\"minecraft:can_destroy\":{\"blocks\":[\"stone\",\"diamond_ore\",\"gold_ore\",\"emerald_ore\",\"tnt\"]}}")
 
 def odliczanie():
     gameplay.title(mobs.target(LOCAL_PLAYER), "§e3", "Przygotuj kilof...")
@@ -436,8 +423,8 @@ def on_graj():
         player.execute("clear @p")
         player.teleport(world(0, -56, 0))
         odliczanie()
-        dajKilof()
-        gameplay.set_game_mode(ADVENTURE, mobs.target(LOCAL_PLAYER))
+        mobs.give(mobs.target(LOCAL_PLAYER), DIAMOND_PICKAXE, 1)
+        gameplay.set_game_mode(SURVIVAL, mobs.target(LOCAL_PLAYER))
         gra = True
         while czas > 0:
             pokazCzas()

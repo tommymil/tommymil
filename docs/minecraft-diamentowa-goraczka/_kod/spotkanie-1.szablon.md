@@ -61,7 +61,7 @@ Opis: Pierwsze z dwóch spotkań. Z gotowego silnika z efektami dzieci składaj�
 - Dzieci wchodzą do świata i naciskają **C**. Otwiera się Code Builder, wybieramy MakeCode.
 - **Otwieramy projekt startowy:** dzieci w MakeCode wybierają **MakeCode → Importuj → Importuj plik** i wskazują pobrany `diamentowa-goraczka-start.mkcd` (link z wiadomości albo z czatu). Projekt otwiera się od razu w bloczkach. Pokazuj to krok po kroku na swoim ekranie.
 - Pokaż na swoim ekranie: kategorie bloczków, przeciąganie, kosz (wyrzucanie bloczka) i zielony **▶** (uruchomienie kodu).
-- Otwórz kategorię **Funkcje** (Zaawansowane → Funkcje) i pokaż supermoce: pioruny, dekoracje, odliczanie, pokazCzas, przygotujTablice, pokazPunkty, zapiszRekord, dajKilof, supermoc, wybuch, fajerwerki.
+- Otwórz kategorię **Funkcje** (Zaawansowane → Funkcje) i pokaż supermoce: pioruny, dekoracje, odliczanie, pokazCzas, przygotujTablice, pokazPunkty, zapiszRekord, supermoc, wybuch, fajerwerki.
 - Hasło na dziś: „Programiści gier też korzystają z gotowego silnika. Wy jesteście projektantami: decydujecie, KIEDY użyć której supermocy”.
 
 ### Wskazówki

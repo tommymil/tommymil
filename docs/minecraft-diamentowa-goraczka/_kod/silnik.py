@@ -23,12 +23,6 @@ def dekoracje():
     blocks.fill(SEA_LANTERN, world(-9, -60, 9), world(-9, -52, 9), FillOperation.REPLACE)
     blocks.fill(SEA_LANTERN, world(9, -60, 9), world(9, -52, 9), FillOperation.REPLACE)
     blocks.fill(GOLD_BLOCK, world(-2, -61, 11), world(2, -61, 15), FillOperation.REPLACE)
-    # Podłoga kopalni z bedrocka - nie da się przez nią przekopać.
-    blocks.fill(BEDROCK, world(-8, -61, -8), world(8, -61, 8), FillOperation.REPLACE)
-
-# Kilof, który w trybie przygody niszczy tylko kamień, rudy i TNT - szkła i podłogi nie ruszy.
-def dajKilof():
-    player.execute("give @p diamond_pickaxe 1 0 {\"minecraft:can_destroy\":{\"blocks\":[\"stone\",\"diamond_ore\",\"gold_ore\",\"emerald_ore\",\"tnt\"]}}")
 
 def odliczanie():
     gameplay.title(mobs.target(LOCAL_PLAYER), "§e3", "Przygotuj kilof...")

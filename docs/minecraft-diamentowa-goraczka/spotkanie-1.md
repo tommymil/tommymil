@@ -78,13 +78,6 @@ Opis: Pierwsze z dwóch spotkań. Z gotowego silnika z efektami dzieci składaj�
       blocks.fill(SEA_LANTERN, world(-9, -60, 9), world(-9, -52, 9), FillOperation.Replace)
       blocks.fill(SEA_LANTERN, world(9, -60, 9), world(9, -52, 9), FillOperation.Replace)
       blocks.fill(GOLD_BLOCK, world(-2, -61, 11), world(2, -61, 15), FillOperation.Replace)
-      // Podłoga kopalni z bedrocka - nie da się przez nią przekopać.
-      blocks.fill(BEDROCK, world(-8, -61, -8), world(8, -61, 8), FillOperation.Replace)
-  }
-
-  // Kilof, który w trybie przygody niszczy tylko kamień, rudy i TNT - szkła i podłogi nie ruszy.
-  function dajKilof () {
-      player.execute("give @p diamond_pickaxe 1 0 {\"minecraft:can_destroy\":{\"blocks\":[\"stone\",\"diamond_ore\",\"gold_ore\",\"emerald_ore\",\"tnt\"]}}")
   }
 
   function odliczanie () {
@@ -243,8 +236,8 @@ Opis: Pierwsze z dwóch spotkań. Z gotowego silnika z efektami dzieci składaj�
           player.execute("clear @p")
           player.teleport(world(0, -56, 0))
           odliczanie()
-          dajKilof()
-          gameplay.setGameMode(ADVENTURE, mobs.target(LOCAL_PLAYER))
+          mobs.give(mobs.target(LOCAL_PLAYER), DIAMOND_PICKAXE, 1)
+          gameplay.setGameMode(SURVIVAL, mobs.target(LOCAL_PLAYER))
           gra = true
           while (czas > 0) {
               pokazCzas()
@@ -272,7 +265,7 @@ Opis: Pierwsze z dwóch spotkań. Z gotowego silnika z efektami dzieci składaj�
 - Dzieci wchodzą do świata i naciskają **C**. Otwiera się Code Builder, wybieramy MakeCode.
 - **Otwieramy projekt startowy:** dzieci w MakeCode wybierają **MakeCode → Importuj → Importuj plik** i wskazują pobrany `diamentowa-goraczka-start.mkcd` (link z wiadomości albo z czatu). Projekt otwiera się od razu w bloczkach. Pokazuj to krok po kroku na swoim ekranie.
 - Pokaż na swoim ekranie: kategorie bloczków, przeciąganie, kosz (wyrzucanie bloczka) i zielony **▶** (uruchomienie kodu).
-- Otwórz kategorię **Funkcje** (Zaawansowane → Funkcje) i pokaż supermoce: pioruny, dekoracje, odliczanie, pokazCzas, przygotujTablice, pokazPunkty, zapiszRekord, dajKilof, supermoc, wybuch, fajerwerki.
+- Otwórz kategorię **Funkcje** (Zaawansowane → Funkcje) i pokaż supermoce: pioruny, dekoracje, odliczanie, pokazCzas, przygotujTablice, pokazPunkty, zapiszRekord, supermoc, wybuch, fajerwerki.
 - Hasło na dziś: „Programiści gier też korzystają z gotowego silnika. Wy jesteście projektantami: decydujecie, KIEDY użyć której supermocy”.
 
 ### Wskazówki
@@ -313,13 +306,6 @@ Opis: Pierwsze z dwóch spotkań. Z gotowego silnika z efektami dzieci składaj�
       blocks.fill(SEA_LANTERN, world(-9, -60, 9), world(-9, -52, 9), FillOperation.Replace)
       blocks.fill(SEA_LANTERN, world(9, -60, 9), world(9, -52, 9), FillOperation.Replace)
       blocks.fill(GOLD_BLOCK, world(-2, -61, 11), world(2, -61, 15), FillOperation.Replace)
-      // Podłoga kopalni z bedrocka - nie da się przez nią przekopać.
-      blocks.fill(BEDROCK, world(-8, -61, -8), world(8, -61, 8), FillOperation.Replace)
-  }
-
-  // Kilof, który w trybie przygody niszczy tylko kamień, rudy i TNT - szkła i podłogi nie ruszy.
-  function dajKilof () {
-      player.execute("give @p diamond_pickaxe 1 0 {\"minecraft:can_destroy\":{\"blocks\":[\"stone\",\"diamond_ore\",\"gold_ore\",\"emerald_ore\",\"tnt\"]}}")
   }
 
   function odliczanie () {
