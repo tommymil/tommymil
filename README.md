@@ -1,8 +1,9 @@
 # Lesson Runner
 
-Aplikacja do prowadzenia zajęć programowania dla dzieci: administrator tworzy konspekty i układa
-grupy, instruktor prowadzi zajęcia z kokpitu, rodzic ma własny portal z harmonogramem, linkiem do
-zajęć online, frekwencją i rozliczeniami.
+Aplikacja do prowadzenia zajęć programowania dla dzieci: publiczna strona zaKODOWANi zbiera
+zgłoszenia na bezpłatne lekcje próbne, administrator tworzy konspekty i układa grupy, instruktor
+prowadzi zajęcia z kokpitu, rodzic ma własny portal z harmonogramem, linkiem do zajęć online,
+frekwencją i rozliczeniami.
 
 - **Backend**: C# / ASP.NET Core (Clean Architecture, EF Core + SQLite).
 - **Frontend**: React + Vite + TypeScript (podział MVVM-like).
@@ -29,13 +30,31 @@ dotnet run --project LessonRunner.Api
 ```
 
 ```bash
-# terminal 2 - frontend
+# terminal 2 - publiczna strona
 cd frontend/lesson-runner-web
 npm install   # tylko za pierwszym razem
 npm run dev
 ```
 
-- API: `http://localhost:5000`, aplikacja: `http://localhost:5173`.
+```bash
+# terminal 3 - panel, kokpit i portal rodzica
+cd frontend/lesson-runner-web
+npm run dev:app
+```
+
+- API: `http://localhost:5000`, strona: `http://localhost:5173`, system: `http://localhost:5174`.
+- Frontend to **dwa pakiety z jednego kodu** — strona ofertowa i system stoją pod osobnymi
+  adresami, więc każdy ma własny punkt wejścia, własną mapę tras i własny arkusz stylów.
+  Wybiera je `--mode site` / `--mode app`; podział opisuje `vite.config.ts`.
+  Buduje się je osobno (`npm run build:site`, `npm run build:app`) albo oba naraz
+  (`npm run build`) — wynik ląduje w `dist/site` i `dist/app`.
+- Przejście z jednego do drugiego („Zaloguj się” na stronie, „Zobacz stronę” w panelu) to
+  **pełne przeładowanie pod inny adres**, a nie nawigacja w routerze — pakiet strony nie zna
+  trasy `/login`, a pakiet panelu nie zna `/kursy/:slug`. Adresy wchodzą do pakietów przy
+  budowaniu przez `VITE_SITE_ORIGIN` i `VITE_APP_ORIGIN` (w `docker compose` podaje je
+  `SITE_ORIGIN` / `APP_ORIGIN` z `.env`); lokalnie domyślnie `:5173` i `:5174`.
+  **Przy wdrożeniu obie trzeba ustawić** — bez nich odnośniki między częściami zostaną
+  ścieżkami relatywnymi i nie dojdą na drugą stronę.
 - Baza SQLite (`lesson-runner.db`) tworzy się automatycznie przez migracje przy starcie
   i pozostaje pusta poza pierwszym kontem administratora.
 - Swagger/OpenAPI (tylko Development): `http://localhost:5000/openapi/v1.json`.
@@ -149,8 +168,100 @@ dotnet ef migrations add <Nazwa> --project LessonRunner.Infrastructure --startup
 dotnet ef database update --project LessonRunner.Infrastructure --startup-project LessonRunner.Api
 ```
 
+## Publiczna strona (zaKODOWANi)
+
+Pod adresem `/` stoi strona ofertowa: to jedyna część aplikacji dostępna bez konta.
+Ekran logowania przeniósł się na `/login`.
+
+| Adres | Co tam jest |
+|---|---|
+| `/` | Strona główna: oferta, proces, cennik, FAQ, formularz zapisu |
+| `/kursy/{adres}` | Podstrona kursu z własnym tytułem i opisem dla wyszukiwarki |
+| `/kontakt` | Sam formularz zapisu z danymi kontaktowymi |
+| `/{adres}` | Dokument prawny (`polityka-prywatnosci`, `regulamin`) |
+| `/sitemap.xml` | Mapa strony budowana z treści w bazie |
+| `/robots.txt` | Panel, portal i API poza wynikami wyszukiwania |
+
+### Zgłoszenie z formularza to lekcja próbna
+
+Formularz **nie wysyła e-maila do skrzynki** — zakłada `TrialLesson` ze statusem
+`Requested` i kanałem `strona-www`, czyli zgłoszenie ląduje na tej samej liście
+(**Lekcje próbne**), na której administracja umawia terminy i zapisuje dzieci do grup.
+Moduł lekcji próbnych istniał wcześniej; brakowało mu wejścia od strony klienta.
+
+Wiek dziecka, wskazany kurs i **moment przyjęcia zgody** trafiają do notatki przy
+zgłoszeniu, a nie do osobnych kolumn: `TrialLesson` trzyma datę urodzenia, a rodzic na
+stronie podaje wiek — przeliczenie jednego na drugie wpisywałoby do kartoteki datę,
+której nikt nie podał. Przy zgodzie RODO trzeba umieć wykazać, że została udzielona,
+stąd znacznik czasu w notatce.
+
+Po zgłoszeniu wychodzą dwie wiadomości: potwierdzenie do rodzica i sygnał do wszystkich
+aktywnych administratorów. Niedziałająca poczta **nie kosztuje zgłoszenia** — jest ono
+zapisane wcześniej, a nieudana wysyłka zostaje w dzienniku powiadomień.
+
+Trzy zabezpieczenia publicznego endpointu, wszystkie po stronie serwera:
+
+- **wymagana zgoda** na przetwarzanie danych — bez niej `400`,
+- **pole-pułapka** (`company`), ukryte w przeglądarce: wypełnione = odpowiadamy jak przy
+  powodzeniu i nie zapisujemy niczego (komunikat o odrzuceniu byłby instrukcją obejścia),
+- **limit 5 zgłoszeń na 10 minut z adresu IP** (`public-form`) — ciaśniejszy niż przy
+  logowaniu, bo to jedyna trasa zapisu dostępna bez konta.
+
+### Treść strony jest w bazie
+
+Cała treść — hasło, kursy, cennik, FAQ, opinie, kadra, dokumenty prawne — leży w jednym
+dokumencie JSON (tabela `SiteContents`, jeden wiersz) i edytuje się ją w panelu:
+**Administracja → Strona internetowa**. Świadomie jeden dokument, a nie tabela na sekcję:
+ta treść nie jest nigdy odpytywana po polu ani sortowana, tylko czytana i zapisywana
+w całości. Tym samym wzorcem idzie konspekt lekcji (`LessonDocument.DocumentJson`).
+
+Świeża instalacja **nie ma tego wiersza** — do pierwszego zapisu strona renderuje się
+z treści startowej w kodzie (`SiteContentDefaults`). Dzięki temu strona działa od pierwszego
+uruchomienia, a w bazie nie leży kopia zaślepek, którą ktoś musiałby czyścić.
+
+Kolor akcentu kursu, karty cennika i opinii wybiera się **z zamkniętej palety**
+(`blue`, `green`, `teal`, `navy`), a nie wpisuje jako kod koloru. Nazwa zamienia się
+w klasę CSS; kod z pola tekstowego trafiałby do atrybutu `style`, czyli do arkusza stylów
+budowanego z danych wpisanych w panelu.
+
+### Czego treść startowa celowo nie zawiera
+
+Makieta, z której powstała strona, obiecywała rzeczy, których nie da się potwierdzić.
+W treści startowej **nie ma** liczby uczniów, średniej ocen, roku rozpoczęcia działalności
+ani ani jednej opinii — sekcja opinii jest wyłączona. Publikowanie wymyślonych opinii
+i ocen jest nieuczciwą praktyką rynkową (ustawa o przeciwdziałaniu nieuczciwym praktykom
+rynkowym po wdrożeniu dyrektywy Omnibus), a nie marketingiem.
+
+Puste są też: adres e-mail, telefon, cena zajęć grupowych oraz treść polityki prywatności
+i regulaminu (są tam szkielety z fragmentami w nawiasach kwadratowych). Puste pole znaczy
+**sekcja się nie pokaże**, a nie „pokaże się z zaślepką”: karta cennika bez ceny wypada
+z odpowiedzi dla klienta, a pusta kadra nie renderuje sekcji.
+
+Panel liczy z dokumentu listę **do uzupełnienia przed premierą** i pokazuje ją nad
+zakładkami. Lista jest wyliczana, nie odhaczana — uzupełnione pole znika z niej samo.
+
+### Czas trwania zajęć na stronie musi zgadzać się z grafikiem
+
+Teksty startowe podają: lekcja próbna **60 minut**, zajęcia grupowe **95 minut**
+(45 + 5 przerwy + 45). To te same wartości, których pilnuje importer konspektów
+(sekcja „Import konspektów”). Makieta obiecywała lekcje 60-minutowe — rodzic kupiłby
+wtedy co innego, niż wchodzi mu do kalendarza. Pilnuje tego test w `SiteContentServiceTests`.
+
+### Kroje pisma i podział kodu
+
+Bungee i Nunito są **serwowane z własnego serwera** (`@fontsource`), a nie z Google Fonts:
+CSP dopuszcza `font-src 'self' data:`, a pobieranie kroju z cudzej domeny przekazuje adres
+IP odwiedzającego stronie trzeciej. Pliki fontów ładują się razem z modułem strony, więc
+nie trafiają do osoby wchodzącej wprost do panelu.
+
+Ekrany są ładowane leniwie, każdy jako osobny pakiet. Bez tego cała aplikacja szła w jednym
+pliku ważącym ponad 600 kB i rodzic czytający cennik na telefonie pobierał przy okazji
+edytor konspektów i moduł rozliczeń.
+
 ## Uwierzytelnianie i role
 
+- Trasy anonimowe: logowanie, reset hasła oraz **grupa `/api/site`** (treść publicznej
+  strony i zgłoszenie z formularza). Poza nimi każdy endpoint wymaga konta.
 - Logowanie: `POST /api/auth/login` → `{ token, expiresAt, user }`. Token ważny 12 h.
 - Bieżący użytkownik: `GET /api/auth/me` (nagłówek `Authorization: Bearer <token>`).
 - **Publicznej rejestracji nie ma** — konta zakłada wyłącznie administrator.
@@ -189,9 +300,26 @@ Ważność linku: 2 godziny dla resetu, 7 dni dla zaproszenia. Link działa raz,
 unieważnia poprzednie. W bazie leży wyłącznie skrót tokenu — postać jawna istnieje tylko
 w wysłanym e-mailu.
 
-Linki w wiadomościach budowane są od `App:PublicOrigin` (zmienna `PUBLIC_ORIGIN` w `.env`).
+Linki w wiadomościach budowane są od `App:AppOrigin` (zmienna `APP_ORIGIN` w `.env`).
 **Bez ustawienia tej zmiennej e-maile prowadzą pod `http://localhost:8080`** — backend nie zna
 adresu frontendu, a zgadywanie go z nagłówka `Host` dałoby się podmienić z zewnątrz.
+
+Adresy są dwa, bo strona ofertowa i system mogą stać pod osobnymi adresami:
+
+| Ustawienie | Zmienna w `.env` | Skąd się bierze |
+|---|---|---|
+| `App:SiteOrigin` | `SITE_ORIGIN` | mapa strony (`/sitemap.xml`) |
+| `App:AppOrigin` | `APP_ORIGIN` | link „ustaw hasło”, link do zgłoszenia w panelu |
+
+Obie mają wartość zapasową w `App:PublicOrigin` (`PUBLIC_ORIGIN`) — nazwie sprzed rozdzielenia
+adresów. Instalacja, która ustawia wyłącznie `PUBLIC_ORIGIN`, działa po aktualizacji tak jak
+przedtem; `SITE_ORIGIN` i `APP_ORIGIN` wypełnia się dopiero wtedy, gdy strona i panel
+faktycznie rozjeżdżają się na dwa adresy.
+
+Mylne przypisanie kosztuje: `/set-password` jest trasą panelu, więc link zbudowany od adresu
+strony trafia na jej stronę „nie znaleziono”, a rodzic zostaje z zaproszeniem, którego nie da
+się zrealizować. W drugą stronę mapa strony zbudowana od adresu panelu zgłasza wyszukiwarce
+adresy, których ta i tak nie ma prawa odwiedzać, a samej oferty nie zgłasza wcale.
 Przy `SMTP_MODE=Log` wiadomości nie wychodzą na świat, tylko trafiają do logu aplikacji —
 wygodne przy pierwszym uruchomieniu, ale rodzic nic nie dostanie.
 
@@ -230,6 +358,9 @@ Uprawnienia:
 | Incydenty (`/api/safety/incidents`) — odczyt | wszystkie | tylko własne zgłoszenia | **nie** |
 | Zgłoszenia techniczne (`/api/safety/tickets`) — odczyt i prowadzenie | wszystkie | własne zgłoszenia oraz swoje grupy i dzieci | **nie** |
 | Zmiana roli konta (`/api/users/{id}/role`) | tak | nie | nie |
+| Treść strony (`/api/site/content`, `/sitemap.xml`) — odczyt | tak | tak | tak — **oraz każdy bez konta** |
+| Zgłoszenie z formularza (`/api/site/trial-requests`) | tak | tak | tak — **oraz każdy bez konta** |
+| Edycja treści strony (`/api/site-content`) | tak | nie | nie |
 
 Zawężenia dla instruktora są robione **w serwisie**, a nie polityką autoryzacji: trasa jest
 `StaffOnly`, ale odpowiedź zawiera wyłącznie to, co dana osoba ma prawo zobaczyć. Poza zakresem
@@ -340,7 +471,16 @@ kodziaki/
 │  ├─ LessonRunner.Infrastructure/ # EF Core, repozytoria, migracje, seed
 │  └─ LessonRunner.Tests/          # testy backendu (xUnit)
 ├─ frontend/
-│  └─ lesson-runner-web/           # aplikacja React/Vite + nginx.conf
+│  └─ lesson-runner-web/           # dwa pakiety React/Vite + nginx.conf
+│     ├─ src/entries/              # punkty wejścia: site.tsx i app.tsx
+│     ├─ src/app/siteRouter.tsx    # mapa tras strony (bez tras panelu)
+│     ├─ src/app/appRouter.tsx     # mapa tras systemu (bez podstron oferty)
+│     ├─ src/pages/site/           # ekrany publicznej strony
+│     ├─ src/features/site/        # treść strony i formularz zapisu
+│     ├─ src/features/admin-site/  # pola edytora treści strony (należą do panelu)
+│     ├─ src/styles/index.*.css    # co wchodzi do którego pakietu
+│     ├─ src/styles/site.css       # skóra marki, poza trybem ciemnym panelu
+│     └─ public/{site,app}/        # pliki statyczne per pakiet, w tym osobne robots.txt
 ├─ docs/                           # przykładowe konspekty w formacie importu
 ├─ .env.example                    # wzorzec konfiguracji dla docker compose
 ├─ STATUS.md                       # aktualny stan projektu

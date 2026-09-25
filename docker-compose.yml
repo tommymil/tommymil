@@ -19,11 +19,21 @@ services:
       Jwt__Issuer: LessonRunner
       Jwt__Audience: LessonRunnerClients
       # Frontend i API są za tym samym originem (nginx proxuje /api), więc CORS zwykle
-      # nie jest potrzebny. Ustaw PUBLIC_ORIGIN tylko, gdy backend stoi pod inną domeną.
+      # nie jest potrzebny. Ustaw te adresy tylko, gdy backend stoi pod inną domeną - wtedy
+      # muszą tu być **oba**, bo strona i panel wołają API z osobnych originów.
+      # Puste wpisy backend odfiltrowuje, więc nieużywane sloty nic nie psują.
       Cors__AllowedOrigins__0: ${PUBLIC_ORIGIN:-}
-      # Adres, od którego budowane są linki w e-mailach (reset hasła, zaproszenia). Backend
-      # nie zna adresu frontendu - za proxy widzi tylko własny port - więc musi go dostać wprost.
+      Cors__AllowedOrigins__1: ${SITE_ORIGIN:-}
+      Cors__AllowedOrigins__2: ${APP_ORIGIN:-}
+      # Adresy, od których budowane są linki wychodzące z systemu. Backend nie zna adresu
+      # frontendu - za proxy widzi tylko własny port - więc musi go dostać wprost.
+      #
+      # Dwa, bo strona ofertowa i panel mogą stać pod osobnymi adresami: mapa strony ma
+      # wskazywać stronę, a link „ustaw hasło” - panel. Puste = obowiązuje PUBLIC_ORIGIN,
+      # czyli zachowanie sprzed rozdzielenia adresów.
       App__PublicOrigin: ${PUBLIC_ORIGIN:-http://localhost:${WEB_PORT:-8080}}
+      App__SiteOrigin: ${SITE_ORIGIN:-}
+      App__AppOrigin: ${APP_ORIGIN:-}
       BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:?ustaw BOOTSTRAP_ADMIN_EMAIL w .env}
       BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:?ustaw BOOTSTRAP_ADMIN_PASSWORD w .env}
       Backup__RootPath: /app/backups
@@ -55,13 +65,20 @@ services:
         max-size: "10m"
         max-file: "5"
 
-  web:
+  # Publiczna strona ofertowa i system stoją pod osobnymi adresami, więc są to dwa obrazy
+  # zbudowane z tego samego kodu - różni je wyłącznie BUILD_TARGET. Przed nimi na produkcji
+  # stoi reverse proxy z dwoma server_name; lokalnie wystarczą dwa porty.
+  web-site:
     build:
       context: .
       dockerfile: frontend/lesson-runner-web/Dockerfile
       args:
+        BUILD_TARGET: site
         # Puste = ścieżki relatywne obsługiwane przez proxy w nginx.conf.
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+        # Adres tej drugiej części - stąd biorą się odnośniki prowadzące poza pakiet.
+        VITE_SITE_ORIGIN: ${SITE_ORIGIN:-}
+        VITE_APP_ORIGIN: ${APP_ORIGIN:-}
     depends_on:
       # Nie samo „api wystartowało”, tylko „api odpowiada”: nginx rozwiązuje nazwę `api`
       # przy wczytywaniu konfiguracji, a pierwszy start API obejmuje migracje bazy.
@@ -71,6 +88,32 @@ services:
       - "${WEB_PORT:-8080}:80"
     restart: unless-stopped
     # Obraz nginxa jest oparty na Alpine, więc `wget` jest w busyboksie - bez doinstalowywania.
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  web-app:
+    build:
+      context: .
+      dockerfile: frontend/lesson-runner-web/Dockerfile
+      args:
+        BUILD_TARGET: app
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+        VITE_SITE_ORIGIN: ${SITE_ORIGIN:-}
+        VITE_APP_ORIGIN: ${APP_ORIGIN:-}
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${PANEL_PORT:-8081}:80"
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--spider", "--quiet", "http://localhost/"]
       interval: 30s

@@ -1,0 +1,17 @@
+{
+  "name": "lesson-runner-showcase-projects",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "derive:l01-start": "node derive-l01-start.mjs",
+    "derive:l02-start": "node derive-l02-start.mjs",
+    "derive:l09-start": "node derive-l09-start.mjs",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "0.9.12",
+    "adm-zip": "0.6.0",
+    "lzma": "2.3.2"
+  }
+}

@@ -1,0 +1,459 @@
+==============================================================================
+ DIAMENTOWA GORĄCZKA – PEŁNA GRA – wersja końcowa (do tego dążymy)
+ Minecraft Education · MakeCode
+==============================================================================
+
+ DLA NAUCZYCIELA. Cała, działająca gra: silnik i wszystko, co dzieci programują
+ na obu spotkaniach. Do pokazu na początku kursu, jako ratunek dla ucznia
+ i do wysłania po kursie.
+
+ Zapisz go jako: diamentowa-goraczka-pelna-gra.mkcd
+
+ Plik ma DWIE sekcje z tym samym kodem. Użyj TYLKO JEDNEJ z nich:
+   SEKCJA 1 – JavaScript
+   SEKCJA 2 – Python
+
+ Jak zrobić projekt .mkcd dla uczniów:
+   1. Code Builder (C w grze) albo minecraft.makecode.com → MakeCode → Nowy projekt.
+   2. U góry edytora przełącz widok na JavaScript albo Python
+      (ten sam język, co wybrana sekcja).
+   3. Kliknij w edytor, Ctrl+A (zaznacz wszystko), wklej sekcję (Ctrl+V).
+   4. Przełącz widok na Bloki – kod zamieni się w bloczki. Sprawdź, czy nie ma
+      błędów i szarych bloczków.
+   5. Nazwij projekt i zapisz go jako plik .mkcd (nazwa niżej w nagłówku).
+   6. Wgraj .mkcd w aplikacji (Lekcja startowa / Lekcja końcowa) i udostępnij
+      uczniom link. Uczeń: MakeCode → Importuj → Importuj plik → wybiera .mkcd.
+
+ Kopiuj od linii "---- POCZĄTEK ----" do "---- KONIEC ----" (bez tych linii).
+ W Pythonie wcięcia są ważne – nie zmieniaj spacji na początku linii.
+
+ Komendy w grze: hej, start, buduj, wejdz, graj, stop, koniec
+
+
+==============================================================================
+ SEKCJA 1 – JavaScript
+==============================================================================
+---- POCZĄTEK ----
+// ==================================================
+//  SILNIK GRY "DIAMENTOWA GORĄCZKA"
+//  Przygotowany przez nauczyciela. Nie zmieniamy!
+//  Supermoce znajdziesz w kategorii Funkcje.
+// ==================================================
+let punkty = 0
+let rekord = 0
+let czas = 0
+let gra = false
+
+function pioruny () {
+    player.execute("summon lightning_bolt 10 -60 10")
+    loops.pause(300)
+    player.execute("summon lightning_bolt -10 -60 10")
+    loops.pause(300)
+    player.execute("summon lightning_bolt -10 -60 -10")
+    loops.pause(300)
+    player.execute("summon lightning_bolt 10 -60 -10")
+}
+
+function dekoracje () {
+    blocks.fill(SEA_LANTERN, world(-9, -60, -9), world(-9, -52, -9), FillOperation.Replace)
+    blocks.fill(SEA_LANTERN, world(9, -60, -9), world(9, -52, -9), FillOperation.Replace)
+    blocks.fill(SEA_LANTERN, world(-9, -60, 9), world(-9, -52, 9), FillOperation.Replace)
+    blocks.fill(SEA_LANTERN, world(9, -60, 9), world(9, -52, 9), FillOperation.Replace)
+    blocks.fill(GOLD_BLOCK, world(-2, -61, 11), world(2, -61, 15), FillOperation.Replace)
+    // Podłoga kopalni z bedrocka - nie da się przez nią przekopać.
+    blocks.fill(BEDROCK, world(-8, -61, -8), world(8, -61, 8), FillOperation.Replace)
+}
+
+// Kilof, który w trybie przygody niszczy tylko kamień, rudy i TNT - szkła i podłogi nie ruszy.
+function dajKilof () {
+    player.execute("give @p diamond_pickaxe 1 0 {\"minecraft:can_destroy\":{\"blocks\":[\"stone\",\"diamond_ore\",\"gold_ore\",\"emerald_ore\",\"tnt\"]}}")
+}
+
+function odliczanie () {
+    gameplay.title(mobs.target(LOCAL_PLAYER), "§e3", "Przygotuj kilof...")
+    player.execute("playsound note.pling @p ~ ~ ~ 1 0.5")
+    loops.pause(1000)
+    gameplay.title(mobs.target(LOCAL_PLAYER), "§62", "Przygotuj kilof...")
+    player.execute("playsound note.pling @p ~ ~ ~ 1 0.7")
+    loops.pause(1000)
+    gameplay.title(mobs.target(LOCAL_PLAYER), "§c1", "Przygotuj kilof...")
+    player.execute("playsound note.pling @p ~ ~ ~ 1 0.9")
+    loops.pause(1000)
+    gameplay.title(mobs.target(LOCAL_PLAYER), "§a§lSTART!", "Szukaj skarbów!")
+    player.execute("playsound random.levelup @p")
+}
+
+function pokazCzas () {
+    if (czas <= 10) {
+        player.execute("title @p actionbar §c§lCzas: " + czas)
+        player.execute("playsound random.click @p")
+    } else {
+        player.execute("title @p actionbar §eCzas: " + czas)
+    }
+}
+
+function przygotujTablice () {
+    player.execute("scoreboard objectives remove wynik")
+    player.execute("scoreboard objectives add wynik dummy §bPunkty")
+    player.execute("scoreboard objectives setdisplay sidebar wynik")
+    pokazPunkty()
+    zapiszRekord()
+}
+
+function pokazPunkty () {
+    player.execute("scoreboard players set @p wynik " + punkty)
+}
+
+function zapiszRekord () {
+    player.execute("scoreboard players set REKORD wynik " + rekord)
+}
+
+function supermoc () {
+    player.execute("effect @p haste 10 2 true")
+    player.execute("effect @p speed 10 1 true")
+    player.execute("particle minecraft:totem_particle ~ ~1 ~")
+    player.execute("playsound random.totem @p")
+    gameplay.title(mobs.target(LOCAL_PLAYER), "§aSUPERMOC!", "Szybkie kopanie przez 10 s")
+}
+
+function wybuch () {
+    player.execute("particle minecraft:huge_explosion_emitter ~ ~1 ~")
+    player.execute("playsound random.explode @p")
+    player.execute("camerashake add @p 1 1 positional")
+    player.execute("effect @p blindness 3 0 true")
+    gameplay.title(mobs.target(LOCAL_PLAYER), "§cBUM!", "Pułapka!")
+}
+
+function fajerwerki () {
+    for (let i = 0; i < 10; i++) {
+        player.execute("particle minecraft:huge_explosion_emitter " + randint(-7, 7) + " -48 " + randint(-7, 7))
+        player.execute("particle minecraft:totem_particle " + randint(-7, 7) + " -50 " + randint(-7, 7))
+        player.execute("summon fireworks_rocket " + randint(-7, 7) + " -55 " + randint(-7, 7))
+        player.execute("playsound firework.large_blast @p")
+        loops.pause(300)
+    }
+    player.execute("playsound firework.twinkle @p")
+}
+
+// ===== KOD UCZNIA – po spotkaniu 1 =====
+function zbudujKopalnie () {
+    blocks.fill(GLASS, world(-8, -61, -8), world(8, -54, 8), FillOperation.Hollow)
+    blocks.fill(AIR, world(-7, -54, -7), world(7, -54, 7), FillOperation.Replace)
+    dekoracje()
+    for (let index = 0; index <= 3; index++) {
+        blocks.fill(STONE, world(-7, -60 + index, -7), world(7, -60 + index, 7), FillOperation.Replace)
+        player.execute("playsound dig.stone @p")
+        loops.pause(400)
+    }
+}
+function ukryjSkarby () {
+    for (let index = 0; index < 10; index++) {
+        blocks.place(DIAMOND_ORE, world(randint(-7, 7), randint(-60, -57), randint(-7, 7)))
+    }
+    for (let index = 0; index < 3; index++) {
+        blocks.place(GOLD_ORE, world(randint(-7, 7), randint(-60, -57), randint(-7, 7)))
+    }
+    for (let index = 0; index < 2; index++) {
+        blocks.place(EMERALD_ORE, world(randint(-7, 7), randint(-60, -57), randint(-7, 7)))
+    }
+    for (let index = 0; index < 4; index++) {
+        blocks.place(TNT, world(randint(-7, 7), randint(-60, -57), randint(-7, 7)))
+    }
+}
+player.onChat("hej", function () {
+    player.say("Witaj w mojej grze!")
+})
+player.onChat("start", function () {
+    player.teleport(world(0, -60, 13))
+    pioruny()
+    player.execute("playsound mob.enderdragon.growl @p")
+    gameplay.title(mobs.target(LOCAL_PLAYER), "DIAMENTOWA GORĄCZKA", "moja gra")
+})
+player.onChat("buduj", function () {
+    player.teleport(world(0, -60, 13))
+    zbudujKopalnie()
+    ukryjSkarby()
+})
+player.onChat("wejdz", function () {
+    player.teleport(world(0, -56, 0))
+})
+
+// ===== KOD UCZNIA – dopisane na spotkaniu 2 =====
+przygotujTablice()
+
+blocks.onBlockBroken(DIAMOND_ORE, function () {
+    if (gra) {
+        punkty += 1
+        pokazPunkty()
+        player.execute("playsound random.orb @p")
+    }
+})
+blocks.onBlockBroken(GOLD_ORE, function () {
+    if (gra) {
+        punkty += 3
+        pokazPunkty()
+        player.execute("playsound random.levelup @p")
+    }
+})
+blocks.onBlockBroken(EMERALD_ORE, function () {
+    supermoc()
+})
+blocks.onBlockBroken(TNT, function () {
+    if (gra) {
+        punkty += -2
+        pokazPunkty()
+        wybuch()
+    }
+})
+player.onChat("stop", function () {
+    czas = 0
+})
+player.onChat("koniec", function () {
+    czas = 0
+})
+player.onChat("graj", function () {
+    if (gra) {
+        player.say("Gra już trwa!")
+    } else {
+        punkty = 0
+        czas = 60
+        pokazPunkty()
+        player.teleport(world(0, -60, 13))
+        zbudujKopalnie()
+        ukryjSkarby()
+        player.execute("kill @e[type=item]")
+        player.execute("clear @p")
+        player.teleport(world(0, -56, 0))
+        odliczanie()
+        dajKilof()
+        gameplay.setGameMode(ADVENTURE, mobs.target(LOCAL_PLAYER))
+        gra = true
+        while (czas > 0) {
+            pokazCzas()
+            loops.pause(1000)
+            czas += -1
+        }
+        gra = false
+        gameplay.setGameMode(CREATIVE, mobs.target(LOCAL_PLAYER))
+        player.teleport(world(0, -60, 13))
+        gameplay.title(mobs.target(LOCAL_PLAYER), "KONIEC!", "Punkty: " + punkty)
+        fajerwerki()
+        if (punkty > rekord) {
+            rekord = punkty
+            zapiszRekord()
+            gameplay.title(mobs.target(LOCAL_PLAYER), "§6NOWY REKORD!", "" + rekord)
+            player.execute("playsound ui.toast.challenge_complete @p")
+        }
+    }
+})
+---- KONIEC ----
+
+
+==============================================================================
+ SEKCJA 2 – Python
+==============================================================================
+---- POCZĄTEK ----
+# ==================================================
+#  SILNIK GRY "DIAMENTOWA GORĄCZKA"
+#  Przygotowany przez nauczyciela. Nie zmieniamy!
+#  Supermoce znajdziesz w kategorii Funkcje.
+# ==================================================
+punkty = 0
+rekord = 0
+czas = 0
+gra = False
+
+def pioruny():
+    player.execute("summon lightning_bolt 10 -60 10")
+    loops.pause(300)
+    player.execute("summon lightning_bolt -10 -60 10")
+    loops.pause(300)
+    player.execute("summon lightning_bolt -10 -60 -10")
+    loops.pause(300)
+    player.execute("summon lightning_bolt 10 -60 -10")
+
+def dekoracje():
+    blocks.fill(SEA_LANTERN, world(-9, -60, -9), world(-9, -52, -9), FillOperation.REPLACE)
+    blocks.fill(SEA_LANTERN, world(9, -60, -9), world(9, -52, -9), FillOperation.REPLACE)
+    blocks.fill(SEA_LANTERN, world(-9, -60, 9), world(-9, -52, 9), FillOperation.REPLACE)
+    blocks.fill(SEA_LANTERN, world(9, -60, 9), world(9, -52, 9), FillOperation.REPLACE)
+    blocks.fill(GOLD_BLOCK, world(-2, -61, 11), world(2, -61, 15), FillOperation.REPLACE)
+    # Podłoga kopalni z bedrocka - nie da się przez nią przekopać.
+    blocks.fill(BEDROCK, world(-8, -61, -8), world(8, -61, 8), FillOperation.REPLACE)
+
+# Kilof, który w trybie przygody niszczy tylko kamień, rudy i TNT - szkła i podłogi nie ruszy.
+def dajKilof():
+    player.execute("give @p diamond_pickaxe 1 0 {\"minecraft:can_destroy\":{\"blocks\":[\"stone\",\"diamond_ore\",\"gold_ore\",\"emerald_ore\",\"tnt\"]}}")
+
+def odliczanie():
+    gameplay.title(mobs.target(LOCAL_PLAYER), "§e3", "Przygotuj kilof...")
+    player.execute("playsound note.pling @p ~ ~ ~ 1 0.5")
+    loops.pause(1000)
+    gameplay.title(mobs.target(LOCAL_PLAYER), "§62", "Przygotuj kilof...")
+    player.execute("playsound note.pling @p ~ ~ ~ 1 0.7")
+    loops.pause(1000)
+    gameplay.title(mobs.target(LOCAL_PLAYER), "§c1", "Przygotuj kilof...")
+    player.execute("playsound note.pling @p ~ ~ ~ 1 0.9")
+    loops.pause(1000)
+    gameplay.title(mobs.target(LOCAL_PLAYER), "§a§lSTART!", "Szukaj skarbów!")
+    player.execute("playsound random.levelup @p")
+
+def pokazCzas():
+    if czas <= 10:
+        player.execute("title @p actionbar §c§lCzas: " + str(czas))
+        player.execute("playsound random.click @p")
+    else:
+        player.execute("title @p actionbar §eCzas: " + str(czas))
+
+def przygotujTablice():
+    player.execute("scoreboard objectives remove wynik")
+    player.execute("scoreboard objectives add wynik dummy §bPunkty")
+    player.execute("scoreboard objectives setdisplay sidebar wynik")
+    pokazPunkty()
+    zapiszRekord()
+
+def pokazPunkty():
+    player.execute("scoreboard players set @p wynik " + str(punkty))
+
+def zapiszRekord():
+    player.execute("scoreboard players set REKORD wynik " + str(rekord))
+
+def supermoc():
+    player.execute("effect @p haste 10 2 true")
+    player.execute("effect @p speed 10 1 true")
+    player.execute("particle minecraft:totem_particle ~ ~1 ~")
+    player.execute("playsound random.totem @p")
+    gameplay.title(mobs.target(LOCAL_PLAYER), "§aSUPERMOC!", "Szybkie kopanie przez 10 s")
+
+def wybuch():
+    player.execute("particle minecraft:huge_explosion_emitter ~ ~1 ~")
+    player.execute("playsound random.explode @p")
+    player.execute("camerashake add @p 1 1 positional")
+    player.execute("effect @p blindness 3 0 true")
+    gameplay.title(mobs.target(LOCAL_PLAYER), "§cBUM!", "Pułapka!")
+
+def fajerwerki():
+    for i in range(10):
+        player.execute("particle minecraft:huge_explosion_emitter " + str(randint(-7, 7)) + " -48 " + str(randint(-7, 7)))
+        player.execute("particle minecraft:totem_particle " + str(randint(-7, 7)) + " -50 " + str(randint(-7, 7)))
+        player.execute("summon fireworks_rocket " + str(randint(-7, 7)) + " -55 " + str(randint(-7, 7)))
+        player.execute("playsound firework.large_blast @p")
+        loops.pause(300)
+    player.execute("playsound firework.twinkle @p")
+
+# ===== KOD UCZNIA – spotkanie 1 =====
+def zbudujKopalnie():
+    blocks.fill(GLASS, world(-8, -61, -8), world(8, -54, 8), FillOperation.HOLLOW)
+    blocks.fill(AIR, world(-7, -54, -7), world(7, -54, 7), FillOperation.REPLACE)
+    dekoracje()
+    for index in range(4):
+        blocks.fill(STONE, world(-7, -60 + index, -7), world(7, -60 + index, 7), FillOperation.REPLACE)
+        player.execute("playsound dig.stone @p")
+        loops.pause(400)
+
+def ukryjSkarby():
+    for index2 in range(10):
+        blocks.place(DIAMOND_ORE, world(randint(-7, 7), randint(-60, -57), randint(-7, 7)))
+    for index3 in range(3):
+        blocks.place(GOLD_ORE, world(randint(-7, 7), randint(-60, -57), randint(-7, 7)))
+    for index4 in range(2):
+        blocks.place(EMERALD_ORE, world(randint(-7, 7), randint(-60, -57), randint(-7, 7)))
+    for index5 in range(4):
+        blocks.place(TNT, world(randint(-7, 7), randint(-60, -57), randint(-7, 7)))
+
+def on_hej():
+    player.say("Witaj w mojej grze!")
+player.on_chat("hej", on_hej)
+
+def on_start():
+    player.teleport(world(0, -60, 13))
+    pioruny()
+    player.execute("playsound mob.enderdragon.growl @p")
+    gameplay.title(mobs.target(LOCAL_PLAYER), "DIAMENTOWA GORĄCZKA", "moja gra")
+player.on_chat("start", on_start)
+
+def on_buduj():
+    player.teleport(world(0, -60, 13))
+    zbudujKopalnie()
+    ukryjSkarby()
+player.on_chat("buduj", on_buduj)
+
+def on_wejdz():
+    player.teleport(world(0, -56, 0))
+player.on_chat("wejdz", on_wejdz)
+
+# ===== KOD UCZNIA – spotkanie 2 =====
+def on_diament():
+    global punkty
+    if gra:
+        punkty += 1
+        pokazPunkty()
+        player.execute("playsound random.orb @p")
+blocks.on_block_broken(DIAMOND_ORE, on_diament)
+
+def on_zloto():
+    global punkty
+    if gra:
+        punkty += 3
+        pokazPunkty()
+        player.execute("playsound random.levelup @p")
+blocks.on_block_broken(GOLD_ORE, on_zloto)
+
+def on_szmaragd():
+    supermoc()
+blocks.on_block_broken(EMERALD_ORE, on_szmaragd)
+
+def on_tnt():
+    global punkty
+    if gra:
+        punkty += -2
+        pokazPunkty()
+        wybuch()
+blocks.on_block_broken(TNT, on_tnt)
+
+def on_stop():
+    global czas
+    czas = 0
+player.on_chat("stop", on_stop)
+
+def on_koniec():
+    global czas
+    czas = 0
+player.on_chat("koniec", on_koniec)
+
+def on_graj():
+    global punkty, czas, gra, rekord
+    if gra:
+        player.say("Gra już trwa!")
+    else:
+        punkty = 0
+        czas = 60
+        pokazPunkty()
+        player.teleport(world(0, -60, 13))
+        zbudujKopalnie()
+        ukryjSkarby()
+        player.execute("kill @e[type=item]")
+        player.execute("clear @p")
+        player.teleport(world(0, -56, 0))
+        odliczanie()
+        dajKilof()
+        gameplay.set_game_mode(ADVENTURE, mobs.target(LOCAL_PLAYER))
+        gra = True
+        while czas > 0:
+            pokazCzas()
+            loops.pause(1000)
+            czas += -1
+        gra = False
+        gameplay.set_game_mode(CREATIVE, mobs.target(LOCAL_PLAYER))
+        player.teleport(world(0, -60, 13))
+        gameplay.title(mobs.target(LOCAL_PLAYER), "KONIEC!", "Punkty: " + str(punkty))
+        fajerwerki()
+        if punkty > rekord:
+            rekord = punkty
+            zapiszRekord()
+            gameplay.title(mobs.target(LOCAL_PLAYER), "§6NOWY REKORD!", "" + str(rekord))
+            player.execute("playsound ui.toast.challenge_complete @p")
+player.on_chat("graj", on_graj)
+
+przygotujTablice()
+---- KONIEC ----

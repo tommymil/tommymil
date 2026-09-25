@@ -32,3 +32,6 @@ dist/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Archiwa (rozpakowana treść jest w repozytorium)
+*.7z

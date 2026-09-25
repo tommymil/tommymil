@@ -1,6 +1,53 @@
 # Lesson Runner — aktualny stan projektu
 
-Ostatnia aktualizacja: 28.08.2026
+Ostatnia aktualizacja: 03.09.2026
+
+## Zmiany z 03.09.2026 — publiczna strona i wejście do lejka
+
+Zamknięty punkt 3 z listy „Do wykonania — przepływy użytkownika”: moduł lekcji próbnych był
+gotowy, ale **nie miał wejścia od strony klienta**. W całym API istniał jeden endpoint
+anonimowy (logowanie i reset hasła), a `/api/trials` jest `AdminOnly`, więc zgłoszenie
+z telefonu albo maila ktoś przepisywał ręcznie.
+
+**Co powstało**
+
+1. **Strona ofertowa zaKODOWANi pod `/`** — strona główna, cztery podstrony kursów pod
+   wyszukiwarkę, kontakt, polityka prywatności i regulamin, mapa strony i `robots.txt`.
+   Ekran logowania przeniósł się na `/login`; strażnicy ról i wylogowanie prowadzą tam.
+   Wygląd powstał z makiety `Strona zajęć programowania dla dzieci` (eksport artefaktu):
+   przepisany na React i CSS, bez silnika makiety.
+2. **Publiczny formularz zapisu** (`POST /api/site/trial-requests`) zakłada `TrialLesson`
+   ze statusem `Requested` i kanałem `strona-www` — czyli zgłoszenie trafia na tę samą
+   listę, na której administracja umawia terminy. Wymagana zgoda, pole-pułapka i limit
+   5 zgłoszeń na 10 minut z adresu IP. Po zgłoszeniu wychodzi potwierdzenie do rodzica
+   i sygnał do administratorów; **błąd poczty nie kosztuje zgłoszenia** — jest zapisane
+   wcześniej, a nieudana wysyłka zostaje w dzienniku powiadomień.
+3. **Treść strony w bazie, edytowana w panelu** (*Administracja → Strona internetowa*).
+   Jeden dokument JSON w tabeli `SiteContents`, tym samym wzorcem co konspekt lekcji.
+   Świeża instalacja nie ma tego wiersza — do pierwszego zapisu strona renderuje się
+   z treści startowej w kodzie.
+4. **Podział kodu na pakiety** — zamyka punkt 9 długu technicznego. Wejściowy pakiet zszedł
+   z 664 kB do 300 kB (95 kB po gzipie); ekrany panelu, portalu i strony ładują się osobno.
+   Bez tego rodzic czytający cennik pobierałby edytor konspektów i moduł rozliczeń.
+
+**Czego świadomie nie ma w treści startowej**
+
+Makieta obiecywała „500+ zakodowanych dzieciaków”, ocenę 4.9/5, działalność od 2021 roku,
+cenę „od 59 zł” i trzy opinie rodziców — wszystko wymyślone przez model, który ją wygenerował.
+Nic z tego nie weszło. Sekcja opinii jest wyłączona i pusta: publikowanie wymyślonych opinii
+i ocen jest nieuczciwą praktyką rynkową, a nie marketingiem. Puste zostały też adres e-mail,
+telefon i cena zajęć grupowych, a dokumenty prawne są szkieletami z fragmentami w nawiasach
+kwadratowych. **Puste pole znaczy „sekcja się nie pokaże”**, a nie „pokaże się z zaślepką” —
+karta cennika bez ceny wypada z odpowiedzi dla klienta. Panel liczy z dokumentu listę
+do uzupełnienia przed premierą i pokazuje ją nad zakładkami.
+
+Jedna poprawka merytoryczna wobec makiety: **czas trwania zajęć**. Makieta obiecywała lekcję
+60-minutową, a standardowy konspekt w tym systemie ma dokładnie 95 minut (45 + 5 przerwy + 45);
+60 minut trwa lekcja pokazowa. Teksty startowe podają wartości z reguł importu konspektów,
+a pilnuje tego test — inaczej rodzic kupowałby co innego, niż wchodzi mu do kalendarza.
+
+**Czego to nie zmienia:** ani jednej reguły w module lekcji próbnych, grafiku, rozliczeniach
+i portalu rodzica. Doszło wejście do lejka, nie nowy lejek.
 
 ## Zmiany z 28.08.2026 — przegląd przed wdrożeniem produkcyjnym
 
@@ -139,9 +186,13 @@ Aplikacja do prowadzenia zajęć programowania dla dzieci — online i stacjonar
 | `Admin` | wszystko: konspekty, kursy, grupy, uczestnicy, płatności, konta, powiadomienia, audyt, backup | `/admin/dashboard` |
 | `Instructor` | wyłącznie swoje grupy i terminy (w tym zastępstwa), konspekty, kokpit prowadzenia | `/instructor/schedule` |
 | `Parent` | wyłącznie dane powiązanych dzieci: harmonogram, link do zajęć, frekwencja, rozliczenia | `/parent/portal` |
+| bez konta | publiczna strona: oferta, cennik, FAQ, dokumenty prawne, formularz zapisu | `/` |
 
 **Obszary funkcjonalne**
 
+- Publiczna strona: oferta, podstrony kursów pod wyszukiwarkę, cennik, FAQ, dokumenty prawne
+  i formularz zapisu na bezpłatną lekcję próbną. Treść edytowana w panelu, zgłoszenia wpadają
+  na listę lekcji próbnych.
 - Konspekty: edytor, import z Markdown, upload obrazów/PDF/paczek projektów, cykl Draft → Review → Ready.
 - Materiały personelu: wspólna biblioteka plików i linków z widocznością tylko dla administracji
   albo dla administracji i instruktorów.
@@ -295,7 +346,7 @@ Kod trzyma się 95 — `CalendarExport.DefaultDurationMinutes` i lint importu.
 | Wymaganie | Stan |
 |---|---|
 | Cenniki, zapisy rozliczeniowe, faktury, wpłaty | ✅ |
-| Okres próbny | ⚠️ status `Trial`, bez logiki pakietu |
+| Okres próbny | ⚠️ blokuje fakturę do `TrialEndsAt` włącznie, potem zapis gaśnie na „Aktywny”; bez logiki pakietu |
 | **Kredyty zajęciowe** (`LessonCredit`) | ❌ — dokument stawia je w centrum rozliczeń |
 | Pakiet N zajęć, dołączenie/rezygnacja w połowie miesiąca, zawieszenie, rabat rodzeństwa | ❌ |
 | Nadpłata, zwrot, reklamacja płatności | ❌ |
@@ -1121,7 +1172,7 @@ dokumentu koncepcyjnego (historia terminów, obecności, log powiadomień, histo
      tokenów na godzinę per konto — inaczej z wielu adresów dałoby się zasypać jedną skrzynkę.
    - Ważność: 2 h dla resetu, 7 dni dla zaproszenia. Reset to akcja w toku, zaproszenie czeka,
      aż rodzic zajrzy do skrzynki.
-   - **Adres linku pochodzi z konfiguracji (`App:PublicOrigin`), nie z nagłówka `Host`.**
+   - **Adres linku pochodzi z konfiguracji (`App:AppOrigin`), nie z nagłówka `Host`.**
      Host podlega podmianie przez klienta, więc link w mailu prowadziłby pod adres atakującego.
 10. ~~**Zgłaszanie nieobecności przez rodzica**~~ — ✅ **zrobione 27.07.2026.**
     Przy każdym nadchodzącym terminie w portalu jest przycisk „Zgłoś nieobecność” (z opcjonalnym
@@ -1271,14 +1322,14 @@ akcje zapisu: zgłoszenie nieobecności i zgoda na wizerunek. Reszta to odczyt.
 2. **Ekran projektów dla instruktora.** Zakładka „Materiały” w portalu rodzica będzie u większości
    dzieci pusta, bo projekty zakłada się dziś przez API. Pusta zakładka jest gorsza niż jej brak.
    API i portal gotowe — brakuje wyłącznie UI.
-3. **Publiczny formularz lekcji próbnej.** W całym API jest jeden endpoint anonimowy;
-   `/api/trials` to `AdminOnly`. Dokument koncepcyjny mówi „dziecko zgłasza się samo”, a w praktyce
-   ktoś przepisuje dane z telefonu albo maila. Moduł próbny jest gotowy, brakuje mu wejścia.
+3. ~~**Publiczny formularz lekcji próbnej.**~~ **Zrobione 03.09.2026** — `POST /api/site/trial-requests`
+   zakłada zgłoszenie ze statusem `Requested` i kanałem `strona-www`, razem z publiczną stroną
+   pod `/`. Szczegóły w sekcji „Zmiany z 03.09.2026”.
 4. **Kanał zwrotny rodzic → szkoła** (encja `Message`). Ostatni punkt MVP. Log wysyłek dowodzi
    tylko tego, co **wysłaliśmy**; przy sporze „przecież ustaliliśmy inaczej” nie ma czym się bronić.
 
-Przy okazji: frontend to jeden chunk 617 kB, więc rodzic na telefonie pobiera całą aplikację
-administracyjną, żeby sprawdzić godzinę zajęć (p. 9 długu technicznego).
+Przy okazji nieaktualne: podział kodu wszedł 03.09.2026, więc rodzic nie pobiera już całej
+aplikacji administracyjnej, żeby sprawdzić godzinę zajęć (p. 9 długu technicznego).
 
 ## Otwarty dług techniczny
 
@@ -1318,9 +1369,10 @@ rodziny. Kolejność wg tego, co najszybciej zaboli.
    została zamknięta 28.08; ten punkt jest ostatnim, który został.
 8. **Trzy z czterech miejsc z `DateTimeOffset` w zapytaniach nadal bez testu.** Wykryło je
    przeszukanie kodu, nie zestaw testowy — czyli ta sama klasa błędu może wrócić niezauważona.
-9. **Frontend to jeden chunk 633 kB** (176 kB gzip), bez podziału kodu. Rodzic na telefonie
-   pobiera całą aplikację administracyjną, żeby zobaczyć godzinę zajęć. Od 28.08 nginx
-   kompresuje i cache'uje ten plik na rok, co łagodzi skutki, ale nie usuwa przyczyny.
+9. ~~**Frontend to jeden chunk 633 kB**~~ **Zamknięte 03.09.2026.** Trasy ładują się leniwie,
+   każdy ekran jako osobny pakiet. Wejściowy pakiet to 300 kB (95 kB gzip) — React, router
+   i konteksty, czyli to, czego potrzebuje każda strona. Publiczna strona dokłada do tego
+   ok. 5 kB po gzipie, panel schodzi do własnych pakietów.
 10. **`CS8602` w `ProgressServiceTests.cs:161`** — jedyne ostrzeżenie kompilatora.
 
 ### Decyzje odłożone, nie długi
@@ -1332,6 +1384,21 @@ rodziny. Kolejność wg tego, co najszybciej zaboli.
 
 ## Przed uruchomieniem produkcyjnym
 
+- [ ] **Treść publicznej strony uzupełniona.** Panel: *Administracja → Strona internetowa*
+      pokazuje listę braków wyliczoną z dokumentu. Dopóki cokolwiek na niej jest, strona nie
+      nadaje się do pokazania klientowi — brakuje adresu kontaktowego, ceny zajęć grupowych
+      albo treści dokumentów prawnych.
+- [ ] **Polityka prywatności i regulamin wypełnione.** W treści startowej są szkielety
+      z fragmentami w nawiasach kwadratowych. Formularz zbiera dane dziecka, więc dokumenty
+      muszą być gotowe, **zanim** strona stanie się publiczna. To samo dotyczy zgody pod
+      formularzem, która ma w tym miejscu `[NAZWA FIRMY]`.
+- [ ] `SITE_ORIGIN` i `APP_ORIGIN` ustawione na docelowe adresy. Idą w trzy miejsca naraz:
+      backend buduje z nich `/sitemap.xml` (strona) oraz link „ustaw hasło” i link do
+      zgłoszenia w panelu (system), wchodzą na listę dozwolonych originów CORS, a przy
+      budowaniu trafiają do obu pakietów frontendu jako `VITE_SITE_ORIGIN` /
+      `VITE_APP_ORIGIN` — stamtąd biorą się odnośniki prowadzące z jednej części do drugiej.
+      Po rozdzieleniu pakietów **obie są wymagane**: strona i panel to osobne aplikacje
+      i nie da się ich postawić pod jednym adresem.
 - [ ] `docker compose build` na maszynie docelowej — jedyna warstwa, której nie pokrywa
       ani CI, ani test świeżego klonu z 13.08. Od 28.08 obejmuje też sprawdzenie, czy
       aplikacja bez uprawnień roota (`USER app`) zapisuje bazę, uploady i kopie zapasowe,

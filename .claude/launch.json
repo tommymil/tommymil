@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "api",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "backend/LessonRunner.Api",
+        "--urls",
+        "http://localhost:5000"
+      ],
+      "port": 5000
+    },
+    {
+      "name": "web-site",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "frontend/lesson-runner-web"],
+      "port": 5173
+    },
+    {
+      "name": "web-app",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:app", "--prefix", "frontend/lesson-runner-web"],
+      "port": 5174
+    }
+  ]
+}
